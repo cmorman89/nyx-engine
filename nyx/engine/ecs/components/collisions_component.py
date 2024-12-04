@@ -1,0 +1,1 @@
+"""CollisionComponent: Defines collision boundaries and response types."""
