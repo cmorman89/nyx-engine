@@ -1,1 +1,0 @@
-"""AnimationComponent: Stores animation state and frames."""

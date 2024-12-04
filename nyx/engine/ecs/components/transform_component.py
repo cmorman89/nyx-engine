@@ -1,1 +1,0 @@
-"""TransformComponent: Holds position, rotation, and scale information."""
