@@ -5,8 +5,6 @@ from uuid import UUID, uuid4
 from nyx.ecs.component.tile_component import NyxComponent
 
 
-
-
 class NyxEntity:
     """Provide a globally unique ID to act as a reference for a Nyx object, which is a container of components within the
     `NyxEntityManager`
@@ -37,16 +35,11 @@ class NyxEntity:
             component (NyxComponent): The `NyxComponent`-type to register to this reference ID.
         """
         self.manager.add_component(self, component)
+        return self
 
-    def get_component(
-        self, component_type: Type["NyxComponent"]
-    ) -> Optional["NyxComponent"]:
-        """Get the component(s) registered to this entity.
-
-        Methods:
-            component_type (Type[NyxComponent]): The class reference of the type of component to get.
-        """
-        return self.manager.get_component(self, component_type)
+    def get_components(self) -> Optional["NyxComponent"]:
+        """Get the component(s) registered to this entity."""
+        return self.manager.get_components(entity=self)
 
     def __eq__(self, other):
         """Check for equality by comparing UUIDs"""
@@ -73,7 +66,7 @@ class NyxEntityManager:
     """
 
     def __init__(self):
-        """Initiliaze"""
+        """Initiliaze the entity manager with an empty entities list and empty components dictionary."""
         self.entities: list[NyxEntity] = []
         self.components: Dict[UUID, Dict[str, "NyxComponent"]] = {}
 
@@ -86,7 +79,7 @@ class NyxEntityManager:
         Returns:
             NyxEntity: the entity object/reference.
         """
-        entity = NyxEntity()
+        entity = NyxEntity(name=name, manager=self)
         self.entities.append(entity)
         self.components[entity.entity_id] = {}
         return entity
@@ -100,7 +93,7 @@ class NyxEntityManager:
         """
         self.components[entity.entity_id][type(component).__name__] = component
 
-    def get_component(self, entity: NyxEntity) -> Optional[NyxComponent]:
+    def get_components(self, entity: NyxEntity) -> Optional[NyxComponent]:
         """Get the component(s) registered to an entity in this manager.
 
         Args:
@@ -110,4 +103,3 @@ class NyxEntityManager:
             Optional[NyxComponent]: The NyxComponent retrieved for this entity.
         """
         return self.components.get(entity.entity_id, {})
-    
