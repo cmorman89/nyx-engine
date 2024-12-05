@@ -19,6 +19,16 @@ class GraphicComponent(NyxComponent):
         self.graphic = graphic
 
 
+class TileSetComponent(NyxComponent):
+    def __init__(self, tile_dimension: int = 16):
+        self.tiles = {}
+        self.tile_dimension = (
+            tile_dimension
+            if isinstance(tile_dimension, int) and tile_dimension > 0
+            else 16
+        )
+
+
 class TileMapComponent(NyxComponent):
     def __init__(self, tilemap: np.ndarray, tile_width: int = 1, tile_height: int = 1):
         if not isinstance(tilemap, np.ndarray) or tilemap.dtype != np.uint8:
