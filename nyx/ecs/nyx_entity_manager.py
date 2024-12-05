@@ -1,5 +1,5 @@
 from ast import Dict
-from typing import Optional, Type
+from typing import Optional
 from uuid import UUID, uuid4
 
 from nyx.ecs.component.tile_component import NyxComponent
@@ -66,7 +66,7 @@ class NyxEntityManager:
     """
 
     def __init__(self):
-        """Initiliaze the entity manager with an empty entities list and empty components dictionary."""
+        """Initialize the entity manager with an empty entities list and empty components dictionary."""
         self.entities: list[NyxEntity] = []
         self.components: Dict[UUID, Dict[str, "NyxComponent"]] = {}
 

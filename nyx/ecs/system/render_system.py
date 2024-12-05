@@ -1,18 +1,22 @@
 import os
+import time
 import numpy as np
-from nyx.ecs.component.tile_component import GraphicComponent, TransformComponent
 from nyx.ecs.nyx_entity_manager import NyxEntityManager
+from nyx.ecs.system.nyx_system_base import NyxSystem
 
 
-class RenderSystem:
+class RenderSystem(NyxSystem):
     def __init__(
         self,
+        manager: NyxEntityManager,
         terminal_width: int = 0,
         terminal_height: int = 0,
         view_width: int = 0,
         view_height: int = 0,
     ):
         """Initialize the rendering system with view and terminal size. The view defaults to the terminal size if not provided."""
+
+        super().__init__(manager)
         terminal_size = RenderSystem.get_terminal_dimensions()
         self.terminal_width = (
             terminal_width if terminal_width > 0 else terminal_size.columns
@@ -23,7 +27,8 @@ class RenderSystem:
         self.view_width = view_width if view_width > 0 else terminal_width
         self.view_height = view_height if view_height > 0 else terminal_height
 
-    def render(self, entity_manager: NyxEntityManager):
+    def render(self):
+        entity_manager = self.manager
         buffer = np.zeros((self.view_height, self.view_width), dtype=np.uint8)
         RenderSystem.clear_terminal()
         for entity in entity_manager.entities:
@@ -44,7 +49,8 @@ class RenderSystem:
         RenderSystem.cursor_to_origin()
         for row in buffer:
             for color in row:
-                print(f"\033[48;5;{color}m \033[0m", end="")
+                print(f"\033[48;5;{color}m \033[0m", end="", flush=True)
+                time.sleep(0.005)
             print()
 
     @staticmethod
