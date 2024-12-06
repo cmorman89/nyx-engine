@@ -12,7 +12,6 @@ import os
 import sys
 from typing import Tuple
 
-# import time
 import numpy as np
 from nyx.ecs.nyx_entity_manager import NyxEntityManager
 from nyx.ecs.system.nyx_system_base import NyxSystem
@@ -60,26 +59,18 @@ class RenderSystem(NyxSystem):
                 buffer[y : y + h, x : x + w] = graphic_array
             self._preframe_actions()
             self._draw_buffer(buffer=buffer)
-            self._postframe_actions()
 
     def _draw_buffer(self, buffer: np.ndarray):
+        # Generate an empty array of correct dtype and one extra column.
         row, cols = buffer.shape
-        print(buffer)
-        # Make
         rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
-        rasterized_buffer[:, :-1] = self._ansi_table[buffer]
+        # Fill the new column with new line chars.
         rasterized_buffer[:, -1] = "\n"
+        # Map buffer of ints to pre-generated, ANSI-formatted strings.
+        rasterized_buffer[:, :-1] = self._ansi_table[buffer]
+        # Write to the terminal.
         sys.stdout.write("".join(rasterized_buffer.ravel()) + "\033[0m\n")
         sys.stdout.flush()
-        # for row in buffer:
-        #     for color in row:
-        #         output = f"\033[38;5;{color}m█" if color > 0 else " "
-        #         # Uncomment for production:
-        #         print(output, end="")
-        #         # Uncomment for debug:
-        #         # print(output, end="", flush=True)
-        #         # time.sleep(0.001)
-        #     print("\033[0m", end="\n")
 
     def _initialize_terminal(self, clear_term: bool = True):
         self._ansi_table = (
@@ -92,9 +83,6 @@ class RenderSystem(NyxSystem):
 
     def _preframe_actions(self):
         RenderSystem.cursor_to_origin()
-
-    def _postframe_actions(self):
-        pass
 
     def _precompute_ansi_table(self, low_high_vals: Tuple[int, int] = (0, 255)):
         ansi_range = range(low_high_vals[0], low_high_vals[1] + 1)
