@@ -1,5 +1,17 @@
+"""
+Render System Module
+
+Rendering system to take a GraphicalComponent and print it to the terminal.
+
+Note:
+    - Chars to use: [ █ , ▀ , ▄ ]
+    - This will likely split into the basic rendering system that then feeds into the larger terminal graphics rendering api
+"""
+
 import os
-import time
+from typing import Tuple
+
+# import time
 import numpy as np
 from nyx.ecs.nyx_entity_manager import NyxEntityManager
 from nyx.ecs.system.nyx_system_base import NyxSystem
@@ -24,13 +36,15 @@ class RenderSystem(NyxSystem):
         self.terminal_height = (
             terminal_height if terminal_height > 0 else terminal_size.lines
         )
-        self.view_width = view_width if view_width > 0 else terminal_width
-        self.view_height = view_height if view_height > 0 else terminal_height
+        self.view_width = view_width if view_width > 0 else self.terminal_width
+        self.view_height = view_height if view_height > 0 else self.terminal_height
+        self._ansi_table: np.ndarray = self._precompute_ansi_table()
 
-    def render(self):
+    def render(self, clear_term: bool = True):
+        """Render the entity to the terminal."""
         entity_manager = self.manager
         buffer = np.zeros((self.view_height, self.view_width), dtype=np.uint8)
-        RenderSystem.clear_terminal()
+        self._initialize_terminal(clear_term=clear_term)
         for entity in entity_manager.entities:
             components = entity.get_components()
             transform_comp = components.get("TransformComponent")
@@ -38,20 +52,50 @@ class RenderSystem(NyxSystem):
 
             if transform_comp and graphic_comp:
                 x, y = transform_comp.x, transform_comp.y
-                graphic_array = graphic_comp.graphic
+                graphic_array = np.repeat(graphic_comp.graphic, 3, axis=1)
 
                 h, w = graphic_array.shape
 
                 buffer[y : y + h, x : x + w] = graphic_array
+            self._initialize_frame()
             self._draw_buffer(buffer=buffer)
 
     def _draw_buffer(self, buffer: np.ndarray):
+        row, cols = buffer.shape
+        print(buffer)
+        # Make
+        rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
+        rasterized_buffer[:, :-1] = self._ansi_table[buffer]
+        rasterized_buffer[:, -1] = "\n"
+        print("".join(rasterized_buffer.ravel()))
+        # for row in buffer:
+        #     for color in row:
+        #         output = f"\033[38;5;{color}m█" if color > 0 else " "
+        #         # Uncomment for production:
+        #         print(output, end="")
+        #         # Uncomment for debug:
+        #         # print(output, end="", flush=True)
+        #         # time.sleep(0.001)
+        #     print("\033[0m", end="\n")
+
+    def _initialize_terminal(self, clear_term: bool = True):
+        self._ansi_table = (
+            self._precompute_ansi_table()
+            if self._ansi_table is not None
+            else self._ansi_table
+        )
+        if clear_term:
+            RenderSystem.clear_terminal()
+
+    def _initialize_frame(self):
         RenderSystem.cursor_to_origin()
-        for row in buffer:
-            for color in row:
-                print(f"\033[48;5;{color}m \033[0m", end="", flush=True)
-                time.sleep(0.005)
-            print()
+
+    def _precompute_ansi_table(self, low_high_vals: Tuple[int, int] = (0, 255)):
+        ansi_range = range(low_high_vals[0], low_high_vals[1] + 1)
+        return np.array(
+            [f"\033[38;5;{color}m█" if color > 0 else " " for color in ansi_range],
+            dtype="<U20",
+        )
 
     @staticmethod
     def get_terminal_dimensions():
