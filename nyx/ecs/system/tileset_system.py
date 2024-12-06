@@ -1,6 +1,4 @@
-from networkx import Graph
-import numpy as np
-from nyx.ecs.component.tile_component import GraphicComponent, TileSetComponent
+from nyx.ecs.component.components import GraphicComponent, TileSetComponent
 from nyx.ecs.nyx_entity_manager import NyxEntity, NyxEntityManager
 from nyx.ecs.system.nyx_system_base import NyxSystem
 
@@ -30,7 +28,9 @@ class TileSetSystem(NyxSystem):
         self._validate_tile_id(tile_id, tileset)
         return tileset.tiles[tile_id]
 
-    def update_tile(self, entity: NyxEntity, graphic_comp: GraphicComponent, tile_id: int):
+    def update_tile(
+        self, entity: NyxEntity, graphic_comp: GraphicComponent, tile_id: int
+    ):
         tileset = entity.get_components().get("TileSetComponent")
         self._validate_tile_id(tile_id, tileset)
         tileset.tiles[tile_id] = entity
