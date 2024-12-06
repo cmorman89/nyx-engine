@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Type
 import numpy as np
 
 
@@ -37,3 +38,7 @@ class TileMapComponent(NyxComponent):
         self.tilemap = tilemap
         self.tile_width = tile_width
         self.tile_height - tile_height
+
+    def __str__(self):
+        """Return the class name (which is same as component name) when called as string."""
+        return f"{Type[self]}"

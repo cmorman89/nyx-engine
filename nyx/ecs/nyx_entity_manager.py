@@ -2,7 +2,7 @@ from ast import Dict
 from typing import Optional
 from uuid import UUID, uuid4
 
-from nyx.ecs.component.tile_component import NyxComponent
+from nyx.ecs.component.components import NyxComponent
 
 
 class NyxEntity:
@@ -49,6 +49,9 @@ class NyxEntity:
 
     def __repr__(self):
         return f"NyxEntity(name={self.name}, entity_id={self._entity_id})"
+
+    def __hash__(self):
+        return hash(self.entity_id)
 
 
 class NyxEntityManager:
@@ -103,3 +106,30 @@ class NyxEntityManager:
             Optional[NyxComponent]: The NyxComponent retrieved for this entity.
         """
         return self.components.get(entity.entity_id, {})
+
+    def unload_entity(self, entity: NyxEntity):
+        """
+        """
+        self._remove_entity_from_components(entity)
+        self._remove_entity_from_entities(entity)
+        return self
+
+    def _remove_entity_from_entities(self, entity: NyxEntity):
+        if entity in self.entities:
+            self.entities.remove(entity)
+        else:
+            raise ValueError(f"{entity!r} not found in manager.")
+
+    def _remove_entity_from_components(self, entity: NyxEntity):
+        if entity in self.components.keys():
+            del self.components[entity]
+        else:
+            raise ValueError(f"{entity!r} not found in manager.")
+
+    def __str__(self):
+        output = "\nNyxEntityManager - View Objects\n:"
+        for entity in self.entities:
+            output += f"  - Entity: {entity.name} ({entity.entity_id})\n"
+            for component in entity.get_components():
+                output += f"    - {component}\n"
+        return output
