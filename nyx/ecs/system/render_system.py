@@ -9,6 +9,7 @@ Note:
 """
 
 import os
+import sys
 from typing import Tuple
 
 # import time
@@ -57,8 +58,9 @@ class RenderSystem(NyxSystem):
                 h, w = graphic_array.shape
 
                 buffer[y : y + h, x : x + w] = graphic_array
-            self._initialize_frame()
+            self._preframe_actions()
             self._draw_buffer(buffer=buffer)
+            self._postframe_actions()
 
     def _draw_buffer(self, buffer: np.ndarray):
         row, cols = buffer.shape
@@ -67,7 +69,8 @@ class RenderSystem(NyxSystem):
         rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
         rasterized_buffer[:, :-1] = self._ansi_table[buffer]
         rasterized_buffer[:, -1] = "\n"
-        print("".join(rasterized_buffer.ravel()))
+        sys.stdout.write("".join(rasterized_buffer.ravel()) + "\033[0m\n")
+        sys.stdout.flush()
         # for row in buffer:
         #     for color in row:
         #         output = f"\033[38;5;{color}m█" if color > 0 else " "
@@ -87,8 +90,11 @@ class RenderSystem(NyxSystem):
         if clear_term:
             RenderSystem.clear_terminal()
 
-    def _initialize_frame(self):
+    def _preframe_actions(self):
         RenderSystem.cursor_to_origin()
+
+    def _postframe_actions(self):
+        pass
 
     def _precompute_ansi_table(self, low_high_vals: Tuple[int, int] = (0, 255)):
         ansi_range = range(low_high_vals[0], low_high_vals[1] + 1)
@@ -96,6 +102,10 @@ class RenderSystem(NyxSystem):
             [f"\033[38;5;{color}m█" if color > 0 else " " for color in ansi_range],
             dtype="<U20",
         )
+
+    @staticmethod
+    def reset_terminal_formatting():
+        return "\033[0m"
 
     @staticmethod
     def get_terminal_dimensions():
