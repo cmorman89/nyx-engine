@@ -6,21 +6,28 @@ Rendering system to take a GraphicalComponent and print it to the terminal.
 Note:
     - Chars to use: [ █ , ▀ , ▄ ]
     - This will likely split into the basic rendering system that then feeds into the larger terminal graphics rendering api
+    -   FPS  Target Processing Time per Frame (ms)
+        1                             1000.00
+        5                               200.00
+        10                             100.00
+        15                               66.66
+        30                               33.33
 """
 
 import os
 import sys
 from typing import Tuple
 
+
 import numpy as np
-from nyx.ecs.nyx_entity_manager import NyxEntityManager
-from nyx.ecs.system.nyx_system_base import NyxSystem
+from nyx.engine.ecs.nyx_entity_manager import NyxEntityManager
+from nyx.engine.ecs.system.nyx_system_base import NyxSystem
 
 
 class RenderSystem(NyxSystem):
     def __init__(
         self,
-        manager: NyxEntityManager,
+        ecs: NyxEntityManager,
         terminal_width: int = 0,
         terminal_height: int = 0,
         view_width: int = 0,
@@ -28,7 +35,7 @@ class RenderSystem(NyxSystem):
     ):
         """Initialize the rendering system with view and terminal size. The view defaults to the terminal size if not provided."""
 
-        super().__init__(manager)
+        super().__init__(ecs)
         terminal_size = RenderSystem.get_terminal_dimensions()
         self.terminal_width = (
             terminal_width if terminal_width > 0 else terminal_size.columns
@@ -42,7 +49,7 @@ class RenderSystem(NyxSystem):
 
     def render(self, clear_term: bool = True):
         """Render the entity to the terminal."""
-        entity_manager = self.manager
+        entity_manager = self.ecs
         buffer = np.zeros((self.view_height, self.view_width), dtype=np.uint8)
         self._initialize_terminal(clear_term=clear_term)
         for entity in entity_manager.entities:
@@ -52,7 +59,7 @@ class RenderSystem(NyxSystem):
 
             if transform_comp and graphic_comp:
                 x, y = transform_comp.x, transform_comp.y
-                graphic_array = np.repeat(graphic_comp.graphic, 3, axis=1)
+                graphic_array = np.repeat(graphic_comp.graphic_arr, 3, axis=1)
 
                 h, w = graphic_array.shape
 

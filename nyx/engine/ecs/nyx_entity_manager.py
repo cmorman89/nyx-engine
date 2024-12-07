@@ -2,7 +2,7 @@ from ast import Dict
 from typing import Optional
 from uuid import UUID, uuid4
 
-from nyx.ecs.component.components import NyxComponent
+from nyx.engine.ecs.component.components import NyxComponent
 
 
 class NyxEntity:
@@ -108,8 +108,7 @@ class NyxEntityManager:
         return self.components.get(entity.entity_id, {})
 
     def unload_entity(self, entity: NyxEntity):
-        """
-        """
+        """ """
         self._remove_entity_from_components(entity)
         self._remove_entity_from_entities(entity)
         return self
