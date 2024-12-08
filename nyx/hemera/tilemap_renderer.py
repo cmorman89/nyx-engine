@@ -1,8 +1,8 @@
 import sys
 from typing import Tuple
 import numpy as np
-from nyx.engine.ecs.component.components import TilemapComponent
-from nyx.engine.ecs.system.render_system import RenderSystem
+from nyx.engine.ecs.component.nyx_component import TilemapComponent
+from nyx.engine.ecs.system.render_system import AetherBridgeSystem
 from nyx.engine.tileset_resource import TilesetResource
 
 
@@ -32,14 +32,14 @@ class TilemapRenderer:
                 # Slice the ndarray from y, x (origin) for d elements in each axis.
                 self.frame[y * d : (y + 1) * d, x * d : (x + 1) * d] = tile_texture
 
-        RenderSystem.cursor_to_origin()
+        AetherBridgeSystem.cursor_to_origin()
         self._draw_buffer(self.frame)
 
     def scroll(self, shift: int):
         self.current_offset = (self.current_offset + shift) % self.frame.shape[1]
 
     def render_frame(self):
-        RenderSystem.cursor_to_origin()
+        AetherBridgeSystem.cursor_to_origin()
         # Slice the visible part of the frame
         visible_frame = self.frame[
             :, self.current_offset : self.current_offset + self.view_width

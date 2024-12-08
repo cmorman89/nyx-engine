@@ -1,5 +1,6 @@
-from nyx.engine.ecs.component.components import GraphicComponent, TileSetComponent
-from nyx.engine.ecs.nyx_entity_manager import NyxEntity, NyxEntityManager
+from nyx.engine.ecs.component.renderable_components import GraphicComponent, TileSetComponent
+from nyx.engine.ecs.entity.nyx_entity import NyxEntity
+from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
 from nyx.engine.ecs.system.nyx_system_base import NyxSystem
 
 
