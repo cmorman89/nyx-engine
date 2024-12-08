@@ -1,7 +1,7 @@
 from typing import Dict
 from uuid import UUID
 
-from nyx.engine.ecs.component.nyx_component import RenderableComponent
+from nyx.engine.ecs.component.renderable_components import RenderableComponent
 
 
 class AetherCompositor:

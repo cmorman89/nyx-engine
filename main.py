@@ -1,17 +1,19 @@
 from nyx.aether.aether_compositor import AetherCompositor
-from nyx.engine.ecs.component.nyx_component import (
+from nyx.engine.ecs.component.renderable_components import (
     BackgroundColorComponent,
     ZIndexComponent,
 )
 from nyx.engine.ecs.component.nyx_component_store import NyxComponentStore
 from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
 from nyx.engine.ecs.system.render_system import AetherBridgeSystem
+from nyx.hemera.hemera_renderer import HemeraRenderer
 
 
 if __name__ == "__main__":
     # Load Early Managers, Stores, Assets, Systems
     entity_manager = NyxEntityManager()
     aether_compositor = AetherCompositor()
+    hemera_renderer = HemeraRenderer()
     component_store = NyxComponentStore(entity_manager)
     render_system = AetherBridgeSystem(
         entity_manager, component_store, aether_compositor
@@ -27,4 +29,4 @@ if __name__ == "__main__":
 
     render_system.update()
 
-    print(aether_compositor.layers)
+    hemera_renderer.draw_working_frame()
