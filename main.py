@@ -29,4 +29,9 @@ if __name__ == "__main__":
 
     render_system.update()
 
-    hemera_renderer.draw_working_frame()
+    hemera_renderer.render()
+
+    hemera_renderer.view_h = 16
+    hemera_renderer.view_w = 16
+
+    hemera_renderer.render()
