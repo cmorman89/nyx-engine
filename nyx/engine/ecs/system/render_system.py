@@ -14,107 +14,81 @@ Note:
         30                               33.33
 """
 
-import os
-import sys
-from typing import Tuple
-
-
-import numpy as np
-from nyx.engine.ecs.nyx_entity_manager import NyxEntityManager
+from nyx.aether.aether_compositor import AetherCompositor
+from nyx.engine.ecs.component.renderable_components import RenderableComponent
+from nyx.engine.ecs.component.nyx_component_store import NyxComponentStore
+from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
 from nyx.engine.ecs.system.nyx_system_base import NyxSystem
 
 
-class RenderSystem(NyxSystem):
+class AetherBridgeSystem(NyxSystem):
+    """Responsible for collecting all renderable components and passing them to Aether for
+    composition and prioritization."""
+
     def __init__(
         self,
-        ecs: NyxEntityManager,
-        terminal_width: int = 0,
-        terminal_height: int = 0,
-        view_width: int = 0,
-        view_height: int = 0,
+        entity_manager: NyxEntityManager,
+        component_store: NyxComponentStore,
+        aether_compositor: AetherCompositor,
     ):
-        """Initialize the rendering system with view and terminal size. The view defaults to the terminal size if not provided."""
+        super().__init__(entity_manager)
+        self.component_store = component_store
+        self.aether: AetherCompositor = aether_compositor
 
-        super().__init__(ecs)
-        terminal_size = RenderSystem.get_terminal_dimensions()
-        self.terminal_width = (
-            terminal_width if terminal_width > 0 else terminal_size.columns
-        )
-        self.terminal_height = (
-            terminal_height if terminal_height > 0 else terminal_size.lines
-        )
-        self.view_width = view_width if view_width > 0 else self.terminal_width
-        self.view_height = view_height if view_height > 0 else self.terminal_height
-        self._ansi_table: np.ndarray = self._precompute_ansi_table()
+    def update(self):
+        """Get all renderable components"""
+        prioritized_entities = {}
+        entity_registry = self.entity_manager.get_all_entities()
+        for entity_id, entity in entity_registry.items():
+            priority = -1
+            entity_dict = {entity_id: {}}
+            for comp_name, comp_obj in self.component_store.get_all_components(
+                entity
+            ).items():
+                if isinstance(comp_obj, RenderableComponent):
+                    entity_dict[entity_id][comp_name] = comp_obj
+                    if comp_name == "ZIndexComponent":
+                        priority = comp_obj.z_index
+            if len(entity_dict[entity_id]) > 0:
+                if priority not in prioritized_entities.values():
+                    prioritized_entities[priority] = {}
+                    prioritized_entities[priority][entity_id] = entity_dict.values()
 
-    def render(self, clear_term: bool = True):
-        """Render the entity to the terminal."""
-        entity_manager = self.ecs
-        buffer = np.zeros((self.view_height, self.view_width), dtype=np.uint8)
-        self._initialize_terminal(clear_term=clear_term)
-        for entity in entity_manager.entities:
-            components = entity.get_components()
-            transform_comp = components.get("TransformComponent")
-            graphic_comp = components.get("GraphicComponent")
+            if len(prioritized_entities) > 0:
+                self.aether.accept_entities(entities=prioritized_entities)
 
-            if transform_comp and graphic_comp:
-                x, y = transform_comp.x, transform_comp.y
-                graphic_array = np.repeat(graphic_comp.graphic_arr, 3, axis=1)
 
-                h, w = graphic_array.shape
 
-                buffer[y : y + h, x : x + w] = graphic_array
-            self._preframe_actions()
-            self._draw_buffer(buffer=buffer)
 
-    def _draw_buffer(self, buffer: np.ndarray):
-        # Generate an empty array of correct dtype and one extra column.
-        row, cols = buffer.shape
-        rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
-        # Fill the new column with new line chars.
-        rasterized_buffer[:, -1] = "\n"
-        # Map buffer of ints to pre-generated, ANSI-formatted strings.
-        rasterized_buffer[:, :-1] = self._ansi_table[buffer]
-        # Write to the terminal.
-        sys.stdout.write("".join(rasterized_buffer.ravel()) + "\033[0m\n")
-        sys.stdout.flush()
+#     def render(self, clear_term: bool = True):
+#         """Render the entity to the terminal."""
+#         entity_manager = self.ecs
+#         buffer = np.zeros((self.view_height, self.view_width), dtype=np.uint8)
+#         self._initialize_terminal(clear_term=clear_term)
+#         for entity in entity_manager.entities:
+#             components = entity.get_components()
+#             transform_comp = components.get("TransformComponent")
+#             graphic_comp = components.get("GraphicComponent")
 
-    def _initialize_terminal(self, clear_term: bool = True):
-        self._ansi_table = (
-            self._precompute_ansi_table()
-            if self._ansi_table is not None
-            else self._ansi_table
-        )
-        if clear_term:
-            RenderSystem.clear_terminal()
+#             if transform_comp and graphic_comp:
+#                 x, y = transform_comp.x, transform_comp.y
+#                 graphic_array = np.repeat(graphic_comp.graphic_arr, 3, axis=1)
 
-    def _preframe_actions(self):
-        RenderSystem.cursor_to_origin()
+#                 h, w = graphic_array.shape
 
-    def _precompute_ansi_table(self, low_high_vals: Tuple[int, int] = (0, 255)):
-        ansi_range = range(low_high_vals[0], low_high_vals[1] + 1)
-        return np.array(
-            [f"\033[38;5;{color}m█" if color > 0 else " " for color in ansi_range],
-            dtype="<U20",
-        )
+#                 buffer[y : y + h, x : x + w] = graphic_array
+#             self._preframe_actions()
+#             self._draw_buffer(buffer=buffer)
 
-    @staticmethod
-    def reset_terminal_formatting():
-        return "\033[0m"
+#     def _draw_buffer(self, buffer: np.ndarray):
+#         # Generate an empty array of correct dtype and one extra column.
+#         row, cols = buffer.shape
+#         rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
+#         # Fill the new column with new line chars.
+#         rasterized_buffer[:, -1] = "\n"
+#         # Map buffer of ints to pre-generated, ANSI-formatted strings.
+#         rasterized_buffer[:, :-1] = self._ansi_table[buffer]
+#         # Write to the terminal.
+#         sys.stdout.write("".join(rasterized_buffer.ravel()) + "\033[0m\n")
+#         sys.stdout.flush()
 
-    @staticmethod
-    def get_terminal_dimensions():
-        return os.get_terminal_size()
-
-    @staticmethod
-    def clear_terminal():
-        os.system("cls" if os.name == "nt" else "clear")
-
-    @staticmethod
-    def cursor_to_origin():
-        print("\033[H", end="")
-
-    @staticmethod
-    def move_cursor(row: int, col: int):
-        # ANSI escape sequence to move the cursor to the given row and column
-        print(f"\033[{row};{col}H", end="")
