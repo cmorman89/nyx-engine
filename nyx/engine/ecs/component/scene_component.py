@@ -1,7 +1,7 @@
-from nyx.engine.ecs.component.nyx_component import NyxComponent
+from nyx.engine.ecs.component.renderable_components import RenderableComponent
 
 
-class SceneComponent(NyxComponent):
+class SceneComponent(RenderableComponent):
     """Signify entity as a high level/top level component"""
 
     def __init__(self, friendly_name: str):

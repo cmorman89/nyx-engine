@@ -5,12 +5,14 @@ import numpy as np
 
 class TilesetStore:
     next_tile_id = 0
+    tileset_textures: Dict[int, np.ndarray]
+    tileset_friendly_name_map: Dict[str, int] = {}
 
     def __init__(self, tileset_textures: Dict[int, np.ndarray] = None):
-        self.tileset_textures: Dict[int, np.ndarray] = (
+        TilesetStore.tileset_textures: Dict[int, np.ndarray] = (
             tileset_textures if tileset_textures else {}
         )
-        self.tileset_friendly_name_map: Dict[str, int] = {}
+        TilesetStore.tileset_friendly_name_map: Dict[str, int] = {}
 
     def create_tile(
         self,
@@ -24,13 +26,13 @@ class TilesetStore:
             tile_id=tile_id, tile_friendly_name=tile_friendly_name, overwrite=overwrite
         )
 
-        self.tileset_textures[tile_id] = tile_texture
-        self.tileset_friendly_name_map[tile_friendly_name] = tile_id
+        TilesetStore.tileset_textures[tile_id] = tile_texture
+        TilesetStore.tileset_friendly_name_map[tile_friendly_name] = tile_id
 
     def _validate_tile_id(self, tile_id: int = None, overwrite: bool = False):
         if tile_id and isinstance(tile_id, int):
             if 0 <= tile_id <= 255:
-                if not overwrite and tile_id in self.tileset_textures.keys():
+                if not overwrite and tile_id in TilesetStore.tileset_textures.keys():
                     raise KeyError(
                         f'Error: tile_id="{tile_id}" already registered to TilesetStore.'
                     )
@@ -49,7 +51,7 @@ class TilesetStore:
         if tile_friendly_name and isinstance(tile_friendly_name, str):
             if (
                 not overwrite
-                and tile_friendly_name in self.tileset_friendly_name_map.keys()
+                and tile_friendly_name in TilesetStore.tileset_friendly_name_map.keys()
             ):
                 raise KeyError(
                     f'Error: tile_friendly_name="{tile_friendly_name} for tile_id="{tile_id}" already registered to TilesetStore.'
