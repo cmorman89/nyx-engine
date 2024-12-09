@@ -1,6 +1,6 @@
 from abc import ABC
 
-from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
+from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
 
 
 class NyxSystem(ABC):

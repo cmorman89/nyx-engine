@@ -14,10 +14,9 @@ Note:
         30                               33.33
 """
 
-from nyx.aether.aether_compositor import AetherCompositor
 from nyx.engine.ecs.component.renderable_components import RenderableComponent
-from nyx.engine.ecs.component.nyx_component_store import NyxComponentStore
-from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
+from nyx.engine.stores.nyx_component_store import NyxComponentStore
+from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
 from nyx.engine.ecs.system.nyx_system_base import NyxSystem
 
 
@@ -29,15 +28,13 @@ class AetherBridgeSystem(NyxSystem):
         self,
         entity_manager: NyxEntityManager,
         component_store: NyxComponentStore,
-        aether_compositor: AetherCompositor,
     ):
         super().__init__(entity_manager)
         self.component_store = component_store
-        self.aether: AetherCompositor = aether_compositor
 
     def update(self):
         """Get all renderable components"""
-        prioritized_entities = {}
+        z_indexed_entities = {}
         entity_registry = self.entity_manager.get_all_entities()
         for entity_id, entity in entity_registry.items():
             priority = -1
@@ -50,14 +47,12 @@ class AetherBridgeSystem(NyxSystem):
                     if comp_name == "ZIndexComponent":
                         priority = comp_obj.z_index
             if len(entity_dict[entity_id]) > 0:
-                if priority not in prioritized_entities.values():
-                    prioritized_entities[priority] = {}
-                    prioritized_entities[priority][entity_id] = entity_dict.values()
+                if priority not in z_indexed_entities:
+                    z_indexed_entities[priority] = {}
+                z_indexed_entities[priority][entity_id] = entity_dict[entity_id]
 
-            if len(prioritized_entities) > 0:
-                self.aether.accept_entities(entities=prioritized_entities)
-
-
+        if len(z_indexed_entities) > 0:
+            return z_indexed_entities
 
 
 #     def render(self, clear_term: bool = True):
@@ -91,4 +86,3 @@ class AetherBridgeSystem(NyxSystem):
 #         # Write to the terminal.
 #         sys.stdout.write("".join(rasterized_buffer.ravel()) + "\033[0m\n")
 #         sys.stdout.flush()
-
