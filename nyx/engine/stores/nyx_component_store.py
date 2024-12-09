@@ -1,17 +1,36 @@
+"""
+NyxEngine Component Store Module
+
+Manages and organizes the components that define the behaviors of game entities. The components are
+indexed and can be queried by the unique entity_id/UUID of the parent entity.
+
+Classes:
+    NyxComponentStore: The centralized storage of all NyxComponents in NyxEngine, organized by entity_id/UUID.
+"""
+
 from typing import Dict
 from uuid import UUID
 from nyx.engine.ecs.component.nyx_component import NyxComponent
 from nyx.engine.ecs.entity.nyx_entity import NyxEntity
-from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
+from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
 
 
 class NyxComponentStore:
+    """Centrally stores, manages, and retieves components for NyxEntities, indexed by their
+    entity_id/UUID. Entity friendly name retreival is also supported.
+
+    Methods:
+        register_component_to_entity:
+        unreguster_component_from_entity:
+
+    """
+
     def __init__(self, entity_manager: NyxEntityManager):
         """Initialize with a reference to the entity manager and an empty component registry."""
         self.entity_manager: NyxEntityManager = entity_manager
         self.component_registry: Dict[UUID, Dict[str, NyxComponent]] = {}
 
-    def register_component_to_entity(
+    def register_entity_component(
         self, entity_identifier: NyxEntity | UUID | str, component: NyxComponent
     ):
         """Register a component to an entity in the component registry by its UUID.
@@ -29,7 +48,7 @@ class NyxComponentStore:
         self.component_registry[entity.entity_id][type(component).__name__] = component
         return self
 
-    def unregister_component_from_entity(
+    def unregister_entity_component(
         self,
         entity_identifier: NyxEntity | UUID | str,
         component_type: str | NyxComponent,
