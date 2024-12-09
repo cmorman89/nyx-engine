@@ -1,37 +1,44 @@
-from nyx.aether.aether_compositor import AetherCompositor
+from nyx.aether.aether_renderer import AetherRenderer
 from nyx.engine.ecs.component.renderable_components import (
     BackgroundColorComponent,
     ZIndexComponent,
 )
-from nyx.engine.ecs.component.nyx_component_store import NyxComponentStore
-from nyx.engine.ecs.entity.nyx_entity_manager import NyxEntityManager
+from nyx.engine.ecs.component.scene_component import SceneComponent
+from nyx.engine.stores.nyx_component_store import NyxComponentStore
+from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
 from nyx.engine.ecs.system.render_system import AetherBridgeSystem
-from nyx.hemera.hemera_renderer import HemeraRenderer
+from nyx.hemera.hemera_term_fx import HemeraTermFx
 
 
 if __name__ == "__main__":
     # Load Early Managers, Stores, Assets, Systems
     entity_manager = NyxEntityManager()
-    aether_compositor = AetherCompositor()
-    hemera_renderer = HemeraRenderer()
+    aether_renderer = AetherRenderer()
+    hemera_term_api = HemeraTermFx()
     component_store = NyxComponentStore(entity_manager)
-    render_system = AetherBridgeSystem(
-        entity_manager, component_store, aether_compositor
-    )
+    aether_collector = AetherBridgeSystem(entity_manager, component_store)
 
     # Create "LevelRoot" Entity
     level_root_entity = entity_manager.create_entity("LevelRoot")
 
     # Add components to entity
-    component_store.register_component_to_entity(
-        level_root_entity, BackgroundColorComponent(33)
-    ).register_component_to_entity(level_root_entity, ZIndexComponent(0))
+    (
+        component_store.register_entity_component(
+            level_root_entity, SceneComponent("Demo")
+        )
+        .register_entity_component(level_root_entity, ZIndexComponent(0))
+        .register_entity_component(level_root_entity, BackgroundColorComponent(33))
+    )
 
-    render_system.update()
+    # Call the render system to collect entities and pass to Aether
+    z_indexed_entities = aether_collector.update()
 
-    hemera_renderer.render()
+    aether_renderer.view_h = 16
+    aether_renderer.view_w = 16
+    hemera_term_api.output(
+        aether_renderer.accept_entities(aether_collector.update()).render()
+    )
 
-    hemera_renderer.view_h = 16
-    hemera_renderer.view_w = 16
+    # rendered_frame = aether_renderer.render()
 
-    hemera_renderer.render()
+    # hemera_term_api.output(rendered_frame)
