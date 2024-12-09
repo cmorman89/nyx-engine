@@ -1,8 +1,6 @@
 import sys
-from typing import Tuple
 import numpy as np
 
-from nyx.hemera.term_utils import TerminalUtils
 
 
 class HemeraTermFx:
