@@ -30,7 +30,7 @@ class ZIndexComponent(RenderableComponent):
         self.z_index: int = z_index
 
 
-class TilemapComponent(NyxComponent):
+class TilemapComponent(RenderableComponent):
     """Holds the 2D NumPy array of tile IDs that compose the tilemap"""
 
     def __init__(self, tilemap: np.ndarray):
@@ -43,6 +43,18 @@ class TilemapComponent(NyxComponent):
         """Return the class name (which is same as component name) when called as string."""
         return f"{type(self).__name__}"
 
+
+class DimensionsComponent(RenderableComponent):
+    def __init__(self, height: int, width: int):
+        """Creates height, width bounds for an entity."""
+        self.height = height
+        self.width = width
+
+class PositionComponenta(RenderableComponent):
+    """Position of the the (0,0) origin of the entity within the frame."""
+    def __init__(self, x: int, y: int):
+        self.x = x
+        self.y = y
 
 # class TransformComponent(NyxComponent):
 #     def __init__(self, x: int, y: int):1
