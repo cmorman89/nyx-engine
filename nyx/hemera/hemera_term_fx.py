@@ -71,8 +71,11 @@ class HemeraTermFx:
                                 )
                             if fg_color != last_pixel_fg:
                                 buffer.append(f"\033[38;5;{fg_color}m")
+                            if bg_color != last_pixel_bg:
+                                buffer.append(f"\033[48;5;{bg_color}m")
                             buffer.append("▀")
                         last_pixel_fg = fg_color
+                        last_pixel_bg = fg_color
                 buffer.append(TerminalUtils.reset_format() + "\n")
 
         print("".join(buffer))
