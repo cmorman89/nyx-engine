@@ -8,6 +8,12 @@ class TilesetStore:
     tileset_textures: Dict[int, np.ndarray]
     tileset_friendly_name_map: Dict[str, int] = {}
 
+    @classmethod
+    def reset_store(cls):
+        cls.tileset_textures.clear()
+        cls.tileset_friendly_name_map.clear()
+        cls.next_tile_id = 0
+
     def __init__(self, tileset_textures: Dict[int, np.ndarray] = None):
         TilesetStore.tileset_textures: Dict[int, np.ndarray] = (
             tileset_textures if tileset_textures else {}
