@@ -80,4 +80,7 @@ if __name__ == "__main__":
         hemera_term_api.output(merged_frame)
         # rendered_frame = aether_renderer.render()
         # hemera_term_api.output(rendered_frame)
-        time.sleep(0.1)
+        # time.sleep(0.0666) # 15 fps
+        # time.sleep(0.0333) # 30 fps
+        # time.sleep(0.0167) # 60 fps
+        time.sleep(0.00833) # 120 FPS

@@ -33,24 +33,49 @@ class HemeraTermFx:
         sys.stdout.flush()
 
     def print_subpixel_to_term(self, new_frame):
-        buffer = f"{TerminalUtils.cursor_to_origin()}"
+        buffer = [TerminalUtils.cursor_to_origin()]
         w, h = new_frame.shape
+
+        # Iterate rows
         for y, pixel_row in enumerate(new_frame):
-            if y % 2 == 0:
+            # Start new color buffers
+            last_pixel_fg = 0
+            last_pixel_bg = 0
+
+            if y % 2 == 0:  # Even row
                 next_pixel_row_index = y + 1
-                if next_pixel_row_index < h:
+                if next_pixel_row_index < h:  # Has background row
                     next_pixel_row = new_frame[next_pixel_row_index]
+                    # Iterate columns
                     for x, fg_color in enumerate(pixel_row):
                         bg_color = next_pixel_row[x]
-                        # print(f"fg={fg_color}, bg={bg_color}")
-                        buffer += f"\033[38;5;{fg_color};48;5;{bg_color}m▀"
+                        if fg_color != 0 or bg_color != 0:
+                            # Relocate the cursor if last pixel marked as unchanged (0):
+                            if last_pixel_fg == 0 and last_pixel_bg == 0:
+                                buffer.append(
+                                    TerminalUtils.cursor_subpixel_abs_move(x, y)
+                                )
+                            if fg_color != last_pixel_fg:
+                                buffer.append(f"\033[38;5;{fg_color}m")
+                            if bg_color != last_pixel_bg:
+                                buffer.append(f"\033[48;5;{bg_color}m")
+                            buffer.append("▀")
+                        last_pixel_fg = fg_color
+                        last_pixel_bg = bg_color
                 else:
-                    for color in pixel_row:
-                        # print(f"fg={color}")
-                        buffer += f"\033[38;5;{fg_color}m▀"
-                buffer += "\n"
+                    for x, fg_color in enumerate(pixel_row):
+                        if fg_color != 0:
+                            if last_pixel_fg == 0:
+                                buffer.append(
+                                    TerminalUtils.cursor_subpixel_abs_move(x, y)
+                                )
+                            if fg_color != last_pixel_fg:
+                                buffer.append(f"\033[38;5;{fg_color}m")
+                            buffer.append("▀")
+                        last_pixel_fg = fg_color
+                buffer.append(TerminalUtils.reset_format() + "\n")
 
-        print(buffer + TerminalUtils.reset_format())
+        print("".join(buffer))
 
     def _precompute_ansi_table(self):
         ansi_range = range(0, 256)
