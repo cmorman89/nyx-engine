@@ -18,6 +18,8 @@ class AetherRenderer:
         terminal_size = TerminalUtils.get_terminal_dimensions()
         self.term_h = (terminal_size.lines - 2) * 2
         self.term_w = terminal_size.columns - 1
+        self.viewport_h = viewport_h
+        self.viewport_w = viewport_w
         self.view_h = viewport_h if viewport_h > 0 else self.term_h
         self.view_w = viewport_w if viewport_w > 0 else self.term_w
         self.pos_x: int = 0
@@ -46,6 +48,7 @@ class AetherRenderer:
         """Main entry point for rendering"""
         if not self.z_indexed_entity_layers:
             raise ValueError("AetherRenderer has no layers to render.")
+        self._update_terminal_size()
         self.z_indexed_working_frames = {}
         self._new_merged_frame()
         self._process_layers()
@@ -148,3 +151,10 @@ class AetherRenderer:
                 rendered_map[tile_y_start:tile_y_end, tile_x_start:tile_x_end] = (
                     tile_texture[0:tile_h, 0:tile_w]
                 )
+
+    def _update_terminal_size(self):
+        terminal_size = TerminalUtils.get_terminal_dimensions()
+        self.term_h = (terminal_size.lines - 2) * 2
+        self.term_w = terminal_size.columns - 1
+        self.view_h = self.viewport_h if self.viewport_h > 0 else self.term_h
+        self.view_w = self.viewport_w if self.viewport_w > 0 else self.term_w
