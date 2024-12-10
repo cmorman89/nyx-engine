@@ -16,8 +16,8 @@ from nyx.hemera.term_utils import TerminalUtils
 class AetherRenderer:
     def __init__(self, viewport_h: int = 0, viewport_w: int = 0):
         terminal_size = TerminalUtils.get_terminal_dimensions()
-        self.term_h = terminal_size.lines
-        self.term_w = terminal_size.columns // 2
+        self.term_h = (terminal_size.lines - 2) * 2
+        self.term_w = terminal_size.columns - 1
         self.view_h = viewport_h if viewport_h > 0 else self.term_h
         self.view_w = viewport_w if viewport_w > 0 else self.term_w
         self.pos_x: int = 0
@@ -110,46 +110,40 @@ class AetherRenderer:
         rendered_map = self.z_indexed_working_frames[0]
         textures = TilesetStore.tileset_textures
 
-        # Culling: Extend rendering to frame bounds (but not exceeding)
-        # Slices the frame/rendered map to match the current tile
-        # AND slices the tile if it will exceed frame bounds
+        # Culling:
+        #   Extend rendering to frame bounds (but not exceeding)
+        #   - Slices the frame/rendered map to match the current tile
+        #   - AND slices the tile if it will exceed frame bounds
         tilemap = component.tilemap
         tile_d = component.tile_dimension
 
+        # Get window size
         view_w = self.view_w
         view_h = self.view_h
 
+        # Set/calculate tilemap bounds
         map_h, map_w = tilemap.shape
         map_w_max = ceil(self.view_w / tile_d)
         map_h_max = ceil(self.view_h / tile_d)
 
+        # Ignore tilemap array values that would be outside the render window
         for y in range(min(map_h, map_h_max)):
             for x in range(min(map_w, map_w_max)):
-                # Get the tile id at location y, x.
+                # Get the tile id of the current array element (located index)
                 tile_id = tilemap[y, x]
+
                 # Get the texture for that tile ID.
                 tile_texture = textures[tile_id]
+
                 # Ensure no frame OOB violations
                 tile_x_start = x * tile_d
                 tile_x_end = min((x + 1) * tile_d, view_w)
                 tile_w = tile_x_end - tile_x_start
+
                 tile_y_start = y * tile_d
                 tile_y_end = min((y + 1) * tile_d, view_h)
                 tile_h = tile_y_end - tile_y_start
-                # Debug
-                print(f"self.view_w={self.view_w}")
-                print(f"self.view_h={self.view_h}")
-                print(f"map_w={map_w}")
-                print(f"map_h={map_h}")
-                print(f"map_w_max={map_w_max}")
-                print(f"map_h_max={map_h_max}")
-                print(f"tile_x_start={tile_x_start}")
-                print(f"tile_x_end={tile_x_end}")
-                print(f"tile_y_start={tile_y_start}")
-                print(f"tile_y_end={tile_y_end}")
-                print(
-                    f"expression=\vrendered_map[{tile_y_start}:{tile_y_end}, {tile_x_start}:{tile_x_end}] = tile_texture)"
-                )
+
                 # Slice the frame to match the tile size
                 rendered_map[tile_y_start:tile_y_end, tile_x_start:tile_x_end] = (
                     tile_texture[0:tile_h, 0:tile_w]
