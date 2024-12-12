@@ -35,18 +35,12 @@ NyxEngine’s rendering capabilities are demonstrated with this example, renderi
 
 ## License
 
-NyxEngine is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International License (CC BY-NC 4.0)**.
+NyxEngine is licensed under the **MIT License**.
 
-### What This Means:
-- **You Can:**
-  - Use, share, and adapt NyxEngine for **non-commercial purposes**.
-  - Modify and share the code, as long as you credit the original author (Charles Morman).
-
-- **You Cannot:**
-  - Use NyxEngine for **commercial purposes** without prior written permission.
+You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
 
 ### Full License:
-See the [LICENSE](LICENSE) file or visit [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/) for more information.
+See the [LICENSE](LICENSE) file.
 
-### Commercial Use
-For commercial licensing, please contact nyx-engine@cmorman.com.
+### Contact
+Contact: nyx-engine@cmorman.com.
