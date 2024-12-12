@@ -20,8 +20,9 @@ class AetherRenderer:
         self.term_w = terminal_size.columns - 1
         self.viewport_h = viewport_h
         self.viewport_w = viewport_w
-        self.view_h = viewport_h if viewport_h > 0 else self.term_h
-        self.view_w = viewport_w if viewport_w > 0 else self.term_w
+        self.view_h = 0
+        self.view_w = 0
+        self._update_terminal_size()
         self.pos_x: int = 0
         self.pos_y: int = 0
         self.background_color_code = 0
@@ -156,5 +157,12 @@ class AetherRenderer:
         terminal_size = TerminalUtils.get_terminal_dimensions()
         self.term_h = (terminal_size.lines - 2) * 2
         self.term_w = terminal_size.columns - 1
-        self.view_h = self.viewport_h if self.viewport_h > 0 else self.term_h
-        self.view_w = self.viewport_w if self.viewport_w > 0 else self.term_w
+        self.view_h = (
+            min(self.viewport_h, self.term_h) if self.viewport_h > 0 else self.term_h
+        )
+        self.view_w = (
+            min(self.viewport_w, self.term_w) if self.viewport_w > 0 else self.term_w
+        )
+
+        if self.view_h % 2 != 0:
+            self.view_h -= 1
