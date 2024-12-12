@@ -1,3 +1,5 @@
+from pprint import pprint
+import shutil
 import sys
 import numpy as np
 
@@ -6,97 +8,74 @@ from nyx.hemera.term_utils import TerminalUtils
 
 class HemeraTermFx:
     def __init__(self, clear_term_on_run: bool = False):
-        self._ansi_table = self._precompute_ansi_table()
         self.old_frame = None
+        self.old_subpixel_frame = None
         self.clear_term_on_run = clear_term_on_run
 
     def output(self, new_frame: np.ndarray = None):
-        self.print_subpixel_to_term(self.generate_delta_framebuffer(new_frame))
-        # self.print_to_term(new_frame)
-        # self.print_subpixel_to_term(new_frame)
+        new_subpixel_frame = self.convert_to_subpixels(new_frame)
+        # print(new_subpixel_frame)
+        delta_frame = self.calculate_delta_framebuffer(new_subpixel_frame)
+        self.generate_string_buffer(delta_frame)
 
-    def print_to_term(self, new_frame):
-        frame = new_frame
-        # Generate an empty array of correct dtype and one extra column.
-        row, cols = frame.shape
-        rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
-        # Fill the new column with new line chars.
-        rasterized_buffer[:, -1] = "\n"
-        # Map buffer of ints to pre-generated, ANSI-formatted strings.
-        rasterized_buffer[:, :-1] = self._ansi_table[frame]
-        # Write to the terminal.
-        sys.stdout.write(
-            TerminalUtils.cursor_to_origin()
-            + "".join(rasterized_buffer.ravel())
-            + "\033[0m"
+    def convert_to_subpixels(self, new_frame: np.ndarray):
+        """Convert the input frame from 2D ndarray -> 3D ndarray of even/odd row pixel colors."""
+        return np.stack([new_frame[::2, :], new_frame[1::2, :]])
+
+    def calculate_delta_framebuffer(self, new_subpixel_frame: np.ndarray):
+        """Determine which subpixel *groups* change. If either subpixel changes, BOTH subpixels must
+        be written to the buffer."""
+
+        if (
+            self.old_subpixel_frame is None
+            or self.old_subpixel_frame.shape != new_subpixel_frame.shape
+        ):
+            self.old_subpixel_frame = np.zeros(new_subpixel_frame.shape, dtype=np.uint8)
+
+        delta_frame = np.where(
+            np.any(
+                new_subpixel_frame != self.old_subpixel_frame, axis=0, keepdims=True
+            ),
+            new_subpixel_frame,
+            np.zeros_like(new_subpixel_frame),
         )
-        sys.stdout.flush()
+        self.old_subpixel_frame = new_subpixel_frame
+        return delta_frame
 
-    def print_subpixel_to_term(self, new_frame):
-        buffer = [TerminalUtils.cursor_to_origin()]
-        w, h = new_frame.shape
+    def generate_string_buffer(self, delta_frame: np.ndarray):
+        """Convert the delta frame to its strings representation form"""
+        run_buffer = ""
+        last_ansi_fg_color, last_ansi_bg_color = np.uint8(0), np.uint8(0)
+        last_subpixel_pair = np.uint8(0), np.uint8(0),
+        d, h, w = delta_frame.shape
+        # Index the delta frame for position data
+        for y, x in np.ndindex(h, w):
+            # Save the colors to a tuple
+            subpixel_pair = tuple(delta_frame[:, y, x])
 
-        # Iterate rows
-        for y, pixel_row in enumerate(new_frame):
-            # Start new color buffers
-            last_pixel_fg = 0
-            last_pixel_bg = 0
+            fg_color, bg_color = subpixel_pair
+            # Check if subpixel is printable (not (0, 0))
+            if subpixel_pair != (np.uint8(0), np.uint8(0)):
+                # Issue a cursor relocate if the last subpixel pair was non-printing (0, 0)
+                if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
+                    sys.stdout.write(run_buffer)  # Write the last run buffer
+                    run_buffer = ""  # Start new run buffer upon relocate
+                    run_buffer += TerminalUtils.cursor_subpixel_abs_move(x, y)
+                # Issue color format changes
+                if fg_color != last_ansi_fg_color:
+                    run_buffer += f"\033[38;5;{fg_color}m"
+                    last_ansi_fg_color = fg_color  # Cache value
+                if bg_color != last_ansi_bg_color:
+                    run_buffer += f"\033[48;5;{bg_color}m"
+                    last_ansi_bg_color = bg_color  # Cache value
+                # Add the printing character
+                run_buffer += "▀"
+            # Add new line at the end of each row
+            if x == w - 1:
+                run_buffer += "\n"
+            last_subpixel_pair = subpixel_pair  # Cache value
 
-            if y % 2 == 0:  # Even row
-                next_pixel_row_index = y + 1
-                if next_pixel_row_index < h:  # Has background row
-                    next_pixel_row = new_frame[next_pixel_row_index]
-                    # Iterate columns
-                    for x, fg_color in enumerate(pixel_row):
-                        bg_color = next_pixel_row[x]
-                        if fg_color != 0 or bg_color != 0:
-                            # Relocate the cursor if last pixel marked as unchanged (0):
-                            if last_pixel_fg == 0 and last_pixel_bg == 0:
-                                buffer.append(
-                                    TerminalUtils.cursor_subpixel_abs_move(x, y)
-                                )
-                            if fg_color != last_pixel_fg:
-                                buffer.append(f"\033[38;5;{fg_color}m")
-                            if bg_color != last_pixel_bg:
-                                buffer.append(f"\033[48;5;{bg_color}m")
-                            buffer.append("▀")
-                        last_pixel_fg = fg_color
-                        last_pixel_bg = bg_color
-                else:
-                    for x, fg_color in enumerate(pixel_row):
-                        if fg_color != 0:
-                            if last_pixel_fg == 0:
-                                buffer.append(
-                                    TerminalUtils.cursor_subpixel_abs_move(x, y)
-                                )
-                            if fg_color != last_pixel_fg:
-                                buffer.append(f"\033[38;5;{fg_color}m")
-                            if bg_color != last_pixel_bg:
-                                buffer.append(f"\033[48;5;{bg_color}m")
-                            buffer.append("▀")
-                        last_pixel_fg = fg_color
-                        last_pixel_bg = fg_color
-                buffer.append(TerminalUtils.reset_format() + "\n")
-
-        print("".join(buffer))
-
-    def _precompute_ansi_table(self):
-        ansi_range = range(0, 256)
-        return np.array(
-            [f"\033[38;5;{color}m██" if color > 0 else "  " for color in ansi_range],
-            dtype="<U20",
-        )
-
-    def generate_delta_framebuffer(self, new_frame):
-        # Generate a new, blank historical frame if one does not exist or term dimensions change.
-        # This will force a redraw of the whole scene
-        if self.old_frame is None or self.old_frame.shape != new_frame.shape:
-            self.old_frame = np.zeros(new_frame.shape, dtype=np.uint8)
-
-        # Create the delta framebuffer by:
-        # - Compare the new frame to the old frame
-        # - Keep the changed pixels, and set the rest to 0.
-        # - "0" represents an *unchanged* pixel that does not need to be redrawn.
-        delta_framebuffer = np.where(new_frame != self.old_frame, new_frame, 0)
-        self.old_frame = new_frame
-        return delta_framebuffer
+        # Print to the terminal
+        sys.stdout.write(run_buffer)  # Flush the run buffer after frame
+        run_buffer = ""  # Start new run buffer upon new frame
+        sys.stdout.flush()  # Print stdout to the terminal

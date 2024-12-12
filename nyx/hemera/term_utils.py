@@ -49,7 +49,7 @@ class TerminalUtils:
             str: ANSI escape sequence to relocate the cursor.
         """
         # Convert zero-based indices to one-based for ANSI
-        row = (sub_pixel_y // 2) + 1
+        row = (sub_pixel_y) + 1
         column = pixel_x + 1
         return f"\033[{row};{column}H"
 
