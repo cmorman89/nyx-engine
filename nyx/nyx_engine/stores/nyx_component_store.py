@@ -10,9 +10,9 @@ Classes:
 
 from typing import Dict
 from uuid import UUID
-from nyx.engine.ecs.component.nyx_component import NyxComponent
-from nyx.engine.ecs.entity.nyx_entity import NyxEntity
-from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
+from nyx.moirai_ecs.component.nyx_component import NyxComponent
+from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
+from nyx.nyx_engine.managers.nyx_entity_manager import NyxEntityManager
 
 
 class NyxComponentStore:

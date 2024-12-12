@@ -4,20 +4,20 @@ from uuid import UUID
 
 import numpy as np
 
-from nyx.engine.ecs.component.renderable_components import (
+from nyx.moirai_ecs.component.renderable_components import (
     BackgroundColorComponent,
     RenderableComponent,
     TilemapComponent,
 )
-from nyx.engine.stores.tileset_store import TilesetStore
-from nyx.hemera.term_utils import TerminalUtils
+from nyx.nyx_engine.stores.tileset_store import TilesetStore
+from nyx.hemera_term_fx.term_utils import TerminalUtils
 
 
 class AetherRenderer:
     def __init__(self, viewport_h: int = 0, viewport_w: int = 0):
         terminal_size = TerminalUtils.get_terminal_dimensions()
-        self.term_h = (terminal_size.lines - 2) * 2
-        self.term_w = terminal_size.columns - 1
+        self.term_h = (terminal_size.lines - 4) * 2
+        self.term_w = terminal_size.columns - 2
         self.viewport_h = viewport_h
         self.viewport_w = viewport_w
         self.view_h = 0
@@ -155,8 +155,8 @@ class AetherRenderer:
 
     def _update_terminal_size(self):
         terminal_size = TerminalUtils.get_terminal_dimensions()
-        self.term_h = (terminal_size.lines - 2) * 2
-        self.term_w = terminal_size.columns - 1
+        self.term_h = (terminal_size.lines - 4) * 2
+        self.term_w = terminal_size.columns - 2
         self.view_h = (
             min(self.viewport_h, self.term_h) if self.viewport_h > 0 else self.term_h
         )

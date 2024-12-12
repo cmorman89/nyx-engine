@@ -1,22 +1,20 @@
-from pprint import pprint
 
-from random import randint
 import time
-from typing import Dict, List
+from typing import Dict
 import numpy as np
-from nyx.aether.aether_renderer import AetherRenderer
-from nyx.engine.ecs.component.renderable_components import (
+from nyx.aether_renderer.aether_renderer import AetherRenderer
+from nyx.moirai_ecs.component.renderable_components import (
     BackgroundColorComponent,
     TilemapComponent,
     ZIndexComponent,
 )
-from nyx.engine.ecs.component.scene_component import SceneComponent
-from nyx.engine.stores.nyx_component_store import NyxComponentStore
-from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
-from nyx.engine.ecs.system.aether_bridge_system import AetherBridgeSystem
-from nyx.engine.stores.tileset_store import TilesetStore
-from nyx.hemera.hemera_term_fx import HemeraTermFx
-from nyx.hemera.term_utils import TerminalUtils
+from nyx.moirai_ecs.component.scene_component import SceneComponent
+from nyx.nyx_engine.stores.nyx_component_store import NyxComponentStore
+from nyx.nyx_engine.managers.nyx_entity_manager import NyxEntityManager
+from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
+from nyx.nyx_engine.stores.tileset_store import TilesetStore
+from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
+from nyx.hemera_term_fx.term_utils import TerminalUtils
 from nyx.utils.nyx_asset_import import NyxAssetImport
 
 

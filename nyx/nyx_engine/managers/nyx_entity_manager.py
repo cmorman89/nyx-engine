@@ -1,6 +1,6 @@
 from typing import Dict
 from uuid import UUID
-from nyx.engine.ecs.entity.nyx_entity import NyxEntity
+from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
 
 
 class NyxEntityManager:

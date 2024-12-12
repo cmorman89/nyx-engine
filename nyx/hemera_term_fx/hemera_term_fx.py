@@ -27,7 +27,7 @@ Classes:
 import sys
 import numpy as np
 
-from nyx.hemera.term_utils import TerminalUtils
+from nyx.hemera_term_fx.term_utils import TerminalUtils
 
 
 class HemeraTermFx:

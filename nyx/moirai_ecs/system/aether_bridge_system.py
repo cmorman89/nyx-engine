@@ -14,10 +14,10 @@ Note:
         30                               33.33
 """
 
-from nyx.engine.ecs.component.renderable_components import RenderableComponent
-from nyx.engine.stores.nyx_component_store import NyxComponentStore
-from nyx.engine.managers.nyx_entity_manager import NyxEntityManager
-from nyx.engine.ecs.system.nyx_system_base import NyxSystem
+from nyx.moirai_ecs.component.renderable_components import RenderableComponent
+from nyx.nyx_engine.stores.nyx_component_store import NyxComponentStore
+from nyx.nyx_engine.managers.nyx_entity_manager import NyxEntityManager
+from nyx.moirai_ecs.system.nyx_system_base import NyxSystem
 
 
 class AetherBridgeSystem(NyxSystem):
