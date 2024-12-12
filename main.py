@@ -86,7 +86,7 @@ if __name__ == "__main__":
         merged_frame = aether_renderer.accept_entities(
             aether_collector.update()
         ).render()
-        hemera_term_api.output(merged_frame)
+        hemera_term_api.print(merged_frame)
         # rendered_frame = aether_renderer.render()
         # hemera_term_api.output(rendered_frame)
         # time.sleep(2)
