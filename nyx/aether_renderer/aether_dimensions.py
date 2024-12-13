@@ -30,6 +30,7 @@ class AetherDimensions:
     """
 
     def __init__(self, window_h: int = 0, window_w: int = 0):
+        """Initialize placeholder values and trigger an update to populate them."""
         # Terminal Size
         self.term_size_h: int = 0
         self.term_size_w: int = 0
