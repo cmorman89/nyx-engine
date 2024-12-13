@@ -27,6 +27,18 @@ Mythology:
     In the Greek pantheon, Hemera is the personification of day and light, the daughter of Nyx
     (Night) and Erebus (Darkness). As the embodiment of light she dispels the shadows of night,
     bringing clarity and illumination to creation and all within it.
+
+Notes:
+
+    - Chars to use: [ █ , ▀ , ▄ ]
+
+    - FPS     Time (ms)
+      =================
+      1         1000.00
+      5          200.00
+      10         100.00
+      15          66.66
+      30          33.33
 """
 
 import sys

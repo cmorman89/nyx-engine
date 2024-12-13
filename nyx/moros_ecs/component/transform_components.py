@@ -1,7 +1,8 @@
 """
 Renderable Components Module
 
-This module contains components that can be rendered by Aether.
+This module contains components that modify the position, size, rotation, etc. of the entities that
+can be rendered by Aether.
 """
 
 from nyx.moros_ecs.component.base_components import RenderableComponent
