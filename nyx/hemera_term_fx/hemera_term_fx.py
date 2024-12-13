@@ -22,6 +22,11 @@ The printing workflow is:
 Classes:
     HemeraTermFx: The primary printing orchestration and processing class. It takes a delta frame-
         buffer and prints it to the terminal.
+
+Mythology:
+    In the Greek pantheon, Hemera is the personification of day and light, the daughter of Nyx
+    (Night) and Erebus (Darkness). As the embodiment of light she dispels the shadows of night,
+    bringing clarity and illumination to creation and all within it.
 """
 
 import sys
