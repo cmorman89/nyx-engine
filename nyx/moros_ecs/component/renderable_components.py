@@ -9,7 +9,7 @@ class RenderableComponent(NyxComponent, ABC):
 
 
 class BackgroundColorComponent(RenderableComponent):
-    """Define a single ANSI color code (0-255)"""
+    """Defines a single ANSI color code (0-255)"""
 
     def __init__(self, bg_color_code: int = 0):
         if 0 <= bg_color_code <= 255:
@@ -58,18 +58,3 @@ class PositionComponenta(RenderableComponent):
     def __init__(self, x: int, y: int):
         self.x = x
         self.y = y
-
-
-# class TransformComponent(NyxComponent):
-#     def __init__(self, x: int, y: int):1
-#         self.x = x
-#         self.y = y
-
-
-# class GraphicComponent(NyxComponent):
-#     """Hold the 2D NumPy array/texture for sprites or other objects with behaviors."""
-
-#     def __init__(self, graphic_arr: np.ndarray):
-#         if not isinstance(graphic_arr, np.ndarray) or graphic_arr.dtype != np.uint8:
-#             raise ValueError("Graphic must be a numpy ndarray of dtype 'uint8'")
-#         self.graphic_arr = graphic_arr
