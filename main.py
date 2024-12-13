@@ -61,7 +61,7 @@ if __name__ == "__main__":
     # Scroll left -> right = positive value
     # SCroll right -> left = negative value
     x_pos = 0
-    x_vel = -2
+    x_vel = -4
     trip_randomize = 0
     # Loop to regenerate colors
     tilemap = np.random.randint(1, 16, size=(10, 20), dtype=np.uint8)
@@ -84,8 +84,8 @@ if __name__ == "__main__":
         # Call the render system to collect entities and pass to Aether
         z_indexed_entities = aether_collector.update()
 
-        aether_renderer.viewport_h = 224
-        aether_renderer.viewport_w = 228
+        aether_renderer.dimensions.window_h = 180
+        aether_renderer.dimensions.window_w = 240
         merged_frame = aether_renderer.accept_entities(
             aether_collector.update()
         ).render()
@@ -96,7 +96,7 @@ if __name__ == "__main__":
             x_pos = x_pos % w
         hemera_term_api.print(merged_frame)
         if trip_randomize == 10:
-            tilemap = np.random.randint(1, 16, size=(10, 20), dtype=np.uint8)
+            tilemap = np.random.randint(1, 16, size=(6, 8), dtype=np.uint8)
             trip_randomize = 0
             component_store.register_entity_component(
                 scene_entity, TilemapComponent(tilemap, 32)
@@ -108,6 +108,7 @@ if __name__ == "__main__":
         # time.sleep(2)
         # time.sleep(0.5)
         # time.sleep(0.0666)  # 15 fps
-        # time.sleep(0.0333)  # 30 fps
-        time.sleep(0.0167)  # 60 fps
+        time.sleep(0.0333)  # 30 fps
+        # time.sleep(0.0222)  #45 fps
+        # time.sleep(0.0167)  # 60 fps
         # time.sleep(0.00833)  # 120 FPS
