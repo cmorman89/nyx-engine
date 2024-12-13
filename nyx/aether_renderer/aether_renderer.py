@@ -1,34 +1,68 @@
-from math import ceil
+"""
+AetherRenderer Frame Rendering Module
+
+This module processes game entities and components in layers before merging those layers into a
+final frame that is sent to Hemera for printing to the terminal.
+
+Classes:
+    AetherRenderer: The primary orchestrator of entity rendering, respoinsible for generating
+        layered subframes and then merging them into a frame to be printed. Needs split up.
+
+Mythology:
+    In the Greek pantheon, Aether is the son of Nyx (Night) and Erebus (Darkness). He personifies
+    the upper air -- the pure, bright atmosphere breathed by the gods. Aether is also considered the
+    ethereal medium through which the divine realm is perceived, representing the luminous,
+    untainted essence that fills the heavens.
+
+TODO:
+    - Store frame layers as a 3D axis-0 stack of 2d arrays (numpy)
+
+"""
+
 from typing import Dict
 from uuid import UUID
 
 import numpy as np
 
-from nyx.moirai_ecs.component.renderable_components import (
+from nyx.aether_renderer.aether_dimensions import AetherDimensions
+from nyx.moros_ecs.component.renderable_components import (
     BackgroundColorComponent,
     RenderableComponent,
     TilemapComponent,
 )
-from nyx.nyx_engine.stores.tileset_store import TilesetStore
-from nyx.hemera_term_fx.term_utils import TerminalUtils
+from nyx.moros_ecs.system.tileset_system import TilemapSystem
 
 
 class AetherRenderer:
-    def __init__(self, viewport_h: int = 0, viewport_w: int = 0):
-        terminal_size = TerminalUtils.get_terminal_dimensions()
-        self.term_h = (terminal_size.lines - 4) * 2
-        self.term_w = terminal_size.columns - 2
-        self.viewport_h = viewport_h
-        self.viewport_w = viewport_w
-        self.view_h = 0
-        self.view_w = 0
-        self._update_terminal_size()
+    """
+
+    Attributes:
+        term_size_h:
+    """
+
+    def __init__(self, window_h: int = 0, window_w: int = 0):
+        """Initialize the renderer with constraints on the render window dimensions and placeholder
+        dictionaries/frames/ndarrays.
+
+        Args:
+            window_h (int, optional): The maximum rendering height. Defaults to 0, a skipped value
+            window_w (int, optional): The maximum rendering width. Defaults to 0, a skipped value
+        """
+
+        # Rendering window sizes and constraints
+        self.dimensions = AetherDimensions(window_h=window_h, window_w=window_w)
+
+        # State-related data
         self.pos_x: int = 0
         self.pos_y: int = 0
-        self.background_color_code = 0
-        self.z_indexed_entity_layers = {}
+        self.background_color_code: int | np.uint8 = 0
+
+        # Entities
         self.current_layer_entities = {}
-        self.z_indexed_working_frames = {}
+        self.layered_entities = {}
+
+        # Frames/ndarrays
+        self.layered_frames = {}
         self.merged_frame: np.ndarray = self._new_merged_frame()
 
     def accept_entities(
@@ -42,15 +76,15 @@ class AetherRenderer:
         Returns:
             _type_: _description_
         """
-        self.z_indexed_entity_layers = entities
+        self.layered_entities = entities
         return self
 
     def render(self):
         """Main entry point for rendering"""
-        if not self.z_indexed_entity_layers:
+        self.layered_frames = {}
+        if not self.layered_entities:
             raise ValueError("AetherRenderer has no layers to render.")
         self._update_terminal_size()
-        self.z_indexed_working_frames = {}
         self._new_merged_frame()
         self._process_layers()
         self._merge_layers()
@@ -59,14 +93,16 @@ class AetherRenderer:
 
     def _new_merged_frame(self):
         """Create a new merged_frame"""
-        self.merged_frame = np.zeros((self.view_h, self.view_w), dtype=np.uint8)
+        self.merged_frame = np.zeros(
+            (self.effective_view_h, self.effective_view_w), dtype=np.uint8
+        )
 
     def _process_layers(self):
         """Iterate through each z-index layer and process entities/components by calling a
         handling method."""
-        for z_index, entity_dict in self.z_indexed_entity_layers.items():
+        for z_index, entity_dict in self.layered_entities.items():
             self._new_subframe(z_index)
-            for entity_id, component_dict in entity_dict.items():
+            for component_dict in entity_dict.values():
                 for component in component_dict.values():
                     # Store background color in z-index 0 layer for later use.
                     if z_index == 0 and isinstance(component, BackgroundColorComponent):
@@ -76,8 +112,8 @@ class AetherRenderer:
 
     def _new_subframe(self, z_index: int = 0):
         """Create a new working frame for each z-index/priority/layer."""
-        self.z_indexed_working_frames[z_index] = np.zeros(
-            (self.view_h, self.view_w), dtype=np.uint8
+        self.layered_frames[z_index] = np.zeros(
+            (self.effective_view_h, self.effective_view_w), dtype=np.uint8
         )
 
     def _merge_layers(self):
@@ -85,7 +121,7 @@ class AetherRenderer:
         high to low"""
         # Cache values before loop
         subframe_stack = (
-            self.z_indexed_working_frames
+            self.layered_frames
         )  # Dict = {z_index (int), subframe (ndarray)}
         merged_frame = self.merged_frame  # Note: ndarray, uint8
 
@@ -110,59 +146,5 @@ class AetherRenderer:
         self.background_color_code = bg_component.bg_color_code
 
     def _process_tilemap_component(self, component: TilemapComponent):
-        # Tilemap exclusively occupies layer 0
-        rendered_map = self.z_indexed_working_frames[0]
-        textures = TilesetStore.tileset_textures
-
-        # Culling:
-        #   Extend rendering to frame bounds (but not exceeding)
-        #   - Slices the frame/rendered map to match the current tile
-        #   - AND slices the tile if it will exceed frame bounds
-        tilemap = component.tilemap
-        tile_d = component.tile_dimension
-
-        # Get window size
-        view_w = self.view_w
-        view_h = self.view_h
-
-        # Set/calculate tilemap bounds
-        map_h, map_w = tilemap.shape
-        map_w_max = ceil(self.view_w / tile_d)
-        map_h_max = ceil(self.view_h / tile_d)
-
-        # Ignore tilemap array values that would be outside the render window
-        for y in range(min(map_h, map_h_max)):
-            for x in range(min(map_w, map_w_max)):
-                # Get the tile id of the current array element (located index)
-                tile_id = tilemap[y, x]
-
-                # Get the texture for that tile ID.
-                tile_texture = textures[tile_id]
-
-                # Ensure no frame OOB violations
-                tile_x_start = x * tile_d
-                tile_x_end = min((x + 1) * tile_d, view_w)
-                tile_w = tile_x_end - tile_x_start
-
-                tile_y_start = y * tile_d
-                tile_y_end = min((y + 1) * tile_d, view_h)
-                tile_h = tile_y_end - tile_y_start
-
-                # Slice the frame to match the tile size
-                rendered_map[tile_y_start:tile_y_end, tile_x_start:tile_x_end] = (
-                    tile_texture[0:tile_h, 0:tile_w]
-                )
-
-    def _update_terminal_size(self):
-        terminal_size = TerminalUtils.get_terminal_dimensions()
-        self.term_h = (terminal_size.lines - 4) * 2
-        self.term_w = terminal_size.columns - 2
-        self.view_h = (
-            min(self.viewport_h, self.term_h) if self.viewport_h > 0 else self.term_h
-        )
-        self.view_w = (
-            min(self.viewport_w, self.term_w) if self.viewport_w > 0 else self.term_w
-        )
-
-        if self.view_h % 2 != 0:
-            self.view_h -= 1
+        tm_sys = TilemapSystem(self.layered_frames[0], self.dimensions)
+        tm_sys.process(component)
