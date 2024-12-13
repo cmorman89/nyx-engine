@@ -1,18 +1,4 @@
-"""
-Render System Module
-
-Rendering system to take a GraphicalComponent and print it to the terminal.
-
-Note:
-    - Chars to use: [ █ , ▀ , ▄ ]
-    - This will likely split into the basic rendering system that then feeds into the larger terminal graphics rendering api
-    -   FPS  Target Processing Time per Frame (ms)
-        1                             1000.00
-        5                               200.00
-        10                             100.00
-        15                               66.66
-        30                               33.33
-"""
+""" """
 
 from nyx.moros_ecs.component.base_components import RenderableComponent
 from nyx.nyx_engine.stores.component_store import ComponentStore
@@ -53,36 +39,3 @@ class AetherBridgeSystem(MorosSystem):
 
         if len(z_indexed_entities) > 0:
             return z_indexed_entities
-
-
-#     def render(self, clear_term: bool = True):
-#         """Render the entity to the terminal."""
-#         entity_manager = self.ecs
-#         buffer = np.zeros((self.view_height, self.view_width), dtype=np.uint8)
-#         self._initialize_terminal(clear_term=clear_term)
-#         for entity in entity_manager.entities:
-#             components = entity.get_components()
-#             transform_comp = components.get("TransformComponent")
-#             graphic_comp = components.get("GraphicComponent")
-
-#             if transform_comp and graphic_comp:
-#                 x, y = transform_comp.x, transform_comp.y
-#                 graphic_array = np.repeat(graphic_comp.graphic_arr, 3, axis=1)
-
-#                 h, w = graphic_array.shape
-
-#                 buffer[y : y + h, x : x + w] = graphic_array
-#             self._preframe_actions()
-#             self._draw_buffer(buffer=buffer)
-
-#     def _draw_buffer(self, buffer: np.ndarray):
-#         # Generate an empty array of correct dtype and one extra column.
-#         row, cols = buffer.shape
-#         rasterized_buffer = np.empty((row, cols + 1), dtype=">U20")
-#         # Fill the new column with new line chars.
-#         rasterized_buffer[:, -1] = "\n"
-#         # Map buffer of ints to pre-generated, ANSI-formatted strings.
-#         rasterized_buffer[:, :-1] = self._ansi_table[buffer]
-#         # Write to the terminal.
-#         sys.stdout.write("".join(rasterized_buffer.ravel()) + "\033[0m\n")
-#         sys.stdout.flush()

@@ -2,12 +2,15 @@ import time
 from typing import Dict
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherRenderer
-from nyx.moros_ecs.component.renderable_components import (
-    BackgroundColorComponent,
-    TilemapComponent,
+from nyx.moros_ecs import component
+from nyx.moros_ecs.component.transform_components import (
     ZIndexComponent,
 )
-from nyx.moros_ecs.component.scene_component import SceneComponent
+from nyx.moros_ecs.component.scene_components import (
+    BackgroundColorComponent,
+    SceneComponent,
+    TilemapComponent,
+)
 from nyx.nyx_engine.stores.component_store import ComponentStore
 from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
 from nyx.moros_ecs.system.aether_bridge_system import AetherBridgeSystem
@@ -55,38 +58,56 @@ if __name__ == "__main__":
 
     # Clear the terminal before the first run
     TerminalUtils.clear_term()
-
+    # Scroll left -> right = positive value
+    # SCroll right -> left = negative value
+    x_pos = 0
+    x_vel = -2
+    trip_randomize = 0
     # Loop to regenerate colors
-    while True:
-        tilemap = np.random.randint(1, 16, size=(10, 20), dtype=np.uint8)
-        # Create "LevelRoot" Entity
-        scene_entity = entity_manager.create_entity("scene-1")
+    tilemap = np.random.randint(1, 16, size=(10, 20), dtype=np.uint8)
+    # Create "LevelRoot" Entity
+    scene_entity = entity_manager.create_entity("scene-1")
 
-        # Add components to entity
-        (
-            component_store.register_entity_component(
-                scene_entity, SceneComponent("demo-map")
-            )
-            .register_entity_component(scene_entity, ZIndexComponent(0))
-            # .register_entity_component(scene_entity, BackgroundColorComponent(33))
-            .register_entity_component(scene_entity, BackgroundColorComponent(16))
-            .register_entity_component(
-                scene_entity, TilemapComponent(tilemap, tile_dimension=tile_dimension)
-            )
+    # Add components to entity
+    (
+        component_store.register_entity_component(
+            scene_entity, SceneComponent("demo-map")
         )
-
+        .register_entity_component(scene_entity, ZIndexComponent(0))
+        # .register_entity_component(scene_entity, BackgroundColorComponent(33))
+        .register_entity_component(scene_entity, BackgroundColorComponent(16))
+        .register_entity_component(
+            scene_entity, TilemapComponent(tilemap, tile_dimension=tile_dimension)
+        )
+    )
+    while True:
         # Call the render system to collect entities and pass to Aether
         z_indexed_entities = aether_collector.update()
 
         aether_renderer.viewport_h = 224
         aether_renderer.viewport_w = 228
-        merged_frame = aether_renderer.render(aether_collector.update()).render()
+        merged_frame = aether_renderer.accept_entities(
+            aether_collector.update()
+        ).render()
+        merged_frame = np.roll(merged_frame, x_pos, axis=1)
+        _, w = merged_frame.shape
+        x_pos += x_vel
+        if x_pos >= w or x_pos <= -w:
+            x_pos = x_pos % w
         hemera_term_api.print(merged_frame)
+        if trip_randomize == 10:
+            tilemap = np.random.randint(1, 16, size=(10, 20), dtype=np.uint8)
+            trip_randomize = 0
+            component_store.register_entity_component(
+                scene_entity, TilemapComponent(tilemap, 32)
+            )
+        else:
+            trip_randomize += 1
         # rendered_frame = aether_renderer.render()
         # hemera_term_api.output(rendered_frame)
         # time.sleep(2)
-        time.sleep(0.5)
-        # time.sleep(0.0666) # 15 fps
+        # time.sleep(0.5)
+        # time.sleep(0.0666)  # 15 fps
         # time.sleep(0.0333)  # 30 fps
-        # time.sleep(0.0167) # 60 fps
+        time.sleep(0.0167)  # 60 fps
         # time.sleep(0.00833)  # 120 FPS
