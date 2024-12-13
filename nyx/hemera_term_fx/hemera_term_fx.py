@@ -139,7 +139,7 @@ class HemeraTermFx:
                 # non-printing (0, 0)
                 if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
                     sys.stdout.write(run_buffer)
-                    run_buffer = TerminalUtils.cursor_subpixel_abs_move(x, y)
+                    run_buffer = TerminalUtils.cursor_abs_move(x, y)
 
                 # Issue color format sequences only when a new color is needed
                 if fg_color != last_ansi_fg_color:

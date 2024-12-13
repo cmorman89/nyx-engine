@@ -50,17 +50,18 @@ class AetherDimensions:
 
     def _set_terminal_size(self):
         """Pad and store the current terminal size dimensions."""
-        terminal_size = TerminalUtils.get_terminal_dimensions()
+        terminal_size_y, terminal_size_x = TerminalUtils.get_terminal_dimensions()
         padding_h = 4
         padding_w = 2
         self.term_size_h = (
-            terminal_size.lines - padding_h
+            terminal_size_y - padding_h
         ) * 2  # 2 pixel rows -> 1 subpixel row
-        self.term_size_w = terminal_size.columns - padding_w
+        self.term_size_w = terminal_size_x - padding_w
 
     def _set_effective_window(self):
-        """Set the effective, used dimensions for the rendered frames."""
-
+        """Set the effective, usable dimensions for the rendered frames based on terminal size and
+        program-defined window size.
+        """
         # Set the effective window to the program-specified size, up to the padded terminal
         # dimensions. This cutoff is required to prevent lines wrapping around.
         if self._window_is_set():
