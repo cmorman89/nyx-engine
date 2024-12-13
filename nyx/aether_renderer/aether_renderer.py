@@ -15,7 +15,8 @@ Mythology:
     untainted essence that fills the heavens.
 
 TODO:
-    - Store frame layers as a 3D axis-0 stack of 2d arrays (numpy)
+    - Store frame layers as a 3D axis-0 stack of 2d arrays (numpy) #14
+    - Refactor into multiple classes (entity handling, frame generation, etc.)
 
 """
 
@@ -71,20 +72,27 @@ class AetherRenderer:
         """Receive and store the list of entities to render from AetherBridgeSystem
 
         Args:
-            entities (Dict[int, Dict[UUID, Dict[str, RenderableComponent]]]): _description_
+            entities (Dict[int, Dict[UUID, Dict[str, RenderableComponent]]]):
+                The dict or renderable data sent to Aether.
+                For explicit clarity, the structure is:
 
-        Returns:
-            _type_: _description_
+                    {z-index (int): {
+                        entity id (UUID): {
+                            component name (str): component object (RenderableComponent)}}}
         """
         self.layered_entities = entities
         return self
 
-    def render(self):
-        """Main entry point for rendering"""
+    def render(self) -> np.ndarray:
+        """Trigger a render of the current entities list held by Aether.
+
+        Returns:
+            np.ndarray: The merged, 2D frame with uint8 datatype.
+        """
         self.layered_frames = {}
         if not self.layered_entities:
             raise ValueError("AetherRenderer has no layers to render.")
-        self._update_terminal_size()
+        self.dimensions.update()
         self._new_merged_frame()
         self._process_layers()
         self._merge_layers()
@@ -92,14 +100,18 @@ class AetherRenderer:
         return self.merged_frame
 
     def _new_merged_frame(self):
-        """Create a new merged_frame"""
+        """Create a new/blank merged frame (2D ndarray) of the correct dimensions for the z-index
+        layers to collapse into.
+        """
         self.merged_frame = np.zeros(
-            (self.effective_view_h, self.effective_view_w), dtype=np.uint8
+            (self.dimensions.effective_window_h, self.dimensions.effective_window_w),
+            dtype=np.uint8,
         )
 
     def _process_layers(self):
-        """Iterate through each z-index layer and process entities/components by calling a
-        handling method."""
+        """Iterate through each z-index layer and process entities/components by calling a specific
+        system from the MorosECS and directing them to the appropriate subframe to write to.
+        """
         for z_index, entity_dict in self.layered_entities.items():
             self._new_subframe(z_index)
             for component_dict in entity_dict.values():
@@ -111,14 +123,18 @@ class AetherRenderer:
                         self._process_tilemap_component(component)
 
     def _new_subframe(self, z_index: int = 0):
-        """Create a new working frame for each z-index/priority/layer."""
+        """Create a new/blank 2D ndarray for each z-index/priority/layer and insert that subframe
+        into the subframe dict with its z-indice as the key value.
+        """
         self.layered_frames[z_index] = np.zeros(
-            (self.effective_view_h, self.effective_view_w), dtype=np.uint8
+            (self.dimensions.effective_window_h, self.dimensions.effective_window_w),
+            dtype=np.uint8,
         )
 
     def _merge_layers(self):
-        """Merge each z-index subframe (nparray) into the merged frame (nparray) by working from
-        high to low"""
+        """Merge each z-index subframe (2D ndarray) into the merged frame (2D ndarray) by filling
+        transparencies (np.uint8(0)) while iterating the z-indices from high to low.
+        """
         # Cache values before loop
         subframe_stack = (
             self.layered_frames
@@ -132,19 +148,28 @@ class AetherRenderer:
             merged_frame = np.where(
                 merged_frame == 0, subframe_stack[z_index], merged_frame
             )
+
+        # Update the instance's reference to the new ndarray (due to np.where creating a new frame)
         self.merged_frame = merged_frame
 
     def _apply_bg_color(self):
-        """Replace any '0' in the nparray/frame with the background color code."""
-        merged_frame = self.merged_frame
-        merged_frame[merged_frame == 0] = self.background_color_code
+        """Replace any '0' in the final, merged 2D ndarray/frame with the stored background ansi
+        color code (unless it is already zero).
+        """
+        if self.background_color_code != 0:
+            self.merged_frame[self.merged_frame == 0] = self.background_color_code
 
     def _process_background_color_component(
         self, bg_component: BackgroundColorComponent
     ):
-        """Store the background color for later use."""
+        """Store the background color for use at the end of frame generation."""
         self.background_color_code = bg_component.bg_color_code
 
     def _process_tilemap_component(self, component: TilemapComponent):
+        """Process a `TilemapComponent` by its associated `MorosSystem`.
+
+        Args:
+            component (TilemapComponent): The component holding a tilemap array.
+        """
         tm_sys = TilemapSystem(self.layered_frames[0], self.dimensions)
         tm_sys.process(component)
