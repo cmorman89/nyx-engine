@@ -1,17 +1,16 @@
-
 import time
 from typing import Dict
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherRenderer
-from nyx.moirai_ecs.component.renderable_components import (
+from nyx.moros_ecs.component.renderable_components import (
     BackgroundColorComponent,
     TilemapComponent,
     ZIndexComponent,
 )
-from nyx.moirai_ecs.component.scene_component import SceneComponent
-from nyx.nyx_engine.stores.nyx_component_store import NyxComponentStore
-from nyx.nyx_engine.managers.nyx_entity_manager import NyxEntityManager
-from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
+from nyx.moros_ecs.component.scene_component import SceneComponent
+from nyx.nyx_engine.stores.component_store import ComponentStore
+from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
+from nyx.moros_ecs.system.aether_bridge_system import AetherBridgeSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
 from nyx.hemera_term_fx.term_utils import TerminalUtils
@@ -20,10 +19,10 @@ from nyx.utils.nyx_asset_import import NyxAssetImport
 
 if __name__ == "__main__":
     # Load Early Managers, Stores, Assets, Systems
-    entity_manager = NyxEntityManager()
+    entity_manager = MorosEntityManager()
     aether_renderer = AetherRenderer()
     hemera_term_api = HemeraTermFx()
-    component_store = NyxComponentStore(entity_manager)
+    component_store = ComponentStore(entity_manager)
     aether_collector = AetherBridgeSystem(entity_manager, component_store)
 
     # Create a simple tile map and tiles
@@ -81,9 +80,7 @@ if __name__ == "__main__":
 
         aether_renderer.viewport_h = 224
         aether_renderer.viewport_w = 228
-        merged_frame = aether_renderer.accept_entities(
-            aether_collector.update()
-        ).render()
+        merged_frame = aether_renderer.render(aether_collector.update()).render()
         hemera_term_api.print(merged_frame)
         # rendered_frame = aether_renderer.render()
         # hemera_term_api.output(rendered_frame)

@@ -10,12 +10,12 @@ Classes:
 
 from typing import Dict
 from uuid import UUID
-from nyx.moirai_ecs.component.nyx_component import NyxComponent
-from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
-from nyx.nyx_engine.managers.nyx_entity_manager import NyxEntityManager
+from nyx.moros_ecs.component.nyx_component import NyxComponent
+from nyx.moros_ecs.entity.nyx_entity import NyxEntity
+from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
 
 
-class NyxComponentStore:
+class ComponentStore:
     """Centrally stores, manages, and retieves components for NyxEntities, indexed by their
     entity_id/UUID. Entity friendly name retreival is also supported.
 
@@ -25,9 +25,9 @@ class NyxComponentStore:
 
     """
 
-    def __init__(self, entity_manager: NyxEntityManager):
+    def __init__(self, entity_manager: MorosEntityManager):
         """Initialize with a reference to the entity manager and an empty component registry."""
-        self.entity_manager: NyxEntityManager = entity_manager
+        self.entity_manager: MorosEntityManager = entity_manager
         self.component_registry: Dict[UUID, Dict[str, NyxComponent]] = {}
 
     def register_entity_component(

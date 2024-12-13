@@ -14,20 +14,20 @@ Note:
         30                               33.33
 """
 
-from nyx.moirai_ecs.component.renderable_components import RenderableComponent
-from nyx.nyx_engine.stores.nyx_component_store import NyxComponentStore
-from nyx.nyx_engine.managers.nyx_entity_manager import NyxEntityManager
-from nyx.moirai_ecs.system.nyx_system_base import NyxSystem
+from nyx.moros_ecs.component.renderable_components import RenderableComponent
+from nyx.nyx_engine.stores.component_store import ComponentStore
+from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
+from nyx.moros_ecs.system.moros_system_base import MorosSystem
 
 
-class AetherBridgeSystem(NyxSystem):
+class AetherBridgeSystem(MorosSystem):
     """Responsible for collecting all renderable components and passing them to Aether for
     composition and prioritization."""
 
     def __init__(
         self,
-        entity_manager: NyxEntityManager,
-        component_store: NyxComponentStore,
+        entity_manager: MorosEntityManager,
+        component_store: ComponentStore,
     ):
         super().__init__(entity_manager)
         self.component_store = component_store

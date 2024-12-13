@@ -1,9 +1,16 @@
+"""
+
+Mythology:
+   In Greek mythology, Moros is the personified spirit of impending doom, who drives mortals to
+   their deadly fate. It was also said that Moros gave people the ability to foresee their death.
+"""
+
 from typing import Dict
 from uuid import UUID
-from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
+from nyx.moros_ecs.entity.nyx_entity import NyxEntity
 
 
-class NyxEntityManager:
+class MorosEntityManager:
     def __init__(self):
         self._entity_registry: Dict[UUID, NyxEntity] = {}
         self._friendly_name_registry: Dict[str, NyxEntity] = {}

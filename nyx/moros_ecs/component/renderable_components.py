@@ -1,7 +1,7 @@
 from abc import ABC
 
 import numpy as np
-from nyx.moirai_ecs.component.nyx_component import NyxComponent
+from nyx.moros_ecs.component.nyx_component import NyxComponent
 
 
 class RenderableComponent(NyxComponent, ABC):

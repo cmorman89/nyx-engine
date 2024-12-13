@@ -1,4 +1,4 @@
-from nyx.moirai_ecs.component.renderable_components import RenderableComponent
+from nyx.moros_ecs.component.renderable_components import RenderableComponent
 
 
 class SceneComponent(RenderableComponent):
