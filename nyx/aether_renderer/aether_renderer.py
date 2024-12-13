@@ -26,9 +26,11 @@ from uuid import UUID
 import numpy as np
 
 from nyx.aether_renderer.aether_dimensions import AetherDimensions
-from nyx.moros_ecs.component.renderable_components import (
-    BackgroundColorComponent,
+from nyx.moros_ecs.component.base_components import (
     RenderableComponent,
+)
+from nyx.moros_ecs.component.scene_components import (
+    BackgroundColorComponent,
     TilemapComponent,
 )
 from nyx.moros_ecs.system.tileset_system import TilemapSystem

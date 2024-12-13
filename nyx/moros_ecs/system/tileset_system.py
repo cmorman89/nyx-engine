@@ -2,7 +2,7 @@ from math import ceil
 
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherDimensions
-from nyx.moros_ecs.component.renderable_components import TilemapComponent
+from nyx.moros_ecs.component.scene_components import TilemapComponent
 from nyx.moros_ecs.system.moros_system_base import MorosSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
 

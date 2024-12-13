@@ -1,11 +1,19 @@
-from abc import ABC
+"""
+Scene Components Module
+
+This module contains scene-level components that can be rendered by Aether, such as a background
+color and a tilemap.
+"""
 
 import numpy as np
-from nyx.moros_ecs.component.nyx_component import NyxComponent
+from nyx.moros_ecs.component.base_components import RenderableComponent
 
 
-class RenderableComponent(NyxComponent, ABC):
-    """Abstract base class of all components that can be rendered by HemeraTerm"""
+class SceneComponent(RenderableComponent):
+    """Signify entity as a high level/top level component"""
+
+    def __init__(self, friendly_name: str):
+        self.friendly_name = friendly_name
 
 
 class BackgroundColorComponent(RenderableComponent):
@@ -23,13 +31,6 @@ class BackgroundColorComponent(RenderableComponent):
         return f"{type(self).__name__}(bg_color_code={self.bg_color_code})"
 
 
-class ZIndexComponent(RenderableComponent):
-    """Defines the layer prioritization (higher = higher priority)"""
-
-    def __init__(self, z_index: int):
-        self.z_index: int = z_index
-
-
 class TilemapComponent(RenderableComponent):
     """Holds the 2D NumPy array of tile IDs that compose the tilemap and the size of a tile"""
 
@@ -43,18 +44,3 @@ class TilemapComponent(RenderableComponent):
     def __str__(self):
         """Return the class name (which is same as component name) when called as string."""
         return f"{type(self).__name__}"
-
-
-class DimensionsComponent(RenderableComponent):
-    def __init__(self, height: int, width: int):
-        """Creates height, width bounds for an entity."""
-        self.height = height
-        self.width = width
-
-
-class PositionComponenta(RenderableComponent):
-    """Position of the the (0,0) origin of the entity within the frame."""
-
-    def __init__(self, x: int, y: int):
-        self.x = x
-        self.y = y

@@ -14,7 +14,7 @@ Note:
         30                               33.33
 """
 
-from nyx.moros_ecs.component.renderable_components import RenderableComponent
+from nyx.moros_ecs.component.base_components import RenderableComponent
 from nyx.nyx_engine.stores.component_store import ComponentStore
 from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
 from nyx.moros_ecs.system.moros_system_base import MorosSystem
