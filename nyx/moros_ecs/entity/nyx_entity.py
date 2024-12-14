@@ -1,9 +1,16 @@
+"""
+NyxEntity Module
+
+This module defines the entity class within the ECS architecture. An entity holds a globally unique
+reference ID (UUID) which is then linked to different components or assets within the game engine.
+"""
+
 from uuid import UUID, uuid4
 
 
 class NyxEntity:
-    """Provide a globally unique ID to act as a reference for a Nyx object, which is a container of components within the
-    `NyxEntityManager`
+    """Define the game entity object, which holds a globally unique reference ID (UUID). This ID is
+    then linked to different components or assets within the game engine.
 
     Attributes:
         entity_id (UUID): The globally unique ID of this entity.

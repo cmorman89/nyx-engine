@@ -1,11 +1,12 @@
 """
-NyxEngine Component Store Module
+Component Store Module
 
 Manages and organizes the components that define the behaviors of game entities. The components are
 indexed and can be queried by the unique entity_id/UUID of the parent entity.
 
 Classes:
-    NyxComponentStore: The centralized storage of all NyxComponents in NyxEngine, organized by entity_id/UUID.
+    ComponentStore: The centralized storage of all Components in NyxEngine, organized by entity_id/
+        UUID.
 """
 
 from typing import Dict
@@ -18,11 +19,6 @@ from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
 class ComponentStore:
     """Centrally stores, manages, and retieves components for NyxEntities, indexed by their
     entity_id/UUID. Entity friendly name retreival is also supported.
-
-    Methods:
-        register_component_to_entity:
-        unreguster_component_from_entity:
-
     """
 
     def __init__(self, entity_manager: MorosEntityManager):
@@ -36,8 +32,9 @@ class ComponentStore:
         """Register a component to an entity in the component registry by its UUID.
 
         Args:
-            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or friendly_name.
-            component (NyxComponent): The component to add to the entity.
+            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or friendly
+                name.
+            component (Component): The component to add to the entity.
         """
         # Fetch/validate the entity
         entity = self.entity_manager.get_entity(entity_identifier)
@@ -56,10 +53,10 @@ class ComponentStore:
         """Remove a given component from an entity.
 
         Args:
-            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or
-                friendly_name.
-            component_type (str | NyxComponent): The class name as a string, an instance of the
-                NyxComponent, or a NyxComponent class itself.
+            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or friendly
+                name.
+            component_type (str | Component): The class name as a string, an instance of the
+                Component, or a Component class itself.
         """
         entity = self.entity_manager.get_entity(entity_identifier)
         component_type = self.validate_component_type(component_type)
@@ -68,15 +65,15 @@ class ComponentStore:
             return self
         raise KeyError(
             "Unable to delete component."
-            + f'NyxComponent="{component_type}" not found for NyxEntity="{entity!r}".'
+            + f'Component="{component_type}" not found for NyxEntity="{entity!r}".'
         )
 
     def unregister_entity(self, entity_identifier: NyxEntity | UUID | str):
         """Remove an entity and all its components from the component registry.
 
         Args:
-            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or
-                friendly_name.
+            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or friendly
+                name.
         """
         entity = self.entity_manager.get_entity(entity_identifier)
         if entity.entity_id in self.component_registry:
@@ -94,17 +91,17 @@ class ComponentStore:
         """Fetch a particular component for an entity in the component registry.
 
         Args:
-            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or
-                friendly_name.
-            component_type (str | NyxComponent): The class name as a string, an instance of the
-                NyxComponent, or a NyxComponent class itself.
+            entity_identifier (NyxEntity | UUID | str): Look up by entity obj, UUID, or friendly
+                name.
+            component_type (str | Component): The class name as a string, an instance of the
+                Component, or a Component class itself.
 
 
         Raises:
-            KeyError: The NyxEntity or NyxComponent was not found in the component registry.
+            KeyError: The NyxEntity or Component was not found in the component registry.
 
         Returns:
-            NyxComponent: The requested component for the given entity.
+            Component: The requested component for the given entity.
         """
         entity = self.entity_manager.get_entity(entity_identifier)
         component_type = self.validate_component_type(component_type)
@@ -128,7 +125,7 @@ class ComponentStore:
             KeyError: The NyxEntity was not found in the component registry.
 
         Returns:
-            Dict[str, NyxComponent]: The class name and instance of all components registered to
+            Dict[str, Component]: The class name and instance of all components registered to
                 the NyxEntity..
         """
         entity = self.entity_manager.get_entity(entity_identifier)
@@ -138,11 +135,11 @@ class ComponentStore:
         raise KeyError(f"Entity not found in component registry, entity={entity!r}")
 
     def validate_component_type(self, component_type: str | BaseComponent) -> str:
-        """Return the class name of a provided NyxComponent.
+        """Return the class name of a provided Component.
 
         Args:
-            component_type (str | NyxComponent): The class name as a string, an instance of the
-                NyxComponent, or a NyxComponent class itself.
+            component_type (str | Component): The class name as a string, an instance of the
+                Component, or a Component class itself.
 
         Returns:
             str: The name of the component class as a string.

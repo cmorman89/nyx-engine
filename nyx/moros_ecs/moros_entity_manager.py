@@ -1,8 +1,17 @@
 """
+MorosEntity Manager Module
+
+This module orcehstrates the creation and destruction of entities in the ECS architecture, keeping a
+registry of current, alive entities and their unique entity IDs.
+
+Classes:
+    MorosEntityManager: Performs CRUD operations of game entities within its held entity registry.
 
 Mythology:
-   In Greek mythology, Moros is the personified spirit of impending doom, who drives mortals to
-   their deadly fate. It was also said that Moros gave people the ability to foresee their death.
+    In the Greek pantheon, Moros is the son of Nyx (Night) and personifies the inexorable force of
+    doom. He is the relentless power that drives all beings, mortal and divine alike, toward their
+    fated end, embodying the inevitability of death and destiny. It is said that not even the gods,
+    including Zeus, could defy the unyielding nature of Moros and the cosmic laws he represents.
 """
 
 from typing import Dict
@@ -11,6 +20,10 @@ from nyx.moros_ecs.entity.nyx_entity import NyxEntity
 
 
 class MorosEntityManager:
+    """Holds and performs CRUD operations on registries for entities and their entity ids, as well
+    as entities and their friendlynames.
+    """
+
     def __init__(self):
         self._entity_registry: Dict[UUID, NyxEntity] = {}
         self._friendly_name_registry: Dict[str, NyxEntity] = {}

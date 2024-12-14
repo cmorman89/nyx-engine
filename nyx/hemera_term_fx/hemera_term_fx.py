@@ -130,7 +130,8 @@ class HemeraTermFx:
         to the terminal.
 
         Args:
-            delta_frame (np.ndarray): The delta frame to process and print"""
+            delta_frame (np.ndarray): The delta frame to process and print.
+        """
 
         run_buffer = ""
         last_ansi_fg_color, last_ansi_bg_color = np.uint8(0), np.uint8(0)

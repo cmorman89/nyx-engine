@@ -1,20 +1,47 @@
+"""
+Tilemap System Module
+
+This module processes tilemap components by replacing the array of reference tile IDs in the
+tilemap with the matching tile texture, while ensuring that terminal and window size constraints
+are respected.
+"""
+
 from math import ceil
 
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherDimensions
 from nyx.moros_ecs.component.scene_components import TilemapComponent
-from nyx.moros_ecs.system.moros_system_base import MorosSystem
+from nyx.moros_ecs.system.base_systems import BaseSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
 
 
-class TilemapSystem(MorosSystem):
-    def __init__(self, frame: np.ndarray, dimensions: AetherDimensions):
-        self.frame: np.ndarray = frame
+class TilemapSystem(BaseSystem):
+    """Processes the tilemap reference IDs to create the rendered tilemap.
+
+    Attributes:
+        subframe (np.ndarray): The subframe to write the rendered tilemap to.
+        dimensions (AetherDimensions): The class holding current rendering dimension data.
+    """
+
+    def __init__(self, subframe: np.ndarray, dimensions: AetherDimensions):
+        """Initialize the tilemap system with a subframe to write to and the current render size.
+
+        Args:
+            subframe (np.ndarray): The subframe to write the rendered tilemap to.
+            dimensions (AetherDimensions): The class holding current rendering dimension data.
+        """
+        self.subframe: np.ndarray = subframe
         self.dimensions: AetherDimensions = dimensions
 
     def process(self, component: TilemapComponent):
+        """Replace the tilemap references with the 2D ndarray tile textures without exceeding the
+        terminal or window bounds.
+
+        Args:
+            component (TilemapComponent): The component holding the tilemap.
+        """
         # Tilemap exclusively occupies layer 0
-        rendered_map = self.frame
+        rendered_map = self.subframe
         textures = TilesetStore.tileset_textures
         tilemap = component.tilemap
 

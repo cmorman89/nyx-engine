@@ -75,7 +75,7 @@ class AetherRenderer:
 
         Args:
             entities (Dict[int, Dict[UUID, Dict[str, RenderableComponent]]]):
-                The dict or renderable data sent to Aether.
+                The dict of renderable data sent to Aether.
                 For explicit clarity, the structure is:
 
                     {z-index (int): {
