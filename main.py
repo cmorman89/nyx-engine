@@ -2,7 +2,6 @@ import time
 from typing import Dict
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherRenderer
-from nyx.moros_ecs import component
 from nyx.moros_ecs.component.transform_components import (
     ZIndexComponent,
 )
@@ -51,10 +50,6 @@ if __name__ == "__main__":
             tile_friendly_name=tile_friendly_name,
             overwrite=True,
         )
-    # pprint(tile_files)
-    # pprint(tile_imports)
-    # pprint(tileset_store.tileset_textures)
-    # input("Enter to continue")
 
     # Clear the terminal before the first run
     TerminalUtils.clear_term()
@@ -103,8 +98,7 @@ if __name__ == "__main__":
             )
         else:
             trip_randomize += 1
-        # rendered_frame = aether_renderer.render()
-        # hemera_term_api.output(rendered_frame)
+ 
         # time.sleep(2)
         # time.sleep(0.5)
         # time.sleep(0.0666)  # 15 fps
