@@ -21,7 +21,6 @@ TODO:
 """
 
 from typing import Dict
-from uuid import UUID
 
 import numpy as np
 
@@ -69,17 +68,17 @@ class AetherRenderer:
         self.merged_frame: np.ndarray = self._new_merged_frame()
 
     def accept_entities(
-        self, entities: Dict[int, Dict[UUID, Dict[str, RenderableComponent]]]
+        self, entities: Dict[int, Dict[int, Dict[str, RenderableComponent]]]
     ):
         """Receive and store the list of entities to render from AetherBridgeSystem
 
         Args:
-            entities (Dict[int, Dict[UUID, Dict[str, RenderableComponent]]]):
+            entities (Dict[int, Dict[int, Dict[str, RenderableComponent]]]):
                 The dict of renderable data sent to Aether.
                 For explicit clarity, the structure is:
 
                     {z-index (int): {
-                        entity id (UUID): {
+                        entity id (int): {
                             component name (str): component object (RenderableComponent)}}}
         """
         self.layered_entities = entities

@@ -5,18 +5,7 @@
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
-
-
-<table border="0">
-  <tr>
-    <td>
-      <img src="https://github.com/user-attachments/assets/e855c330-f7e9-4021-9a5c-5c03b3cbc759" height="300px" alt="NyxEngine Logo">
-    </td>
-    <td>
-      <img src="docs/readme_assets/animated_stars.gif">
-    </td>
-  </tr>
-</table>
+<img src="https://github.com/user-attachments/assets/e855c330-f7e9-4021-9a5c-5c03b3cbc759" height="300px" alt="NyxEngine Logo">
 
 ---
 
@@ -38,6 +27,12 @@ An experimental, high-performance game engine and rendering pipeline for the ter
 
 ## Overview:
 NyxEngine is a proof-of-concept game engine and rendering pipeline that outputs to a text-based terminal. It aims to push the boundaries of terminal rendering, with no guarantee of success.
+
+For now, it requires a little... _imagination_.
+
+| ![alt text](docs/readme_assets/gif-demo.gif) |
+|:--:|
+| *(Rendered in the terminal via release v0.0.3-alpha.)* |
 
 ---
 
@@ -89,9 +84,19 @@ Here is another example of a nostalgic side-scrolling space scene. The artifacti
 conversion process and isn't present in the terminal. The judder has been amplified by the GIF as
 well.
 
-![alt text](docs/readme_assets/animated_stars.gif)
+| ![alt text](docs/readme_assets/animated_stars.gif) |
+|:--:|
+| *(Rendered in the terminal via release v0.0.3-alpha.)* |
 
-![alt text](docs/readme_assets/static_stars.png)
+| ![alt text](docs/readme_assets/static_stars.png) |
+|:--:|
+| *(Rendered in the terminal via release v0.0.3-alpha.)* |
+
+| ![alt text](docs/readme_assets/gif-demo.gif) |
+|:--:|
+| *(Rendered in the terminal via release v0.0.3-alpha.)* |
+
+
 
 ---
 
