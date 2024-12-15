@@ -33,11 +33,11 @@ class AetherBridgeSystem(BaseSystem):
         """Generate a z-indexed dict of entities and their renderable components.
 
         Returns:
-            Dict[int, Dict[UUID, Dict[str, RenderableComponent]]]): The dict of renderable data sent
+            Dict[int, Dict[int, Dict[str, RenderableComponent]]]): The dict of renderable data sent
                 to Aether. For explicit clarity, the structure is:
 
                     {z-index (int): {
-                        entity id (UUID): {
+                        entity id (int): {
                             component name (str): component object (RenderableComponent)}}}
 
         """

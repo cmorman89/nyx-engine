@@ -15,7 +15,6 @@ Mythology:
 """
 
 from typing import Dict
-from uuid import UUID
 from nyx.moros_ecs.entity.nyx_entity import NyxEntity
 
 
@@ -25,7 +24,7 @@ class MorosEntityManager:
     """
 
     def __init__(self):
-        self._entity_registry: Dict[UUID, NyxEntity] = {}
+        self._entity_registry: Dict[int, NyxEntity] = {}
         self._friendly_name_registry: Dict[str, NyxEntity] = {}
 
     def create_entity(self, friendly_name: str = "") -> NyxEntity:
@@ -43,30 +42,30 @@ class MorosEntityManager:
     def destroy_entity(self):
         return self
 
-    def is_alive(self, entity_identifier: NyxEntity | UUID | str) -> bool:
+    def is_alive(self, entity_identifier: NyxEntity | int | str) -> bool:
         """Check if a NyxEntity is still active in this entity manager.
 
-        Can locate entities by NyxEntity, a UUID (as UUID or str), or the friendly name.
+        Can locate entities by NyxEntity, a int (as int or str), or the friendly name.
 
         Args:
-            entity_identifier (NyxEntity | UUID | str): Identifier to use to locate entity.
+            entity_identifier (NyxEntity | int | str): Identifier to use to locate entity.
 
         Returns:
             bool: _description_
         """
         return entity_identifier in self._entity_registry
 
-    def get_entity(self, entity_identifier: NyxEntity | UUID | str) -> NyxEntity:
+    def get_entity(self, entity_identifier: NyxEntity | int | str) -> NyxEntity:
         if isinstance(entity_identifier, NyxEntity):
             return NyxEntity
-        elif isinstance(entity_identifier, UUID):
+        elif isinstance(entity_identifier, int):
             return self._entity_registry[entity_identifier]
         elif isinstance(entity_identifier, str):
             return self._friendly_name_registry[entity_identifier]
         else:
             raise ValueError(f'NyxEntity with identifier="{entity_identifier}.')
 
-    def get_all_entities(self) -> Dict[UUID, NyxEntity]:
+    def get_all_entities(self) -> Dict[int, NyxEntity]:
         """Return a registry of all entities in this manager.
 
         Returns:

@@ -1,8 +1,14 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.org), 
+The format is based on [Keep a Changelog](https://keepachangelog.com), 
 and this project adheres to [Semantic Versioning](https://semver.org).
+
+## [UNRELEASED]
+### Added
+- Add unit testing for `NyxEntity`
+### Changed
+- Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
 
 ## [0.0.3-alpha] - 2024-12-13
 ### Added
