@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
   
 ### Changed
 - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
-- Simplify `MoraiEntityManager` by removing friendly name lookup/mapping.
+- Simplify `MoraiEntityManager` by removing friendly name lookup/mapping and providing a method to clear the registry.
 
 
 ## [0.0.3-alpha] - 2024-12-13
