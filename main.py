@@ -1,8 +1,5 @@
-import time
-from typing import Dict
+from typing import Dict, Text
 import numpy as np
-from nyx.aether_renderer.aether_renderer import AetherRenderer
-from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.component.texture_components import TextureComponent
 from nyx.moirai_ecs.component.transform_components import (
     DimensionsComponent,
@@ -10,29 +7,17 @@ from nyx.moirai_ecs.component.transform_components import (
     VelocityComponent,
     ZIndexComponent,
 )
-from nyx.moirai_ecs.component.scene_components import (
-    BackgroundColorComponent,
-    SceneComponent,
-    TilemapComponent,
-)
 from nyx.moirai_ecs.system.movement_system import MovementSystem
-from nyx.nyx_engine.stores.component_store import ComponentStore
-from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
+from nyx.nyx_engine.nyx_engine import NyxEngine
 from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
-from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
-from nyx.hemera_term_fx.term_utils import TerminalUtils
 from nyx.utils.nyx_asset_import import NyxAssetImport
 
 
 if __name__ == "__main__":
+    engine = NyxEngine()
     # Load Early Managers, Stores, Assets, Systems
-    entity_manager = MoiraiEntityManager()
-    aether_renderer = AetherRenderer()
-    hemera_term_api = HemeraTermFx()
-    component_store = ComponentStore(entity_manager)
-    aether_collector = AetherBridgeSystem(entity_manager, component_store)
-    component_manager = ComponentManager()
+    engine.add_system(MovementSystem())
 
     # Create a simple tile map and tiles
     tilemap = np.array([[0, 2, 1, 2], [4, 3, 0, 1], [0, 1, 0, 1]], dtype=np.uint8)
@@ -59,27 +44,29 @@ if __name__ == "__main__":
         )
 
     # Create a sprite:
-    spaceship_texture = TextureComponent(texture=NyxAssetImport.open_asset("spaceship"))
-    spaceship_id = entity_manager.create_entity("spaceship-sprite").entity_id
+    spaceship_id = engine.entity_manager.create_entity("spaceship-sprite").entity_id
     spaceship_comps = {
-        "position": PositionComponent(10, 10),
+        "position": PositionComponent(0, 0),
         "dimensions": DimensionsComponent(24, 24),
         "z-index": ZIndexComponent(2),
         "velocity": VelocityComponent(2, 2),
+        "texture": TextureComponent(texture=NyxAssetImport.open_asset("spaceship")),
     }
     for comp_name, comp in spaceship_comps.items():
-        component_manager.add_component(spaceship_id, comp_name, comp)
-
-    print(component_manager.get_component(spaceship_id, "position"))
-
-    movement_sys = MovementSystem()
-    for i in range(120):
-        movement_sys.update()
-        print(f"{i}. {component_manager.get_component(spaceship_id, 'position')}")
+        engine.component_manager.add_component(
+            entity_id=spaceship_id, component_name=comp_name, component=comp
+        )
+    engine.aether_renderer.dimensions.window_h = 100
+    engine.aether_renderer.dimensions.window_w = 100
+    engine.aether_renderer.dimensions.update()
+    engine.run_game()
+    # print(
+    #     f"{i}. {engine.component_manager.get_component(spaceship_id, 'position')}"
+    # )
 
     # # Clear the terminal before the first run
     # TerminalUtils.clear_term()
-    # # Scroll left -> right = positive value
+    # # Scrolfel left -> right = positive value
     # # SCroll right -> left = negative value
     # x_pos = 0
     # x_vel = -4

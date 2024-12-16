@@ -111,15 +111,21 @@ class AetherRenderer:
         """Iterate through each z-index layer and process entities/components by calling a specific
         system from the MorosECS and directing them to the appropriate subframe to write to.
         """
-        for z_index, entity_dict in self.layered_entities.items():
+        for z_index, entity_list in self.layered_entities.items():
             self._new_subframe(z_index)
-            for component_dict in entity_dict.values():
-                for component in component_dict.values():
-                    # Store background color in z-index 0 layer for later use.
-                    if z_index == 0 and isinstance(component, BackgroundColorComponent):
-                        self._process_background_color_component(component)
-                    elif isinstance(component, TilemapComponent):
-                        self._process_tilemap_component(component)
+            for entity in entity_list:
+                x, y, texture = entity
+                h, w = texture.shape
+                subframe = self.layered_frames[z_index]
+                subframe[y : y + h, x : x + w] = texture
+
+            # for component_dict in entity_dict.values():
+            #     for component in component_dict.values():
+            #         # Store background color in z-index 0 layer for later use.
+            #         if z_index == 0 and isinstance(component, BackgroundColorComponent):
+            #             self._process_background_color_component(component)
+            #         elif isinstance(component, TilemapComponent):
+            #             self._process_tilemap_component(component)
 
     def _new_subframe(self, z_index: int = 0):
         """Create a new/blank 2D ndarray for each z-index/priority/layer and insert that subframe

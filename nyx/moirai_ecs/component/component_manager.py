@@ -27,6 +27,7 @@ class ComponentManager:
     component_registry: Dict[str, Dict[int, NyxComponent]] = {
         "dimensions": {},
         "position": {},
+        "texture": {},
         "velocity": {},
         "z-index": {},
     }

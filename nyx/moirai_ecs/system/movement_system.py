@@ -5,10 +5,13 @@ from nyx.moirai_ecs.component.transform_components import (
     VelocityComponent,
 )
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
+from nyx.moirai_ecs.system.base_systems import BaseSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
 
 
-class MovementSystem:
+class MovementSystem(BaseSystem):
+    """Update an entity's position component as a function of its velocity and time."""
+
     def update(self):
         entity_reg = MoiraiEntityManager.entity_registry
         position_reg: Dict[int, PositionComponent] = (

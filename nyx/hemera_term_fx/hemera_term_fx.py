@@ -170,7 +170,7 @@ class HemeraTermFx:
             last_subpixel_pair = subpixel_pair
 
         # Flush the final buffer and stdout after frame processing
-        sys.stdout.write(run_buffer)
+        sys.stdout.write(TerminalUtils.cursor_to_origin() + run_buffer + TerminalUtils.reset_format())
         sys.stdout.flush()
 
         # Reset the run buffer
