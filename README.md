@@ -173,8 +173,12 @@ This project is thematically named after some of the oldest Greek gods, which ra
 NyxEngine is licensed under the **MIT License**.
 
 You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
+NyxEngine is licensed under the **MIT License**.
+
+You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
 
 ### Full License:
+See the [LICENSE](LICENSE) file.
 See the [LICENSE](LICENSE) file.
 
 ---
