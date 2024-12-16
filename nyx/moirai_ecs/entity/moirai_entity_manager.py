@@ -34,6 +34,11 @@ class MoiraiEntityManager:
 
     entity_registry: Dict[int, NyxEntity] = {}
 
+    @classmethod
+    def reset_entity_registry(cls):
+        """Clear the entity registry of all entities."""
+        cls.entity_registry.clear()
+
     def create_entity(self, friendly_name: str = "") -> NyxEntity:
         """Create a NyxEntity and add it to the entity registry.
 
@@ -69,3 +74,4 @@ class MoiraiEntityManager:
             registry[NyxEntity]: the registry of NyxEntity objects.
         """
         return MoiraiEntityManager.entity_registry
+    
