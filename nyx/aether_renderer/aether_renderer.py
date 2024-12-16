@@ -26,7 +26,7 @@ import numpy as np
 
 from nyx.aether_renderer.aether_dimensions import AetherDimensions
 from nyx.moirai_ecs.component.base_components import (
-    RenderableComponent,
+    NyxComponent,
 )
 from nyx.moirai_ecs.component.scene_components import (
     BackgroundColorComponent,
@@ -67,9 +67,7 @@ class AetherRenderer:
         self.layered_frames = {}
         self.merged_frame: np.ndarray = self._new_merged_frame()
 
-    def accept_entities(
-        self, entities: Dict[int, Dict[int, Dict[str, RenderableComponent]]]
-    ):
+    def accept_entities(self, entities: Dict[int, Dict[int, Dict[str, NyxComponent]]]):
         """Receive and store the list of entities to render from AetherBridgeSystem
 
         Args:

@@ -5,7 +5,7 @@ This module collects and z-indexes the entities and components that are renderab
 them off to AetherRenderer for granular processing and frame generation.
 """
 
-from nyx.moirai_ecs.component.base_components import RenderableComponent
+from nyx.moirai_ecs.component.base_components import NyxComponent
 from nyx.nyx_engine.stores.component_store import ComponentStore
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.system.base_systems import BaseSystem
@@ -55,7 +55,7 @@ class AetherBridgeSystem(BaseSystem):
             for comp_name, comp_obj in self.component_store.get_all_components(
                 entity
             ).items():
-                if isinstance(comp_obj, RenderableComponent):
+                if isinstance(comp_obj, NyxComponent):
                     entity_dict[entity_id][comp_name] = comp_obj
                     if comp_name == "ZIndexComponent":
                         z_index = comp_obj.z_index

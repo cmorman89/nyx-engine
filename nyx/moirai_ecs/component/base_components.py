@@ -12,5 +12,5 @@ class BaseComponent(ABC):
     """Abstract base class of all components in NyxEngine."""
 
 
-class RenderableComponent(BaseComponent, ABC):
+class NyxComponent(BaseComponent, ABC):
     """Abstract base class of all components that can be rendered by HemeraTerm"""

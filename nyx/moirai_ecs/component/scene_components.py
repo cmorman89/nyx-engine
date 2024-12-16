@@ -6,17 +6,17 @@ color and a tilemap.
 """
 
 import numpy as np
-from nyx.moirai_ecs.component.base_components import RenderableComponent
+from nyx.moirai_ecs.component.base_components import NyxComponent
 
 
-class SceneComponent(RenderableComponent):
+class SceneComponent(NyxComponent):
     """Signify entity as a high level/top level component"""
 
     def __init__(self, friendly_name: str):
         self.friendly_name = friendly_name
 
 
-class BackgroundColorComponent(RenderableComponent):
+class BackgroundColorComponent(NyxComponent):
     """Defines a single ANSI color code (0-255)"""
 
     def __init__(self, bg_color_code: int = 0):
@@ -31,7 +31,7 @@ class BackgroundColorComponent(RenderableComponent):
         return f"{type(self).__name__}(bg_color_code={self.bg_color_code})"
 
 
-class TilemapComponent(RenderableComponent):
+class TilemapComponent(NyxComponent):
     """Holds the 2D NumPy array of tile IDs that compose the tilemap and the size of a tile"""
 
     def __init__(self, tilemap: np.ndarray, tile_dimension: int = 16):
