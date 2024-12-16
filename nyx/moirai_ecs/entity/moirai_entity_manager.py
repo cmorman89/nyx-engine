@@ -15,6 +15,7 @@ Mythology:
 """
 
 from typing import Dict
+from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
 
 
@@ -54,16 +55,36 @@ class MoiraiEntityManager:
         return new_entity
 
     def destroy_entity(self, entity_id: int):
+        """Remove a registered entity from the entity registry, and clear its components.
+
+        Args:
+            entity_id (int): The entity ID to remove.
+        """
         if entity_id in MoiraiEntityManager.entity_registry:
             del MoiraiEntityManager.entity_registry[entity_id]
+            ComponentManager.remove_entity(entity_id=entity_id)
         return self
 
     def is_alive(self, entity_id: int) -> bool:
-        """Check if a NyxEntity is still active in this entity manager."""
+        """Check if a NyxEntity is still active in this entity manager.
+
+        Args:
+            entity_id (int): The entity ID to check for alive status.
+
+        Returns:
+            bool: If the entity is alive.
+        """
         return entity_id in MoiraiEntityManager.entity_registry
 
     def get_entity(self, entity_id: int) -> NyxEntity:
-        """Get an entity from the entity list"""
+        """Get an entity from the entity list
+
+        Args:
+            entity_id (int): The entity ID of the entity to fetch.
+
+        Returns:
+            NyxEntity: The entity with the specified entity ID.
+        """
         if entity_id in MoiraiEntityManager.entity_registry:
             return MoiraiEntityManager.entity_registry[entity_id]
 
@@ -74,4 +95,3 @@ class MoiraiEntityManager:
             registry[NyxEntity]: the registry of NyxEntity objects.
         """
         return MoiraiEntityManager.entity_registry
-    
