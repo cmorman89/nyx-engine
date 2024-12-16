@@ -1,4 +1,4 @@
-from nyx.moros_ecs.entity.nyx_entity import NyxEntity
+from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
 
 
 def test_entity_init():

@@ -6,9 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ## [UNRELEASED]
 ### Added
-- Add unit testing for `NyxEntity`
+- Add unit testing for `NyxEntity` and `MoraiEntityManager`
+- Add documentation for `NyxEntity`, `MoraiEntityManager`
+  
 ### Changed
 - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
+- Simplify `MoraiEntityManager` by removing friendly name lookup/mapping.
+
 
 ## [0.0.3-alpha] - 2024-12-13
 ### Added

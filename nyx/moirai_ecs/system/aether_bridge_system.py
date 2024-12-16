@@ -5,10 +5,10 @@ This module collects and z-indexes the entities and components that are renderab
 them off to AetherRenderer for granular processing and frame generation.
 """
 
-from nyx.moros_ecs.component.base_components import RenderableComponent
+from nyx.moirai_ecs.component.base_components import RenderableComponent
 from nyx.nyx_engine.stores.component_store import ComponentStore
-from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
-from nyx.moros_ecs.system.base_systems import BaseSystem
+from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
+from nyx.moirai_ecs.system.base_systems import BaseSystem
 
 
 class AetherBridgeSystem(BaseSystem):
@@ -22,7 +22,7 @@ class AetherBridgeSystem(BaseSystem):
 
     def __init__(
         self,
-        entity_manager: MorosEntityManager,
+        entity_manager: MoiraiEntityManager,
         component_store: ComponentStore,
     ):
         """Initialize the bridge with references to the entity manager and component store."""

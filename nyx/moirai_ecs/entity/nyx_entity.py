@@ -5,6 +5,7 @@ This module defines the entity class within the ECS architecture. An entity hold
 reference ID (int) which is then linked to different components or assets within the game engine.
 """
 
+
 class NyxEntity:
     """Define the game entity object, which holds a globally unique reference ID (int). This ID is
     then linked to different components or assets within the game engine.
@@ -39,8 +40,6 @@ class NyxEntity:
             return self.entity_id == other.entity_id
         elif isinstance(other, int):
             return self.entity_id == other
-        elif isinstance(other, str):
-            return self.friendly_name == other or str(self.entity_id) == other
         return False
 
     def __hash__(self):
@@ -48,4 +47,4 @@ class NyxEntity:
         return hash(self.entity_id)
 
     def __repr__(self):
-        return f"NyxEntity(friendly_name={self.name}, entity_id={self._entity_id})"
+        return f"NyxEntity(friendly_name={self.friendly_name}, entity_id={self._entity_id})"
