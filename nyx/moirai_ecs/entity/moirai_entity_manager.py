@@ -92,6 +92,6 @@ class MoiraiEntityManager:
         """Return a registry of all entities in this manager.
 
         Returns:
-            registry[NyxEntity]: the registry of NyxEntity objects.
+            Dict[int, NyxEntity]: The registry of NyxEntity objects.
         """
         return MoiraiEntityManager.entity_registry
