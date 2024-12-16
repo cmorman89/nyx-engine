@@ -5,7 +5,7 @@ This module contains components that modify the position, size, rotation, etc. o
 can be rendered by Aether.
 """
 
-from nyx.moros_ecs.component.base_components import RenderableComponent
+from nyx.moirai_ecs.component.base_components import RenderableComponent
 
 
 class ZIndexComponent(RenderableComponent):

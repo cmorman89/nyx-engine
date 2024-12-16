@@ -7,7 +7,7 @@ from.
 
 from abc import ABC
 
-from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
+from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 
 
 class BaseSystem(ABC):
@@ -17,11 +17,11 @@ class BaseSystem(ABC):
         entity_manager (MorosEntityManager): The entity manager holding the entity registry.
     """
 
-    def __init__(self, entity_manager: MorosEntityManager):
+    def __init__(self, entity_manager: MoiraiEntityManager):
         """Initialize with an entity manager, and ensure all systems have the entity manager
         defined upon init.
 
         Args:
             entity_manager (MorosEntityManager): The entity manager holding the entity registry.
         """
-        self.entity_manager: MorosEntityManager = entity_manager
+        self.entity_manager: MoiraiEntityManager = entity_manager

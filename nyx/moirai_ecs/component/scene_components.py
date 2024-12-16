@@ -6,7 +6,7 @@ color and a tilemap.
 """
 
 import numpy as np
-from nyx.moros_ecs.component.base_components import RenderableComponent
+from nyx.moirai_ecs.component.base_components import RenderableComponent
 
 
 class SceneComponent(RenderableComponent):

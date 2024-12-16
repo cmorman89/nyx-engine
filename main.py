@@ -2,17 +2,17 @@ import time
 from typing import Dict
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherRenderer
-from nyx.moros_ecs.component.transform_components import (
+from nyx.moirai_ecs.component.transform_components import (
     ZIndexComponent,
 )
-from nyx.moros_ecs.component.scene_components import (
+from nyx.moirai_ecs.component.scene_components import (
     BackgroundColorComponent,
     SceneComponent,
     TilemapComponent,
 )
 from nyx.nyx_engine.stores.component_store import ComponentStore
-from nyx.moros_ecs.moros_entity_manager import MorosEntityManager
-from nyx.moros_ecs.system.aether_bridge_system import AetherBridgeSystem
+from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
+from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
 from nyx.hemera_term_fx.term_utils import TerminalUtils
@@ -21,7 +21,7 @@ from nyx.utils.nyx_asset_import import NyxAssetImport
 
 if __name__ == "__main__":
     # Load Early Managers, Stores, Assets, Systems
-    entity_manager = MorosEntityManager()
+    entity_manager = MoiraiEntityManager()
     aether_renderer = AetherRenderer()
     hemera_term_api = HemeraTermFx()
     component_store = ComponentStore(entity_manager)
@@ -98,7 +98,7 @@ if __name__ == "__main__":
             )
         else:
             trip_randomize += 1
- 
+
         # time.sleep(2)
         # time.sleep(0.5)
         # time.sleep(0.0666)  # 15 fps

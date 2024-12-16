@@ -10,8 +10,8 @@ from math import ceil
 
 import numpy as np
 from nyx.aether_renderer.aether_renderer import AetherDimensions
-from nyx.moros_ecs.component.scene_components import TilemapComponent
-from nyx.moros_ecs.system.base_systems import BaseSystem
+from nyx.moirai_ecs.component.scene_components import TilemapComponent
+from nyx.moirai_ecs.system.base_systems import BaseSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
 
 

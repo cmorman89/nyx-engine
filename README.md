@@ -148,11 +148,11 @@ This project is thematically named after some of the oldest Greek gods, which ra
     Nyx's role is often more subtle, as she works behind the scenes to shape the course of events in
     the universe​.
 
-- ### Moros (`MorosEntityManager`):
-  - Moros is the son of Nyx (Night), born without a father, and personifies the inexorable force of
-    doom. He is the relentless power that drives all beings—mortal and divine alike—toward their
-    fated end, embodying the inevitability of death and destiny. It is said that not even the gods,
-    including Zeus, could defy the unyielding nature of Moros and the cosmic laws he represents​
+- ### Moirai (`MoiraiECS`):
+  - The Moirai are better known as the Fates and are children of Nyx (source depending). Together,
+    the three sisters determine the destiny and fate of both mortals and divine beings, alike.
+    Clotho spins the thread representing the start of life; Lachesis allots the path that life will
+    follow; and Atropos cuts the thread, ending that life's journey.
 
 
 - ### Aether (`AetherRenderer`): 
