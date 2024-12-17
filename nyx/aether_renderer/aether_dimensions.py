@@ -42,7 +42,7 @@ class AetherDimensions:
         self.effective_window_w: int = 0
         # Actual Render Resolution
         self.effective_x_resolution: int = self.effective_window_w
-        self.effective_y_resolution: int = min(self.term_size_h * 2, self.window_h)
+        self.effective_y_resolution: int = self.effective_window_h
 
         self.update()
 
@@ -91,7 +91,7 @@ class AetherDimensions:
     def _set_effective_resolution(self):
         """Set the resolution, accounting for subpixels (2x height)"""
         self.effective_x_resolution: int = self.effective_window_w
-        self.effective_y_resolution: int = min(self.term_size_h * 2, self.window_h)
+        self.effective_y_resolution: int = self.effective_window_h
 
     def _window_is_set(self) -> bool:
         """Check if the window has been set by the program.

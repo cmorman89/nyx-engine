@@ -133,7 +133,6 @@ class HemeraTermFx:
         Args:
             delta_frame (np.ndarray): The delta frame to process and print.
         """
-        frame_count = 0
         run_buffer = ""
         last_ansi_fg_color, last_ansi_bg_color = np.uint8(0), np.uint8(0)
         last_subpixel_pair = (np.uint8(0), np.uint8(0))
@@ -154,8 +153,6 @@ class HemeraTermFx:
                     # non-printing (0, 0)
                     if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
                         sys.stdout.write(run_buffer)
-                        self._log_buffer(run_buffer, (x, y), frame_count, delta_frame)
-
                         run_buffer = TerminalUtils.cursor_abs_move(x, y)
 
                     # Issue color format sequences only when a new color is needed
@@ -176,13 +173,6 @@ class HemeraTermFx:
 
         # Flush the final buffer and stdout after frame processing
         sys.stdout.write(TerminalUtils.cursor_to_origin() + run_buffer)
-        self._log_buffer(run_buffer, (x, y), frame_count, delta_frame)
         sys.stdout.flush()
-        frame_count += 1
         # Reset the run buffer
         run_buffer = ""
-
-
-    def _log_buffer(self, run_buffer, coordinate, frame_count, frame):
-        self.buffer_log.append((frame_count, coordinate, frame.shape, run_buffer))
-        filename = "logs/buffer_printer.log"

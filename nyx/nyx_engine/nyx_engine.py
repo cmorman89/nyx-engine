@@ -1,3 +1,9 @@
+"""
+NyxEngine Module
+
+This is the primary orchestration module of game-related tasks, systsems, and workflows.
+"""
+
 import time
 
 from nyx.aether_renderer.aether_renderer import AetherRenderer
