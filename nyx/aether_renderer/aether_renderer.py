@@ -57,7 +57,7 @@ class AetherRenderer:
         # State-related data
         self.pos_x: int = 0
         self.pos_y: int = 0
-        self.background_color_code: int | np.uint8 = 99
+        self.background_color_code: int | np.uint8 = 16
 
         # Entities
         self.current_layer_entities = {}
@@ -103,7 +103,10 @@ class AetherRenderer:
         layers to collapse into.
         """
         self.merged_frame = np.zeros(
-            (self.dimensions.effective_y_resolution, self.dimensions.effective_x_resolution),
+            (
+                self.dimensions.effective_y_resolution,
+                self.dimensions.effective_x_resolution,
+            ),
             dtype=np.uint8,
         )
 

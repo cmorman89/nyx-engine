@@ -1,3 +1,5 @@
+from random import randint
+import time
 from typing import Dict, Text
 import numpy as np
 from nyx.hemera_term_fx.term_utils import TerminalUtils
@@ -50,33 +52,56 @@ if __name__ == "__main__":
         "position": PositionComponent(10, 0),
         "dimensions": DimensionsComponent(24, 24),
         "z-index": ZIndexComponent(2),
-        "velocity": VelocityComponent(0, 10),
+        "velocity": VelocityComponent(0, 200),
         "texture": TextureComponent(texture=NyxAssetImport.open_asset("spaceship")),
     }
     for comp_name, comp in spaceship_comps.items():
         engine.component_manager.add_component(
             entity_id=spaceship_id, component_name=comp_name, component=comp
         )
-    engine.aether_renderer.dimensions.window_h = 100
-    engine.aether_renderer.dimensions.window_w = 200
+    engine.aether_renderer.dimensions.window_h = 150
+    engine.aether_renderer.dimensions.window_w = 275
     engine.aether_renderer.dimensions.update()
 
+    velocity: VelocityComponent = engine.component_manager.get_component(
+        entity_id=spaceship_id, component_name="velocity"
+    )
+    position: PositionComponent = engine.component_manager.get_component(
+        entity_id=spaceship_id, component_name="position"
+    )
+    dimensions: DimensionsComponent = engine.component_manager.get_component(
+        entity_id=spaceship_id, component_name="dimensions"
+    )
+    fire_interval = 7
+    fire_counter = 0
+    laser_comps = {
+        "position": PositionComponent(30, 4),
+        "dimensions": DimensionsComponent(4, 1),
+        "z-index": ZIndexComponent(3),
+        "velocity": VelocityComponent(400, 0),
+        "texture": TextureComponent(np.array([[160, 160, 160, 160]], dtype=np.uint8)),
+    }
     while True:
-        velocity: VelocityComponent = engine.component_manager.get_component(
-            entity_id=spaceship_id, component_name="velocity"
-        )
-        position: PositionComponent = engine.component_manager.get_component(
-            entity_id=spaceship_id, component_name="position"
-        )
-        dimensions: DimensionsComponent = engine.component_manager.get_component(
-            entity_id=spaceship_id, component_name="dimensions"
-        )
-        if position.render_y_pos == (100 - dimensions.height):
-            velocity.y_vel = -10
-        if position.render_y_pos == 1:
-            velocity.y_vel = 10
+        if position.render_y_pos >= (
+            engine.aether_renderer.dimensions.window_h - dimensions.height
+        ):
+            velocity.y_vel = -(abs(velocity.y_vel))
+        if position.render_y_pos <= 1:
+            velocity.y_vel = abs(velocity.y_vel)
+        if fire_counter == fire_interval:
+            laser_comps["position"] = PositionComponent(30, position.render_y_pos + 4)
+            laser_id = engine.entity_manager.create_entity("laser").entity_id
+            for comp_name, comp in laser_comps.items():
+                engine.component_manager.add_component(
+                    entity_id=laser_id, component_name=comp_name, component=comp
+                )
+            fire_interval = randint(1, 10)
+            fire_counter = 0
+        fire_counter += 1
         engine.trigger_systems()
         engine.render_frame()
+        engine.kill_entities()
+        time.sleep(NyxEngine.sec_per_game_loop)
     # engine.run_game()
 
     # # Clear the terminal before the first run
