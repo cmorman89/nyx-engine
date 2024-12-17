@@ -57,7 +57,7 @@ class AetherRenderer:
         # State-related data
         self.pos_x: int = 0
         self.pos_y: int = 0
-        self.background_color_code: int | np.uint8 = 0
+        self.background_color_code: int | np.uint8 = 99
 
         # Entities
         self.current_layer_entities = {}
@@ -103,7 +103,7 @@ class AetherRenderer:
         layers to collapse into.
         """
         self.merged_frame = np.zeros(
-            (self.dimensions.effective_window_h, self.dimensions.effective_window_w),
+            (self.dimensions.effective_y_resolution, self.dimensions.effective_x_resolution),
             dtype=np.uint8,
         )
 
@@ -115,9 +115,8 @@ class AetherRenderer:
             self._new_subframe(z_index)
             for entity in entity_list:
                 x, y, texture = entity
-                frame_w = self.dimensions.effective_window_w
-                frame_h = self.dimensions.effective_window_h
-
+                frame_w = self.dimensions.effective_x_resolution
+                frame_h = self.dimensions.effective_y_resolution
 
                 h, w = texture.shape
                 subframe = self.layered_frames[z_index]
@@ -127,7 +126,6 @@ class AetherRenderer:
                 h = min(h, frame_h - y)
                 if w > 0 and h > 0:
                     subframe[y : y + h, x : x + w] = texture[:h, :w]
-
             # for component_dict in entity_dict.values():
             #     for component in component_dict.values():
             #         # Store background color in z-index 0 layer for later use.
@@ -141,7 +139,10 @@ class AetherRenderer:
         into the subframe dict with its z-indice as the key value.
         """
         self.layered_frames[z_index] = np.zeros(
-            (self.dimensions.effective_window_h, self.dimensions.effective_window_w),
+            (
+                self.dimensions.effective_y_resolution,
+                self.dimensions.effective_x_resolution,
+            ),
             dtype=np.uint8,
         )
 

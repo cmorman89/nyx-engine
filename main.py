@@ -49,20 +49,20 @@ if __name__ == "__main__":
         "position": PositionComponent(0, 0),
         "dimensions": DimensionsComponent(24, 24),
         "z-index": ZIndexComponent(2),
-        "velocity": VelocityComponent(6, 2),
+        "velocity": VelocityComponent(0, 10),
         "texture": TextureComponent(texture=NyxAssetImport.open_asset("spaceship")),
     }
     for comp_name, comp in spaceship_comps.items():
         engine.component_manager.add_component(
             entity_id=spaceship_id, component_name=comp_name, component=comp
         )
-    engine.aether_renderer.dimensions.window_h = 100
-    engine.aether_renderer.dimensions.window_w = 100
+    engine.aether_renderer.dimensions.window_h = 200
+    engine.aether_renderer.dimensions.window_w = 200
     engine.aether_renderer.dimensions.update()
     engine.run_game()
-    # print(
-    #     f"{i}. {engine.component_manager.get_component(spaceship_id, 'position')}"
-    # )
+    print(
+        f"{i}. {engine.component_manager.get_component(spaceship_id, 'position')}"
+    )
 
     # # Clear the terminal before the first run
     # TerminalUtils.clear_term()

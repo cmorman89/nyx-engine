@@ -40,6 +40,9 @@ class AetherDimensions:
         # Actual Render Dimensions
         self.effective_window_h: int = 0
         self.effective_window_w: int = 0
+        # Actual Render Resolution
+        self.effective_x_resolution: int = self.effective_window_w
+        self.effective_y_resolution: int = min(self.term_size_h * 2, self.window_h)
 
         self.update()
 
@@ -48,6 +51,7 @@ class AetherDimensions:
         self._set_terminal_size()
         self._set_effective_window()
         self._truncate_odd_last_row()
+        self._set_effective_resolution()
 
     def _set_terminal_size(self):
         """Pad and store the current terminal size dimensions."""
@@ -83,6 +87,11 @@ class AetherDimensions:
         """
         if self.effective_window_h % 2 != 0:
             self.effective_window_h -= 1
+
+    def _set_effective_resolution(self):
+        """Set the resolution, accounting for subpixels (2x height)"""
+        self.effective_x_resolution: int = self.effective_window_w
+        self.effective_y_resolution: int = min(self.term_size_h * 2, self.window_h)
 
     def _window_is_set(self) -> bool:
         """Check if the window has been set by the program.

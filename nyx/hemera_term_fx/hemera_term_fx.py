@@ -61,6 +61,7 @@ class HemeraTermFx:
         """Construct Hemera with an empty frame buffer."""
         self.old_subpixel_frame: np.ndarray = None
         self.clear_term_on_run: bool = clear_term_on_run
+        self.buffer_log: str = []
 
     def print(self, new_frame: np.ndarray = None):
         """Print the new frame to the terminal in color and using vertical-stacked subpixels.
@@ -132,46 +133,56 @@ class HemeraTermFx:
         Args:
             delta_frame (np.ndarray): The delta frame to process and print.
         """
-
+        frame_count = 0
         run_buffer = ""
         last_ansi_fg_color, last_ansi_bg_color = np.uint8(0), np.uint8(0)
-        last_subpixel_pair = (
-            np.uint8(0),
-            np.uint8(0),
-        )
+        last_subpixel_pair = (np.uint8(0), np.uint8(0))
         _, h, w = delta_frame.shape
 
         # Iterate the subpixel delta frame using a 2D index
-        for y, x in np.ndindex(h, w):
-            # Save each axis-0 colors to a tuple
-            fg_color, bg_color = subpixel_pair = tuple(delta_frame[:, y, x])
+        for y in range(h):
+            row_has_updates = False  # Track if the row has any updates
+            for x in range(w):
+                # Save each axis-0 colors to a tuple
+                fg_color, bg_color = subpixel_pair = tuple(delta_frame[:, y, x])
 
-            # Check if subpixel is printable (not (0, 0))
-            if subpixel_pair != (np.uint8(0), np.uint8(0)):
-                # Issue a cursor relocate and flush the run buffer if the last subpixel pair was
-                # non-printing (0, 0)
-                if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
-                    sys.stdout.write(run_buffer)
-                    run_buffer = TerminalUtils.cursor_abs_move(x, y)
+                # Check if subpixel is printable (not (0, 0))
+                if subpixel_pair != (np.uint8(0), np.uint8(0)):
+                    row_has_updates = True  # Mark row as having updates
 
-                # Issue color format sequences only when a new color is needed
-                if fg_color != last_ansi_fg_color:
-                    run_buffer += f"\033[38;5;{fg_color}m"
-                if bg_color != last_ansi_bg_color:
-                    run_buffer += f"\033[48;5;{bg_color}m"
-                # Add the printing character
-                run_buffer += "▀"
+                    # Issue a cursor relocate and flush the run buffer if the last subpixel pair was
+                    # non-printing (0, 0)
+                    if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
+                        sys.stdout.write(run_buffer)
+                        self._log_buffer(run_buffer, (x, y), frame_count, delta_frame)
 
-            # Add new line at the end of each row
-            if x == w - 1:
+                        run_buffer = TerminalUtils.cursor_abs_move(x, y)
+
+                    # Issue color format sequences only when a new color is needed
+                    if fg_color != last_ansi_fg_color:
+                        run_buffer += f"\033[38;5;{fg_color}m"
+                    if bg_color != last_ansi_bg_color:
+                        run_buffer += f"\033[48;5;{bg_color}m"
+
+                    # Add the printing character
+                    run_buffer += "▀"
+
+                # Cache the color values
+                last_subpixel_pair = subpixel_pair
+
+            # Add new line at the end of the row **only if the row had updates**
+            if row_has_updates:
                 run_buffer += "\n"
 
-            # Cache the color values
-            last_subpixel_pair = subpixel_pair
-
         # Flush the final buffer and stdout after frame processing
-        sys.stdout.write(TerminalUtils.cursor_to_origin() + run_buffer + TerminalUtils.reset_format())
+        sys.stdout.write(TerminalUtils.cursor_to_origin() + run_buffer)
+        self._log_buffer(run_buffer, (x, y), frame_count, delta_frame)
         sys.stdout.flush()
-
+        frame_count += 1
         # Reset the run buffer
         run_buffer = ""
+
+
+    def _log_buffer(self, run_buffer, coordinate, frame_count, frame):
+        self.buffer_log.append((frame_count, coordinate, frame.shape, run_buffer))
+        filename = "logs/buffer_printer.log"
