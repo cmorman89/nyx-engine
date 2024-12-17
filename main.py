@@ -1,5 +1,6 @@
 from typing import Dict, Text
 import numpy as np
+from nyx.hemera_term_fx.term_utils import TerminalUtils
 from nyx.moirai_ecs.component.texture_components import TextureComponent
 from nyx.moirai_ecs.component.transform_components import (
     DimensionsComponent,
@@ -46,7 +47,7 @@ if __name__ == "__main__":
     # Create a sprite:
     spaceship_id = engine.entity_manager.create_entity("spaceship-sprite").entity_id
     spaceship_comps = {
-        "position": PositionComponent(0, 0),
+        "position": PositionComponent(10, 0),
         "dimensions": DimensionsComponent(24, 24),
         "z-index": ZIndexComponent(2),
         "velocity": VelocityComponent(0, 10),
@@ -56,13 +57,27 @@ if __name__ == "__main__":
         engine.component_manager.add_component(
             entity_id=spaceship_id, component_name=comp_name, component=comp
         )
-    engine.aether_renderer.dimensions.window_h = 200
+    engine.aether_renderer.dimensions.window_h = 100
     engine.aether_renderer.dimensions.window_w = 200
     engine.aether_renderer.dimensions.update()
-    engine.run_game()
-    print(
-        f"{i}. {engine.component_manager.get_component(spaceship_id, 'position')}"
-    )
+
+    while True:
+        velocity: VelocityComponent = engine.component_manager.get_component(
+            entity_id=spaceship_id, component_name="velocity"
+        )
+        position: PositionComponent = engine.component_manager.get_component(
+            entity_id=spaceship_id, component_name="position"
+        )
+        dimensions: DimensionsComponent = engine.component_manager.get_component(
+            entity_id=spaceship_id, component_name="dimensions"
+        )
+        if position.render_y_pos == (100 - dimensions.height):
+            velocity.y_vel = -10
+        if position.render_y_pos == 1:
+            velocity.y_vel = 10
+        engine.trigger_systems()
+        engine.render_frame()
+    # engine.run_game()
 
     # # Clear the terminal before the first run
     # TerminalUtils.clear_term()
