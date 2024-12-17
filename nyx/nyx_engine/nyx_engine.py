@@ -15,8 +15,8 @@ from nyx.moirai_ecs.system.base_systems import BaseSystem
 
 
 class NyxEngine:
-    fps_target = 30
-    game_update_per_sec = 30
+    # fps_target = 5
+    game_update_per_sec = 60
     sec_per_game_loop = 1 / game_update_per_sec
     running_systems = []
     entity_manager = MoiraiEntityManager()
@@ -37,6 +37,20 @@ class NyxEngine:
     def trigger_systems(self):
         for system in NyxEngine.running_systems:
             system.update()
+
+    def kill_entities(self):
+        cull_id_list = []
+        h, w = (
+            NyxEngine.aether_renderer.dimensions.effective_window_h,
+            NyxEngine.aether_renderer.dimensions.effective_window_w,
+        )
+        for entity_id, comp in NyxEngine.component_manager.component_registry[
+            "position"
+        ].items():
+            if comp.render_x_pos >= w or comp.render_y_pos >= h:
+                cull_id_list.append(entity_id)
+        for entity_id in cull_id_list:
+            NyxEngine.entity_manager.destroy_entity(entity_id)
 
     def render_frame(self):
         NyxEngine.aether_bridge.update()
