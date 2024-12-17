@@ -49,7 +49,7 @@ if __name__ == "__main__":
         "position": PositionComponent(0, 0),
         "dimensions": DimensionsComponent(24, 24),
         "z-index": ZIndexComponent(2),
-        "velocity": VelocityComponent(2, 2),
+        "velocity": VelocityComponent(6, 2),
         "texture": TextureComponent(texture=NyxAssetImport.open_asset("spaceship")),
     }
     for comp_name, comp in spaceship_comps.items():

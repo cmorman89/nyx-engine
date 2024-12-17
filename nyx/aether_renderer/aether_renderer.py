@@ -115,9 +115,18 @@ class AetherRenderer:
             self._new_subframe(z_index)
             for entity in entity_list:
                 x, y, texture = entity
+                frame_w = self.dimensions.effective_window_w
+                frame_h = self.dimensions.effective_window_h
+
+
                 h, w = texture.shape
                 subframe = self.layered_frames[z_index]
-                subframe[y : y + h, x : x + w] = texture
+
+                # Limit w and h to fit within the frame boundaries
+                w = min(w, frame_w - x)
+                h = min(h, frame_h - y)
+                if w > 0 and h > 0:
+                    subframe[y : y + h, x : x + w] = texture[:h, :w]
 
             # for component_dict in entity_dict.values():
             #     for component in component_dict.values():
