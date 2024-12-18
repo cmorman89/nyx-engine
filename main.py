@@ -11,6 +11,7 @@ from nyx.moirai_ecs.component.transform_components import (
     ZIndexComponent,
 )
 from nyx.moirai_ecs.system.movement_system import MovementSystem
+from nyx.moirai_ecs.system.tilemap_system import TilemapSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
 from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
@@ -20,7 +21,7 @@ from nyx.utils.nyx_asset_import import NyxAssetImport
 if __name__ == "__main__":
     engine = NyxEngine()
     # Load Early Managers, Stores, Assets, Systems
-    engine.add_system(MovementSystem())
+    engine.add_system(MovementSystem(), TilemapSystem())
 
     # Create a simple tile map and tiles
     tilemap = np.array([[0, 2, 1, 2], [4, 3, 0, 1], [0, 1, 0, 1]], dtype=np.uint8)

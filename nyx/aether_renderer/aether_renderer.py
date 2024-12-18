@@ -32,7 +32,7 @@ from nyx.moirai_ecs.component.scene_components import (
     BackgroundColorComponent,
     TilemapComponent,
 )
-from nyx.moirai_ecs.system.tileset_system import TilemapSystem
+from nyx.moirai_ecs.system.tilemap_system import TilemapSystem
 
 
 class AetherRenderer:
@@ -190,4 +190,4 @@ class AetherRenderer:
             component (TilemapComponent): The component holding a tilemap array.
         """
         tm_sys = TilemapSystem(self.layered_frames[0], self.dimensions)
-        tm_sys.process(component)
+        tm_sys.update(component)

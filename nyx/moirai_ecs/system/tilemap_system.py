@@ -33,7 +33,7 @@ class TilemapSystem(BaseSystem):
         self.subframe: np.ndarray = subframe
         self.dimensions: AetherDimensions = dimensions
 
-    def process(self, component: TilemapComponent):
+    def update(self, component: TilemapComponent):
         """Replace the tilemap references with the 2D ndarray tile textures without exceeding the
         terminal or window bounds.
 
