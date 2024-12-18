@@ -25,9 +25,12 @@ class ComponentManager:
 
     # Component Registry
     component_registry: Dict[str, Dict[int, NyxComponent]] = {
+        "background-color": {},
         "dimensions": {},
         "position": {},
+        "scene": {},
         "texture": {},
+        "tilemap": {},
         "velocity": {},
         "z-index": {},
     }

@@ -30,9 +30,7 @@ from nyx.moirai_ecs.component.base_components import (
 )
 from nyx.moirai_ecs.component.scene_components import (
     BackgroundColorComponent,
-    TilemapComponent,
 )
-from nyx.moirai_ecs.system.tilemap_system import TilemapSystem
 
 
 class AetherRenderer:
@@ -93,6 +91,7 @@ class AetherRenderer:
             raise ValueError("AetherRenderer has no layers to render.")
         self.dimensions.update()
         self._new_merged_frame()
+        self._process_tilemap_component()
         self._process_layers()
         self._merge_layers()
         self._apply_bg_color()
@@ -183,11 +182,18 @@ class AetherRenderer:
         """Store the background color for use at the end of frame generation."""
         self.background_color_code = bg_component.bg_color_code
 
-    def _process_tilemap_component(self, component: TilemapComponent):
+    def _process_tilemap_component(self):
         """Process a `TilemapComponent` by its associated `MorosSystem`.
 
         Args:
             component (TilemapComponent): The component holding a tilemap array.
         """
-        tm_sys = TilemapSystem(self.layered_frames[0], self.dimensions)
-        tm_sys.update(component)
+        from nyx.nyx_engine.nyx_engine import NyxEngine
+
+        frame_w = self.dimensions.effective_x_resolution
+        frame_h = self.dimensions.effective_y_resolution
+
+        NyxEngine.tilemap_manager.render_tilemap()
+        self.layered_frames[0] = NyxEngine.tilemap_manager.rendered_tilemap[
+            :frame_h, :frame_w
+        ]

@@ -7,6 +7,7 @@ This is the primary orchestration module of game-related tasks, systsems, and wo
 import time
 
 from nyx.aether_renderer.aether_renderer import AetherRenderer
+from nyx.aether_renderer.tilemap_manager import TilemapManager
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
 from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
@@ -24,6 +25,7 @@ class NyxEngine:
     aether_bridge = AetherBridgeSystem()
     aether_renderer = AetherRenderer()
     hemera_term_fx = HemeraTermFx()
+    tilemap_manager = TilemapManager(dimensions=aether_renderer.dimensions)
 
     def run_game(self):
         while True:

@@ -1,8 +1,8 @@
 from random import randint
 import time
-from typing import Dict, Text
+from typing import Dict
 import numpy as np
-from nyx.hemera_term_fx.term_utils import TerminalUtils
+from nyx.aether_renderer.tilemap_manager import TilemapManager
 from nyx.moirai_ecs.component.texture_components import TextureComponent
 from nyx.moirai_ecs.component.transform_components import (
     DimensionsComponent,
@@ -11,9 +11,9 @@ from nyx.moirai_ecs.component.transform_components import (
     ZIndexComponent,
 )
 from nyx.moirai_ecs.system.movement_system import MovementSystem
-from nyx.moirai_ecs.system.tilemap_system import TilemapSystem
+
+# from nyx.moirai_ecs.system.tilemap_system import TilemapSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
-from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
 from nyx.nyx_engine.stores.tileset_store import TilesetStore
 from nyx.utils.nyx_asset_import import NyxAssetImport
 
@@ -21,12 +21,13 @@ from nyx.utils.nyx_asset_import import NyxAssetImport
 if __name__ == "__main__":
     engine = NyxEngine()
     # Load Early Managers, Stores, Assets, Systems
-    engine.add_system(MovementSystem(), TilemapSystem())
+    engine.add_system(MovementSystem())
 
     # Create a simple tile map and tiles
-    tilemap = np.array([[0, 2, 1, 2], [4, 3, 0, 1], [0, 1, 0, 1]], dtype=np.uint8)
+    lowest, highest = 0, 16
+    h, w = 5, 8
     tile_dimension = 32
-    tileset_store = TilesetStore()
+    tilemap = np.random.randint(lowest, highest, size=(h, w), dtype=np.uint8)
     tile_size = (tile_dimension, tile_dimension)
 
     # Load tiles from .nyx files
@@ -36,32 +37,27 @@ if __name__ == "__main__":
     for i, filename in enumerate(tile_files):
         tile = NyxAssetImport.open_asset(filename)
         tile_imports[i] = tile
-    for i, tile_texture in enumerate(tile_imports):
-        # tile_texture = np.full(tile_size, randint(15, 255), dtype=np.uint8)
-        tile_texture = tile_imports.get(i)
-        tile_friendly_name = f"tile-{i}"
-        tileset_store.create_tile(
-            tile_texture=tile_texture,
-            tile_id=i,
-            tile_friendly_name=tile_friendly_name,
-            overwrite=True,
-        )
+    tilemap_manager = TilemapManager(NyxEngine.aether_renderer.dimensions)
+    tilemap_manager.create_tilemap(tilemap)
+    tilemap_manager.create_tileset(tile_imports, tile_dimension)
+    tilemap_manager.render_tilemap()
 
+    rendered_tilemap = TilemapManager.rendered_tilemap
     # Create a sprite:
     spaceship_id = engine.entity_manager.create_entity("spaceship-sprite").entity_id
     spaceship_comps = {
         "position": PositionComponent(10, 0),
         "dimensions": DimensionsComponent(24, 24),
         "z-index": ZIndexComponent(2),
-        "velocity": VelocityComponent(0, 200),
+        "velocity": VelocityComponent(0, 100),
         "texture": TextureComponent(texture=NyxAssetImport.open_asset("spaceship")),
     }
     for comp_name, comp in spaceship_comps.items():
         engine.component_manager.add_component(
             entity_id=spaceship_id, component_name=comp_name, component=comp
         )
-    engine.aether_renderer.dimensions.window_h = 150
-    engine.aether_renderer.dimensions.window_w = 275
+    engine.aether_renderer.dimensions.window_h = 160
+    engine.aether_renderer.dimensions.window_w = 240
     engine.aether_renderer.dimensions.update()
 
     velocity: VelocityComponent = engine.component_manager.get_component(
@@ -73,14 +69,20 @@ if __name__ == "__main__":
     dimensions: DimensionsComponent = engine.component_manager.get_component(
         entity_id=spaceship_id, component_name="dimensions"
     )
+    laserbeam_texture = np.array(
+        [160, 160, 160, 160, 160, 160, 160, 160], dtype=np.uint8
+    )
+    laserbeam_space = np.zeros((18, 8), dtype=np.uint8)
+    laser_texture = np.vstack((laserbeam_texture, laserbeam_space, laserbeam_texture))
+    tilemap_interval = 10
     fire_interval = 7
     fire_counter = 0
     laser_comps = {
         "position": PositionComponent(30, 4),
-        "dimensions": DimensionsComponent(4, 1),
+        "dimensions": DimensionsComponent(8, 3),
         "z-index": ZIndexComponent(3),
-        "velocity": VelocityComponent(400, 0),
-        "texture": TextureComponent(np.array([[160, 160, 160, 160]], dtype=np.uint8)),
+        "velocity": VelocityComponent(600, 0),
+        "texture": TextureComponent(laser_texture),
     }
     while True:
         if position.render_y_pos >= (
@@ -89,8 +91,17 @@ if __name__ == "__main__":
             velocity.y_vel = -(abs(velocity.y_vel))
         if position.render_y_pos <= 1:
             velocity.y_vel = abs(velocity.y_vel)
+
+        velocity.x_vel += randint(-3, 3)
+        if position.render_x_pos >= 30:
+            velocity.x_vel = -(abs(velocity.x_vel))
+        elif position.render_x_pos <= 5:
+            velocity.x_vel = abs(velocity.x_vel)
         if fire_counter == fire_interval:
-            laser_comps["position"] = PositionComponent(30, position.render_y_pos + 4)
+            laser_comps["position"] = PositionComponent(
+                position.render_x_pos + 10,
+                position.render_y_pos + (velocity.y_vel // 100),
+            )
             laser_id = engine.entity_manager.create_entity("laser").entity_id
             for comp_name, comp in laser_comps.items():
                 engine.component_manager.add_component(
@@ -99,6 +110,14 @@ if __name__ == "__main__":
             fire_interval = randint(1, 10)
             fire_counter = 0
         fire_counter += 1
+
+        if tilemap_interval >= 40:
+            tilemap = np.random.randint(lowest, highest, size=(h, w), dtype=np.uint8)
+            tilemap_manager.create_tilemap(tilemap)
+            tilemap_manager.render_tilemap()
+            tilemap_interval = 0
+        tilemap_interval += 1
+
         engine.trigger_systems()
         engine.render_frame()
         engine.kill_entities()
