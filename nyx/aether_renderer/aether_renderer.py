@@ -193,7 +193,7 @@ class AetherRenderer:
         frame_w = self.dimensions.effective_x_resolution
         frame_h = self.dimensions.effective_y_resolution
 
-        NyxEngine.tilemap_manager.render_tilemap()
+        # NyxEngine.tilemap_manager.render_tilemap()
         self.layered_frames[0] = NyxEngine.tilemap_manager.rendered_tilemap[
             :frame_h, :frame_w
         ]

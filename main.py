@@ -93,7 +93,8 @@ if __name__ == "__main__":
             velocity.y_vel = abs(velocity.y_vel)
 
         velocity.x_vel += randint(-3, 3)
-        if position.render_x_pos >= 30:
+        velocity.x_vel = max(-100, min(100, velocity.x_vel))
+        if position.render_x_pos >= 60:
             velocity.x_vel = -(abs(velocity.x_vel))
         elif position.render_x_pos <= 5:
             velocity.x_vel = abs(velocity.x_vel)
@@ -113,9 +114,13 @@ if __name__ == "__main__":
 
         if tilemap_interval >= 40:
             tilemap = np.random.randint(lowest, highest, size=(h, w), dtype=np.uint8)
+            tilemap_interval = 0
             tilemap_manager.create_tilemap(tilemap)
             tilemap_manager.render_tilemap()
-            tilemap_interval = 0
+        else:
+            TilemapManager.rendered_tilemap = np.roll(
+                tilemap_manager.rendered_tilemap, -4, axis=1
+            )
         tilemap_interval += 1
 
         engine.trigger_systems()
