@@ -2,15 +2,19 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Alpha](https://img.shields.io/badge/status-alpha-orange.svg)
 
+
+![alt text](docs/readme_assets/nyx-logo-horizontal.png)
+
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
-<img src="https://github.com/user-attachments/assets/e855c330-f7e9-4021-9a5c-5c03b3cbc759" height="300px" alt="NyxEngine Logo">
-
+![Spaceship sprite with lasers](docs/readme_assets/spaceship-lasers.gif)
+![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif)
 ---
 
  Table of Contents:
 - [NyxEngine](#nyxengine)
+  - [](#)
   - [Overview:](#overview)
   - [Technical Highlights:](#technical-highlights)
   - [Setup/Run:](#setuprun)
