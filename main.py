@@ -1,7 +1,9 @@
 from random import randint
 import time
-from typing import Dict
+from typing import Dict, List
+
 import numpy as np
+
 from nyx.aether_renderer.tilemap_manager import TilemapManager
 from nyx.moirai_ecs.component.texture_components import TextureComponent
 from nyx.moirai_ecs.component.transform_components import (
@@ -11,39 +13,33 @@ from nyx.moirai_ecs.component.transform_components import (
     ZIndexComponent,
 )
 from nyx.moirai_ecs.system.movement_system import MovementSystem
-
-# from nyx.moirai_ecs.system.tilemap_system import TilemapSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
-from nyx.nyx_engine.stores.tileset_store import TilesetStore
 from nyx.utils.nyx_asset_import import NyxAssetImport
 
 
-if __name__ == "__main__":
-    engine = NyxEngine()
-    # Load Early Managers, Stores, Assets, Systems
-    engine.add_system(MovementSystem())
-
-    # Create a simple tile map and tiles
-    lowest, highest = 0, 16
-    h, w = 5, 8
-    tile_dimension = 32
-    tilemap = np.random.randint(lowest, highest, size=(h, w), dtype=np.uint8)
-    tile_size = (tile_dimension, tile_dimension)
-
-    # Load tiles from .nyx files
-    tile_files = [f"space-tiles-{i}" for i in range(1, 17)]
+def load_tiles(filename: str, start: int, end: int) -> List[np.ndarray]:
+    # Generate filenames for .nyx files
+    tile_files = [f"{filename}-{i}" for i in range(start, end + 1)]
     # Save them to a temporary dictionary
     tile_imports: Dict[int, np.ndarray] = {}
     for i, filename in enumerate(tile_files):
         tile = NyxAssetImport.open_asset(filename)
         tile_imports[i] = tile
-    tilemap_manager = TilemapManager(NyxEngine.aether_renderer.dimensions)
-    tilemap_manager.create_tilemap(tilemap)
-    tilemap_manager.create_tileset(tile_imports, tile_dimension)
-    tilemap_manager.render_tilemap()
+    return tile_imports
 
-    rendered_tilemap = TilemapManager.rendered_tilemap
-    # Create a sprite:
+
+def generate_spacebg_tilemap(
+    height: int,
+    width: int,
+    value_start: int,
+    value_end: int,
+):
+    return np.random.randint(
+        value_start, value_end, size=(height, width), dtype=np.uint8
+    )
+
+
+def generate_spaceship(engine: NyxEngine):
     spaceship_id = engine.entity_manager.create_entity("spaceship-sprite").entity_id
     spaceship_comps = {
         "position": PositionComponent(10, 0),
@@ -56,10 +52,8 @@ if __name__ == "__main__":
         engine.component_manager.add_component(
             entity_id=spaceship_id, component_name=comp_name, component=comp
         )
-    engine.aether_renderer.dimensions.window_h = 160
-    engine.aether_renderer.dimensions.window_w = 240
-    engine.aether_renderer.dimensions.update()
 
+    # Set ship components as variables
     velocity: VelocityComponent = engine.component_manager.get_component(
         entity_id=spaceship_id, component_name="velocity"
     )
@@ -69,6 +63,44 @@ if __name__ == "__main__":
     dimensions: DimensionsComponent = engine.component_manager.get_component(
         entity_id=spaceship_id, component_name="dimensions"
     )
+    return spaceship_id, dimensions, position, velocity
+
+
+if __name__ == "__main__":
+    # Configs
+    # Tilemap
+    tilemap_h, tilemap_w = 5, 8
+    tile_d = 32
+    tile_start, tile_end = 1, 16
+    # Dimensions
+    window_height = 320
+    window_width = 480
+
+    # Start the engine
+    engine = NyxEngine()
+    # Add required systems to loop
+    engine.add_system(MovementSystem())
+
+    # Set rendering window
+    engine.aether_renderer.dimensions.window_h = window_height
+    engine.aether_renderer.dimensions.window_w = window_width
+    engine.aether_renderer.dimensions.update()
+
+    # Create a simple tile map and tiles
+    tilemap_manager = TilemapManager(engine.aether_renderer.dimensions)
+    # Make tileset
+    tile_imports = load_tiles("space-tiles", tile_start, tile_end)
+    tilemap_manager.set_tileset(tile_imports, tile_d)
+    # Make tilemap
+    tilemap = generate_spacebg_tilemap(tilemap_h, tilemap_w, tile_start, tile_end)
+    tilemap_manager.set_tilemap(tilemap)
+    # Prerender tilemap
+    tilemap_manager.render()
+    rendered_tilemap = TilemapManager.rendered_tilemap
+
+    # Create a sprite:
+    spaceship_id, dimensions, position, velocity = generate_spaceship(engine)
+
     laserbeam_texture = np.array(
         [160, 160, 160, 160, 160, 160, 160, 160], dtype=np.uint8
     )
@@ -86,7 +118,7 @@ if __name__ == "__main__":
     }
     while True:
         if position.render_y_pos >= (
-            engine.aether_renderer.dimensions.window_h - dimensions.height
+            engine.aether_renderer.dimensions.effective_y_resolution - dimensions.height
         ):
             velocity.y_vel = -(abs(velocity.y_vel))
         if position.render_y_pos <= 1:
@@ -113,69 +145,25 @@ if __name__ == "__main__":
         fire_counter += 1
 
         if tilemap_interval >= 40:
-            tilemap = np.random.randint(lowest, highest, size=(h, w), dtype=np.uint8)
+            tilemap = np.random.randint(
+                tile_start, tile_end, size=(tilemap_h, tilemap_w), dtype=np.uint8
+            )
             tilemap_interval = 0
-            tilemap_manager.create_tilemap(tilemap)
-            tilemap_manager.render_tilemap()
+            tilemap_manager.set_tilemap(tilemap)
+            tilemap_manager.render()
         else:
             TilemapManager.rendered_tilemap = np.roll(
                 tilemap_manager.rendered_tilemap, -4, axis=1
             )
         tilemap_interval += 1
 
+        # Loop systems
         engine.trigger_systems()
+        # Generate frame
         engine.render_frame()
+        # Cull off-screen entities
         engine.kill_entities()
         time.sleep(NyxEngine.sec_per_game_loop)
-    # engine.run_game()
-
-    # # Clear the terminal before the first run
-    # TerminalUtils.clear_term()
-    # # Scrolfel left -> right = positive value
-    # # SCroll right -> left = negative value
-    # x_pos = 0
-    # x_vel = -4
-    # trip_randomize = 0
-    # # Loop to regenerate colors
-    # tilemap = np.random.randint(1, 16, size=(10, 20), dtype=np.uint8)
-    # # Create "LevelRoot" Entity
-    # scene_entity = entity_manager.create_entity("scene-1")
-
-    # # Add components to entity
-    # (
-    #     component_store.register_entity_component(
-    #         scene_entity, SceneComponent("demo-map")
-    #     )
-    #     .register_entity_component(scene_entity, ZIndexComponent(0))
-    #     # .register_entity_component(scene_entity, BackgroundColorComponent(33))
-    #     .register_entity_component(scene_entity, BackgroundColorComponent(16))
-    #     .register_entity_component(
-    #         scene_entity, TilemapComponent(tilemap, tile_dimension=tile_dimension)
-    #     )
-    # )
-    # while True:
-    #     # Call the render system to collect entities and pass to Aether
-    #     z_indexed_entities = aether_collector.update()
-
-    #     aether_renderer.dimensions.window_h = 180
-    #     aether_renderer.dimensions.window_w = 240
-    #     merged_frame = aether_renderer.accept_entities(
-    #         aether_collector.update()
-    #     ).render()
-    #     merged_frame = np.roll(merged_frame, x_pos, axis=1)
-    #     _, w = merged_frame.shape
-    #     x_pos += x_vel
-    #     if x_pos >= w or x_pos <= -w:
-    #         x_pos = x_pos % w
-    #     hemera_term_api.print(merged_frame)
-    #     if trip_randomize == 10:
-    #         tilemap = np.random.randint(1, 16, size=(6, 8), dtype=np.uint8)
-    #         trip_randomize = 0
-    #         component_store.register_entity_component(
-    #             scene_entity, TilemapComponent(tilemap, 32)
-    #         )
-    #     else:
-    #         trip_randomize += 1
 
     #     # time.sleep(2)
     #     # time.sleep(0.5)

@@ -20,6 +20,7 @@ TODO:
 
 """
 
+from re import sub
 from typing import Dict
 
 import numpy as np
@@ -157,7 +158,6 @@ class AetherRenderer:
             self.layered_frames
         )  # Dict = {z_index (int), subframe (ndarray)}
         merged_frame = self.merged_frame  # Note: ndarray, uint8
-
         # Desc. sort the z-index keys, and iterate from the highest priority to the lowest. Each
         # subframe layer replaces pixel information in the merged_frame where the merged_frame cell
         # value = 0.

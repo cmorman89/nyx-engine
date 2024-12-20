@@ -1,79 +1,157 @@
+from math import ceil
 import numpy as np
 from nyx.aether_renderer.aether_dimensions import AetherDimensions
 
 
 class TilemapManager:
     background_color = None
-    tilemap_key_array = None
+    ref_tilemap = None
     rendered_tilemap = None
     tilemap_position = (0, 0)
     tile_dimensions = 32
     tileset_textures = {}
 
     def __init__(self, dimensions: AetherDimensions):
+        self.tile_d = 0
         self.dimensions = dimensions
-        self.culled_tilemap_key = None
+        self.frame_h, self.frame_w = 0, 0
+        self.ref_tiles_h, self.ref_tiles_w = 0, 0
+        self.frame_tiles_h, self.frame_tiles_w = 0, 0
+        self.pos_x, self.pos_y = 0, 0
+        self.ref_pos_x, self.ref_pos_y = 0, 0
+        self.rolled_ref_tilemap = None
+        self.tile_roll_x, self.tile_roll_y = 0, 0
+        self.filled_tilemap = None
+        self.rel_pos_x, self.rel_pos_y = 0, 0
+        self.rel_pos_end_x, self.rel_pos_end_y = 0, 0
 
-    def create_tilemap(self, tilemap: np.ndarray):
-        TilemapManager.tilemap_key_array = tilemap
+    def render(self):
+        self._update_calcs()
+        self._resize_ref_array()
+        self._fill_ref_tilemap()
+        self._cull_rendered_tilemap()
 
-    def create_tileset(self, tileset: dict, tile_dimension: int = 32):
+        TilemapManager.rendered_tilemap = self.filled_tilemap
+
+    def _update_calcs(self):
+        """Update the instance variable calculations for the tilemap rendering."""
+        # Get the tile dimensions
+        self.tile_d = TilemapManager.tile_dimensions
+
+        # Get the frame size in pixels
+        self.frame_h, self.frame_w = (
+            self.dimensions.effective_y_resolution,
+            self.dimensions.effective_x_resolution,
+        )
+        # Convert the frame size to tiles (Ceil because we need the partial tile to end the frame)
+        self.frame_tiles_h, self.frame_tiles_w = (
+            ceil(self.frame_h / self.tile_d),
+            ceil(self.frame_w / self.tile_d),
+        )
+        # Get the size of the reference tilemap in tiles
+        self.ref_tiles_h, self.ref_tiles_w = TilemapManager.ref_tilemap.shape
+
+        # Get the position of the tilemap in pixels
+        self.pos_x, self.pos_y = TilemapManager.tilemap_position
+        # Convert the position of the tilemap to tiles (Floor because we need the partial tile to start the tilemap)
+        self.ref_pos_x, self.ref_pos_y = (
+            self.pos_x // self.tile_d,
+            self.pos_y // self.tile_d,
+        )
+
+        # Calculate the relative position of the tilemap in tiles
+        self.tile_roll_x = self.ref_pos_x % self.ref_tiles_w
+        self.tile_roll_y = self.ref_pos_y % self.ref_tiles_h
+
+        # Calculate the relative position of the tilemap in pixels
+        self.rel_pos_x = self.pos_x % self.frame_w
+        self.rel_pos_y = self.pos_y % self.frame_h
+        self.rel_pos_end_x = self.rel_pos_x + self.frame_w
+        self.rel_pos_end_y = self.rel_pos_y + self.frame_h
+
+    def _resize_ref_array(self):
+        # Overall strategy:
+        # 1. Roll the reference tilemap array to the current position to prepare for tiling and
+        #    slicing.
+        # 2. Repeat the rolled tilemap array to exceed the frame size without slicing.
+        # 3. Slice the current reference tilemap array to fit the frame, including partial tiles as
+        #    whole tiles. This also trims the repeated tilemap array to only the visible tiles.
+        # 4. Replace the reference tilemap with the culled tilemap for use in rendering.
+
+        # Check if the tilemap is repositioned
+        if self.tile_roll_x != 0 or self.tile_roll_y != 0:
+            self._roll_ref_tilemap()
+        else:
+            self.rolled_ref_tilemap = TilemapManager.ref_tilemap
+
+        # Check if the tilemap is smaller than the frame
+        if (
+            self.ref_tiles_h < self.frame_tiles_h
+            or self.ref_tiles_w < self.frame_tiles_w
+        ):
+            self._expand_ref_tilemap()
+
+        if (self.ref_tiles_h > self.frame_tiles_h) or (
+            self.ref_tiles_w > self.frame_tiles_w
+        ):
+            self._cull_ref_tilemap()
+
+        # Store the culled tilemap for rendering
+        TilemapManager.ref_tilemap = self.rolled_ref_tilemap
+
+    def _roll_ref_tilemap(self):
+        # Roll the tilemap array to the current position
+        # - Convert rightward position (movement to the right) to leftward roll and vice versa
+        # - Convert downward position (movement downward) to upward roll and vice versa
+        self.rolled_ref_tilemap = np.roll(
+            (TilemapManager.ref_tilemap),
+            (-self.tile_roll_y, -self.tile_roll_x),
+            axis=(0, 1),
+        )
+
+    def _expand_ref_tilemap(self):
+        ### Move to new EXPAND method after completion
+        # Tile the rolled tilemap array to exceed the frame size
+        repeats_x = ceil(self.frame_tiles_w / self.ref_tiles_w)
+        repeats_y = ceil(self.frame_tiles_h / self.ref_tiles_h)
+        self.rolled_ref_tilemap = np.tile(
+            self.rolled_ref_tilemap, (repeats_y, repeats_x)
+        )[: self.frame_tiles_h, : self.frame_tiles_w]
+
+    def _cull_ref_tilemap(self):
+        ### Move to new CONTRACT method after completion
+        # Slice the ref. tilemap array to fit the frame, including partial tiles as whole tiles.
+        # - Since the tilemap has been rolled, the top left corner of the tilemap is the correct
+        #   starting point for the slice.
+        self.rolled_ref_tilemap = self.rolled_ref_tilemap[
+            : self.frame_tiles_h, : self.frame_tiles_w
+        ]
+
+    def set_tilemap(self, tilemap: np.ndarray):
+        TilemapManager.ref_tilemap = tilemap
+
+    def set_tileset(self, tileset: dict, tile_dimension: int = 32):
         TilemapManager.tileset_textures = tileset
         TilemapManager.tile_dimensions = tile_dimension
 
-    def render_tilemap(self):
-        tilemap = TilemapManager.tilemap_key_array
-        tile_dimension = TilemapManager.tile_dimensions
+    def _fill_ref_tilemap(self):
+        ref_tilemap = TilemapManager.ref_tilemap
+        tile_d = self.tile_d
         tileset = TilemapManager.tileset_textures
-        h, w = tilemap.shape
-        rendered_tilemap = np.zeros(
-            (h * tile_dimension, w * tile_dimension), dtype=np.uint8
-        )
+        h, w = ref_tilemap.shape
+
+        # Create a new, blank tilemap to render the tileset onto.
+        filled_tilemap = np.zeros((h * tile_d, w * tile_d), dtype=np.uint8)
         for y in range(h):
             for x in range(w):
-                tile_x_start = x * tile_dimension
-                tile_y_start = y * tile_dimension
-                tile_x_end = tile_x_start + tile_dimension
-                tile_y_end = tile_y_start + tile_dimension
-                tile_texture = tileset[tilemap[y, x]]
-                rendered_tilemap[tile_y_start:tile_y_end, tile_x_start:tile_x_end] = (
-                    tile_texture
-                )
-        TilemapManager.rendered_tilemap = rendered_tilemap
+                tile_texture = tileset[ref_tilemap[y, x]]
+                filled_tilemap[
+                    y * tile_d : (y + 1) * tile_d, x * tile_d : (x + 1) * tile_d
+                ] = tile_texture
 
-    # def cull_tilemap_key(self):
-    #     tilemap_key = TilemapManager.tilemap_key_array
-    #     frame_h, frame_w = (
-    #         self.dimensions.effective_y_resolution,
-    #         self.dimensions.effective_x_resolution,
-    #     )
-    #     map_h, map_w = TilemapManager.tilemap_key_array.shape
-    #     map_x, map_y = TilemapManager.tilemap_position
-    #     tile_d = TilemapManager.tile_dimensions
+        self.filled_tilemap = filled_tilemap
 
-    #     # Calculate the maximum number of tiles that can be rendered
-    #     map_h_max, map_w_max = (
-    #         ceil(frame_h / tile_d),
-    #         ceil(frame_w / tile_d),
-    #     )
-    #     # Create the culled tilemap key array of only the visible tiles
-    #     # Find the starting point of the tilemap key array
-    #     map_y_start = max(0, ceil(map_y / tile_d))
-    #     map_x_start = max(0, ceil(map_x / tile_d))
-    #     # Find the ending point of the tilemap key array
-    #     map_y_end = min(map_h, map_h_max)
-    #     map_x_end = min(map_w, map_w_max)
-    #     # If the tilemap key array is smaller than the frame, repeat it to fill the frame
-    #     if map_h < map_h_max:
-    #         TilemapManager.culled_tilemap_key = np.vstack(
-    #             (tilemap_key, tilemap_key[: map_h_max - map_h, :])
-    #         )
-    #     if map_w < map_w_max:
-    #         TilemapManager.culled_tilemap_key = np.hstack(
-    #             (tilemap_key, tilemap_key[:, : map_w_max - map_w])
-    #         )
-
-    # If the tilemap key array is larger than the frame, cut it to fit the frame
-    # Check if tilemap needs to be rerenedered by comparing the culled tilemap key to the previous one or if position changed
-    # If the tilemap needs to be rerendered, render the tilemap
-    #
+    def _cull_rendered_tilemap(self):
+        self.filled_tilemap = self.filled_tilemap[
+            self.rel_pos_y : self.rel_pos_end_y, self.rel_pos_x : self.rel_pos_end_x
+        ]
