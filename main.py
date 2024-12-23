@@ -14,7 +14,7 @@ from nyx.moirai_ecs.component.transform_components import (
 )
 from nyx.moirai_ecs.system.movement_system import MovementSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
-from nyx.utils.nyx_asset_import import NyxAssetImport
+from nyx.nyx_engine.utils.nyx_asset_import import NyxAssetImport
 
 
 def load_tiles(filename: str, start: int, end: int) -> List[np.ndarray]:
