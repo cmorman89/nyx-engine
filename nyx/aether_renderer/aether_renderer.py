@@ -6,21 +6,15 @@ final frame that is sent to Hemera for printing to the terminal.
 
 Classes:
     AetherRenderer: The primary orchestrator of entity rendering, respoinsible for generating
-        layered subframes and then merging them into a frame to be printed. Needs split up.
+        layered subframes and then merging them into a frame to be printed. 
 
 Mythology:
     In the Greek pantheon, Aether is the son of Nyx (Night) and Erebus (Darkness). He personifies
     the upper air -- the pure, bright atmosphere breathed by the gods. Aether is also considered the
     ethereal medium through which the divine realm is perceived, representing the luminous,
     untainted essence that fills the heavens.
-
-TODO:
-    - Store frame layers as a 3D axis-0 stack of 2d arrays (numpy) #14
-    - Refactor into multiple classes (entity handling, frame generation, etc.)
-
 """
 
-from re import sub
 from typing import Dict
 
 import numpy as np
@@ -104,8 +98,8 @@ class AetherRenderer:
         """
         self.merged_frame = np.zeros(
             (
-                self.dimensions.effective_y_resolution,
-                self.dimensions.effective_x_resolution,
+                self.dimensions.effective_window_h,
+                self.dimensions.effective_window_w,
             ),
             dtype=np.uint8,
         )
@@ -117,25 +111,19 @@ class AetherRenderer:
         for z_index, entity_list in self.layered_entities.items():
             self._new_subframe(z_index)
             for entity in entity_list:
-                x, y, texture = entity
-                frame_w = self.dimensions.effective_x_resolution
-                frame_h = self.dimensions.effective_y_resolution
-
-                h, w = texture.shape
+                # Get frame/dimensions
+                frame_w = self.dimensions.effective_window_w
+                frame_h = self.dimensions.effective_window_h
                 subframe = self.layered_frames[z_index]
-
+                # Get texture
+                x, y, texture = entity
+                h, w = texture.shape
                 # Limit w and h to fit within the frame boundaries
                 w = min(w, frame_w - x)
                 h = min(h, frame_h - y)
+                # Insert texture into subframe
                 if w > 0 and h > 0:
                     subframe[y : y + h, x : x + w] = texture[:h, :w]
-            # for component_dict in entity_dict.values():
-            #     for component in component_dict.values():
-            #         # Store background color in z-index 0 layer for later use.
-            #         if z_index == 0 and isinstance(component, BackgroundColorComponent):
-            #             self._process_background_color_component(component)
-            #         elif isinstance(component, TilemapComponent):
-            #             self._process_tilemap_component(component)
 
     def _new_subframe(self, z_index: int = 0):
         """Create a new/blank 2D ndarray for each z-index/priority/layer and insert that subframe
@@ -143,8 +131,8 @@ class AetherRenderer:
         """
         self.layered_frames[z_index] = np.zeros(
             (
-                self.dimensions.effective_y_resolution,
-                self.dimensions.effective_x_resolution,
+                self.dimensions.effective_window_h,
+                self.dimensions.effective_window_w,
             ),
             dtype=np.uint8,
         )
@@ -190,8 +178,8 @@ class AetherRenderer:
         """
         from nyx.nyx_engine.nyx_engine import NyxEngine
 
-        frame_w = self.dimensions.effective_x_resolution
-        frame_h = self.dimensions.effective_y_resolution
+        frame_w = self.dimensions.effective_window_w
+        frame_h = self.dimensions.effective_window_h
 
         # NyxEngine.tilemap_manager.render_tilemap()
         self.layered_frames[0] = NyxEngine.tilemap_manager.rendered_tilemap[
