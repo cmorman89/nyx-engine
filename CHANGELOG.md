@@ -5,6 +5,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com),
 and this project adheres to [Semantic Versioning](https://semver.org).
 
 ## [UNRELEASED]
+
+---
+
+## [0.0.4-alpha] - 2024-12-22
 ### Added
 - Add unit testing for `NyxEntity`, `ComponentManager` and `MoraiEntityManager`
 - Add documentation for `NyxEntity`, `ComponentManager`, and `MoraiEntityManager`
@@ -19,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 - Simplify `ComponentManager` with less nested logic and simpler output. Components organized by type for fast system access.
 - Tilemap printing now uses a dedicated helper/manager `TilemapManager` and is no longer a `NyxSystem`.
 - Significant README and project documentation updates -- including animated demos of current project state.
+- Begin refactoring `demo.py` to use the new `NyxEngine` and allow for better usability and clarity.
 
 ### Fixed
 - Incorrect printing iteration caused excessive new lines in animated sprites.
@@ -28,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
   
 ### Removed
   - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
+  - Removed
 
 ---
 
@@ -50,8 +56,12 @@ and this project adheres to [Semantic Versioning](https://semver.org).
   - Introduced mythology section to explain the naming scheme.
   - Added static and animated screenshots/screen captures, exemplifying the terminal output when rendering.
 - **Demo**:
-  - Provided basic "run.sh" bash script to use to launch the demo.
   - Implemented an animated, nostalgic starfield tilemap using the new rendering pipeline.
+
+### Changed
+- Renamed `HemeraRenderer` to `HemeraTermFx` as it handles terminal effects and rendering.
+- Renamed `AetherCompositor` to `AetherRenderer` as it manages the rendering pipeline.
+- Renamed `NyxEntityManager` to `MoraiEntityManager` to reflect the project's mythology/consistency.
 
 ### Fixed
 - Debugged 3D-to-2D matrix iteration issues causing misaligned axes and anomalous subpixel rendering patterns.
@@ -83,12 +93,3 @@ and this project adheres to [Semantic Versioning](https://semver.org).
   - Built foundational rendering systems: `NyxComponentStore`, `RendererSystem`, `AetherCompositor`, and `HemeraRenderer`.
 - **Basic Terminal Utilities**:
   - Created `term_utils.py` for common terminal operations.
-
----
-
-### Notes
-- **Milestones Achieved**:
-  - [0.0.1-alpha]: First functional pipeline (ECS → Render → Output).
-  - [0.0.2-alpha]: Added Tilemap rendering and subpixel support.
-  - [0.0.3-alpha]: Introduced delta framebuffer rendering and comprehensive documentation.
-- Development methodology favored building systems layer by layer, starting from the background layer and moving upward through the rendering pipeline.
