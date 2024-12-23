@@ -15,24 +15,28 @@ Mythology:
     untainted essence that fills the heavens.
 """
 
-from typing import Dict
+from typing import Dict, List, Tuple
 
 import numpy as np
 
 from nyx.aether_renderer.aether_dimensions import AetherDimensions
-from nyx.moirai_ecs.component.base_components import (
-    NyxComponent,
-)
-from nyx.moirai_ecs.component.scene_components import (
-    BackgroundColorComponent,
-)
 
 
 class AetherRenderer:
-    """
+    """Primary orchestrator of entity rendering, responsible for generating layered subframes and
+    then merging them into a frame to be printed.
 
     Attributes:
-        term_size_h:
+        dimensions (AetherDimensions): The constraints on the render window dimensions.
+        current_layer_entities (Dict[int, Dict[int, Dict[str, NyxComponent]]]): The entities
+            currently being processed.
+        layered_entities (Dict[int, List[Tuple[int, int, np.ndarray]]]): The entities to render.
+        layered_frames (Dict[int, np.ndarray]): The subframes for each z-index layer.
+        merged_frame (np.ndarray): The final merged frame to be printed.
+
+    Methods:
+        accept_entities: Receive and store the list of entities to render from AetherBridgeSystem.
+        render: Trigger a render of the current entities list held by Aether.
     """
 
     def __init__(self, window_h: int = 0, window_w: int = 0):
@@ -47,11 +51,6 @@ class AetherRenderer:
         # Rendering window sizes and constraints
         self.dimensions = AetherDimensions(window_h=window_h, window_w=window_w)
 
-        # State-related data
-        self.pos_x: int = 0
-        self.pos_y: int = 0
-        self.background_color_code: int | np.uint8 = 16
-
         # Entities
         self.current_layer_entities = {}
         self.layered_entities = {}
@@ -60,17 +59,11 @@ class AetherRenderer:
         self.layered_frames = {}
         self.merged_frame: np.ndarray = self._new_merged_frame()
 
-    def accept_entities(self, entities: Dict[int, Dict[int, Dict[str, NyxComponent]]]):
+    def accept_entities(self, entities: Dict[int, List[Tuple[int, int, np.ndarray]]]):
         """Receive and store the list of entities to render from AetherBridgeSystem
 
         Args:
-            entities (Dict[int, Dict[int, Dict[str, RenderableComponent]]]):
-                The dict of renderable data sent to Aether.
-                For explicit clarity, the structure is:
-
-                    {z-index (int): {
-                        entity id (int): {
-                            component name (str): component object (RenderableComponent)}}}
+            entities (Dict[int, List[Tuple[int, int, np.ndarray]]]): The entities to render.
         """
         self.layered_entities = entities
         return self
@@ -163,12 +156,6 @@ class AetherRenderer:
         """
         if self.background_color_code != 0:
             self.merged_frame[self.merged_frame == 0] = self.background_color_code
-
-    def _process_background_color_component(
-        self, bg_component: BackgroundColorComponent
-    ):
-        """Store the background color for use at the end of frame generation."""
-        self.background_color_code = bg_component.bg_color_code
 
     def _process_tilemap_component(self):
         """Process a `TilemapComponent` by its associated `MorosSystem`.
