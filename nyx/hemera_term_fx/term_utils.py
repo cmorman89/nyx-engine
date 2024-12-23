@@ -3,6 +3,9 @@ Terminal Utlities Module
 
 This module defines static methods to easily manipulate printing to the terminal. It is mostly for
 my own sanity + centralized update location if the underlying logic must change.
+
+Classes:
+    TerminalUtils: A collection of static methods to manipulate terminal printing.
 """
 
 import os
@@ -10,6 +13,20 @@ from typing import Tuple
 
 
 class TerminalUtils:
+    """A collection of static methods to manipulate terminal printing.
+
+    Methods:
+        clear_term(): Clear the terminal display correctly for both Windows- and Unix-based systems.
+        reset_format(): Return the ANSI escape sequence to reset the terminal formatting.
+        cursor_to_origin(): Return the ANSI escape sequence to move the printing cursor back to the
+            first position in the terminal window.
+        cursor_rel_move(): Return the ANSI escape sequence to move the printing cursor relatively to
+            its current position in the terminal.
+        cursor_abs_move(): Return the ANSI escape sequence to move the printing cursor to a specific
+            location within the terminal.
+        get_terminal_dimensions(): Return the terminal size as a tuple of integers in (h, w) format.
+    """
+
     @staticmethod
     def clear_term():
         """Clear the terminal display correctly for both Windows- and Unix-based systems."""

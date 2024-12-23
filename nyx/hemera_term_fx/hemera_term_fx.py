@@ -55,13 +55,13 @@ class HemeraTermFx:
         old_subpixel_frame (np.ndarray): The cached last frame rendered, as subpixels.
         clear_term_on_run (bool, optional): Issues a terminal clear command on next render.
             Defaults to False.
+        buffer_log (str): A log of the buffer for debugging purposes.
     """
 
     def __init__(self, clear_term_on_run: bool = False):
         """Construct Hemera with an empty frame buffer."""
         self.old_subpixel_frame: np.ndarray = None
         self.clear_term_on_run: bool = clear_term_on_run
-        self.buffer_log: str = []
 
     def print(self, new_frame: np.ndarray = None):
         """Print the new frame to the terminal in color and using vertical-stacked subpixels.

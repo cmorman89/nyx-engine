@@ -59,6 +59,9 @@ class AetherRenderer:
         self.layered_frames = {}
         self.merged_frame: np.ndarray = self._new_merged_frame()
 
+        # Background color
+        self.background_color_code = 0
+
     def accept_entities(self, entities: Dict[int, List[Tuple[int, int, np.ndarray]]]):
         """Receive and store the list of entities to render from AetherBridgeSystem
 

@@ -10,7 +10,7 @@ Classes:
 """
 
 from typing import Dict
-from nyx.moirai_ecs.component.base_components import BaseComponent
+from nyx.moirai_ecs.component.base_components import NyxComponent
 from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 
@@ -20,14 +20,13 @@ class ComponentStore:
     entity_id/int. Entity friendly name retreival is also supported.
     """
 
-
     def __init__(self, entity_manager: MoiraiEntityManager):
         """Initialize with a reference to the entity manager and an empty component registry."""
         self.entity_manager: MoiraiEntityManager = entity_manager
-        self.component_registry: Dict[int, Dict[str, BaseComponent]] = {}
+        self.component_registry: Dict[int, Dict[str, NyxComponent]] = {}
 
     def register_entity_component(
-        self, entity_identifier: NyxEntity | int | str, component: BaseComponent
+        self, entity_identifier: NyxEntity | int | str, component: NyxComponent
     ):
         """Register a component to an entity in the component registry by its int.
 
@@ -48,7 +47,7 @@ class ComponentStore:
     def unregister_entity_component(
         self,
         entity_identifier: NyxEntity | int | str,
-        component_type: str | BaseComponent,
+        component_type: str | NyxComponent,
     ):
         """Remove a given component from an entity.
 
@@ -86,8 +85,8 @@ class ComponentStore:
     def get_component(
         self,
         entity_identifier: NyxEntity | int | str,
-        component_type: str | BaseComponent,
-    ) -> BaseComponent:
+        component_type: str | NyxComponent,
+    ) -> NyxComponent:
         """Fetch a particular component for an entity in the component registry.
 
         Args:
@@ -114,7 +113,7 @@ class ComponentStore:
 
     def get_all_components(
         self, entity_identifier: NyxEntity | int | str
-    ) -> Dict[str, BaseComponent]:
+    ) -> Dict[str, NyxComponent]:
         """Fetch a dict of components for a NyxEntity.
 
         Args:
@@ -134,7 +133,7 @@ class ComponentStore:
             return component_dict
         raise KeyError(f"Entity not found in component registry, entity={entity!r}")
 
-    def validate_component_type(self, component_type: str | BaseComponent) -> str:
+    def validate_component_type(self, component_type: str | NyxComponent) -> str:
         """Return the class name of a provided Component.
 
         Args:
@@ -148,5 +147,5 @@ class ComponentStore:
             return component_type
         if isinstance(component_type, type):
             return component_type.__name__
-        elif isinstance(component_type, BaseComponent):
+        elif isinstance(component_type, NyxComponent):
             return type(component_type).__name__
