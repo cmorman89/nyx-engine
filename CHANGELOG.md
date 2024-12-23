@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 - Add documentation for `NyxEntity`, `ComponentManager`, and `MoraiEntityManager`
 - Implemented printing/rendering moving sprites to the terminal.
 - Implemented `NyxEngine` for orchestrating the central game loop and managing resources.
+- Tilemap rendering now supports infinite scrolling in all directions.
 
   
 ### Changed
@@ -22,9 +23,13 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 ### Fixed
 - Incorrect printing iteration caused excessive new lines in animated sprites.
 
-
 ### Regression
 - Terminal size updates are no longer working correctly. Manual window sizes must be specified.
+  
+### Removed
+  - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
+
+---
 
 ## [0.0.3-alpha] - 2024-12-13
 ### Added
