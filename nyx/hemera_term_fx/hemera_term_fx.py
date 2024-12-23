@@ -55,6 +55,7 @@ class HemeraTermFx:
         old_subpixel_frame (np.ndarray): The cached last frame rendered, as subpixels.
         clear_term_on_run (bool, optional): Issues a terminal clear command on next render.
             Defaults to False.
+        buffer_log (str): A log of the buffer for debugging purposes.
     """
 
     def __init__(self, clear_term_on_run: bool = False):
@@ -132,46 +133,46 @@ class HemeraTermFx:
         Args:
             delta_frame (np.ndarray): The delta frame to process and print.
         """
-
         run_buffer = ""
         last_ansi_fg_color, last_ansi_bg_color = np.uint8(0), np.uint8(0)
-        last_subpixel_pair = (
-            np.uint8(0),
-            np.uint8(0),
-        )
+        last_subpixel_pair = (np.uint8(0), np.uint8(0))
         _, h, w = delta_frame.shape
 
         # Iterate the subpixel delta frame using a 2D index
-        for y, x in np.ndindex(h, w):
-            # Save each axis-0 colors to a tuple
-            fg_color, bg_color = subpixel_pair = tuple(delta_frame[:, y, x])
+        for y in range(h):
+            row_has_updates = False  # Track if the row has any updates
+            for x in range(w):
+                # Save each axis-0 colors to a tuple
+                fg_color, bg_color = subpixel_pair = tuple(delta_frame[:, y, x])
 
-            # Check if subpixel is printable (not (0, 0))
-            if subpixel_pair != (np.uint8(0), np.uint8(0)):
-                # Issue a cursor relocate and flush the run buffer if the last subpixel pair was
-                # non-printing (0, 0)
-                if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
-                    sys.stdout.write(run_buffer)
-                    run_buffer = TerminalUtils.cursor_abs_move(x, y)
+                # Check if subpixel is printable (not (0, 0))
+                if subpixel_pair != (np.uint8(0), np.uint8(0)):
+                    row_has_updates = True  # Mark row as having updates
 
-                # Issue color format sequences only when a new color is needed
-                if fg_color != last_ansi_fg_color:
-                    run_buffer += f"\033[38;5;{fg_color}m"
-                if bg_color != last_ansi_bg_color:
-                    run_buffer += f"\033[48;5;{bg_color}m"
-                # Add the printing character
-                run_buffer += "▀"
+                    # Issue a cursor relocate and flush the run buffer if the last subpixel pair was
+                    # non-printing (0, 0)
+                    if last_subpixel_pair == (np.uint8(0), np.uint8(0)):
+                        sys.stdout.write(run_buffer)
+                        run_buffer = TerminalUtils.cursor_abs_move(x, y)
 
-            # Add new line at the end of each row
-            if x == w - 1:
+                    # Issue color format sequences only when a new color is needed
+                    if fg_color != last_ansi_fg_color:
+                        run_buffer += f"\033[38;5;{fg_color}m"
+                    if bg_color != last_ansi_bg_color:
+                        run_buffer += f"\033[48;5;{bg_color}m"
+
+                    # Add the printing character
+                    run_buffer += "▀"
+
+                # Cache the color values
+                last_subpixel_pair = subpixel_pair
+
+            # Add new line at the end of the row **only if the row had updates**
+            if row_has_updates:
                 run_buffer += "\n"
 
-            # Cache the color values
-            last_subpixel_pair = subpixel_pair
-
         # Flush the final buffer and stdout after frame processing
-        sys.stdout.write(run_buffer)
+        sys.stdout.write(TerminalUtils.cursor_to_origin() + run_buffer)
         sys.stdout.flush()
-
         # Reset the run buffer
         run_buffer = ""

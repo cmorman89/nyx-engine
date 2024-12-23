@@ -8,9 +8,5 @@ from.
 from abc import ABC
 
 
-class BaseComponent(ABC):
+class NyxComponent(ABC):
     """Abstract base class of all components in NyxEngine."""
-
-
-class NyxComponent(BaseComponent, ABC):
-    """Abstract base class of all components that can be rendered by HemeraTerm"""

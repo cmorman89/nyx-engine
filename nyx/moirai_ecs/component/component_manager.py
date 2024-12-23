@@ -5,7 +5,8 @@ Manages and organizes the components that define the behaviors of game entities.
 indexed by entity ID.
 
 Classes:
-    ComponentManager:
+    ComponentManager: The centralized storage of all Components in NyxEngine, organized by entity_id
+        and component type.
 """
 
 from typing import Dict
@@ -21,12 +22,22 @@ class ComponentManager:
         component_registry (Dict[str, Dict[int, NyxComponent]]): The registry of all components
             registered to entities.
 
+    Methods:
+        add_component(): Register a new component to an entity.
+        get_component(): Get a component for an entity.
+        update_compone()): Update the component registered to the entity.
+        destroy_compon(): Remove the a component from from the registry.
+        remove_entity(): Remove all components belonging to an entity.
     """
 
     # Component Registry
     component_registry: Dict[str, Dict[int, NyxComponent]] = {
+        "background-color": {},
         "dimensions": {},
         "position": {},
+        "scene": {},
+        "texture": {},
+        "tilemap": {},
         "velocity": {},
         "z-index": {},
     }

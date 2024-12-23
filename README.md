@@ -2,10 +2,17 @@
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
 ![Alpha](https://img.shields.io/badge/status-alpha-orange.svg)
 
+
+![alt text](docs/readme_assets/nyx-logo-horizontal.png)
+
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
-<img src="https://github.com/user-attachments/assets/e855c330-f7e9-4021-9a5c-5c03b3cbc759" height="300px" alt="NyxEngine Logo">
+
+
+| ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
+|:--:| :--:|
+| **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.3-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
 
 ---
 

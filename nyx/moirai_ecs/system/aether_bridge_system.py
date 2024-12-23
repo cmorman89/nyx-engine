@@ -3,11 +3,16 @@ Aether ECS-Renderer Bridge Module
 
 This module collects and z-indexes the entities and components that are renderable, before handing
 them off to AetherRenderer for granular processing and frame generation.
+
+Classes:
+    AetherBridgeSystem: The system responsible for collecting all renderable components and passing
+        them to Aether for composition.
 """
 
-from nyx.moirai_ecs.component.base_components import NyxComponent
-from nyx.nyx_engine.stores.component_store import ComponentStore
-from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
+from typing import Dict, List, Tuple
+
+import numpy as np
+from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.system.base_systems import BaseSystem
 
 
@@ -16,56 +21,66 @@ class AetherBridgeSystem(BaseSystem):
     composition and prioritization.
 
     Attributes:
-        entity_manager (MorosEntityManager): The entitity manager that holds the entity list.
-        component_store (ComponentStore): The component store that holds the component objects.
+        renderable_entities (Dict[int, List[Tuple[int, int, np.ndarray]]]): The renderable entities
+            to be passed to AetherRenderer.
     """
 
-    def __init__(
-        self,
-        entity_manager: MoiraiEntityManager,
-        component_store: ComponentStore,
-    ):
-        """Initialize the bridge with references to the entity manager and component store."""
-        super().__init__(entity_manager)
-        self.component_store = component_store
+    def __init__(self):
+        """Initialize the renderable entities dictionary."""
+        self.renderable_entities: Dict[int, List[Tuple[int, int, np.ndarray]]] = {}
+        # self.scene_entities = {}
 
     def update(self):
-        """Generate a z-indexed dict of entities and their renderable components.
+        """Gather all renderable entities and components, then pass them to AetherRenderer."""
+        component_registry = ComponentManager.component_registry
+        renderable_entities = {}
+        # scene_entities = {}
 
-        Returns:
-            Dict[int, Dict[int, Dict[str, RenderableComponent]]]): The dict of renderable data sent
-                to Aether. For explicit clarity, the structure is:
+        # First filter by entities that have a z-index component
+        for entity_id, z_index_comp in component_registry["z-index"].items():
+            z_index = z_index_comp.z_index
 
-                    {z-index (int): {
-                        entity id (int): {
-                            component name (str): component object (RenderableComponent)}}}
+            # Sprite-related components
+            if (
+                entity_id in component_registry["position"]
+                and entity_id in component_registry["texture"]
+            ):
+                # Prepare the renderable entity for AetherRenderer by providing its position and
+                # texture to AetherRenderer as a tuple.
+                texture = component_registry["texture"][entity_id].texture
+                x = component_registry["position"][entity_id].render_x_pos
+                y = component_registry["position"][entity_id].render_y_pos
+                renderable_entity = (x, y, texture)
+                self._validate_z_index(
+                    z_index=z_index, renderable_entities=renderable_entities
+                )
+            renderable_entities[z_index].append(renderable_entity)
 
+            # TODO: Add support for scene-level components for level loading?
+            # Scene-level components
+            # elif entity_id in component_registry["scene"]:
+            #     # Directly apply the scene background color to the AetherRenderer:
+            #     if entity_id in component_registry["background-color"]:
+            #         background_color = component_registry["background-color"][
+            #             entity_id
+            #         ].color
+            #         NyxEngine.aether_renderer.set_background_color(background_color)
+            #     # Pass the scene tilemap to the AetherRenderer:
+            #     if entity_id in component_registry["tilemap"]:
+            #         tilemap = component_registry["tilemap"][entity_id].tilemap
+            #         tile_dimension = component_registry["tilemap"][
+            #             entity_id
+            #         ].tile_dimension
+            #         z_index = component_registry["z-index"][entity_id].z_index
+            #         renderable_entity = (tilemap, tile_dimension)
+        self.renderable_entities = renderable_entities
+
+    def _validate_z_index(self, z_index: int, renderable_entities: dict):
+        """Ensure that the z-index is present in the renderable entities dictionary.
+
+        Args:
+            z_index (int): The z-index to validate.
+            renderable_entities (dict): The dictionary of renderable entities to check.
         """
-        z_indexed_entities = {}
-
-        # Fetch entity registry
-        entity_registry = self.entity_manager.get_all_entities()
-
-        # Generate the z-index-entity-component dict to hand to Aether
-        for entity_id, entity in entity_registry.items():
-            z_index = -1
-            entity_dict = {entity_id: {}}
-
-            # Iterate the entity's components from the component store
-            for comp_name, comp_obj in self.component_store.get_all_components(
-                entity
-            ).items():
-                if isinstance(comp_obj, NyxComponent):
-                    entity_dict[entity_id][comp_name] = comp_obj
-                    if comp_name == "ZIndexComponent":
-                        z_index = comp_obj.z_index
-
-            # Add a new z-index key in the dict if it does not exist already
-            if len(entity_dict[entity_id]) > 0:
-                if z_index not in z_indexed_entities:
-                    z_indexed_entities[z_index] = {}
-                z_indexed_entities[z_index][entity_id] = entity_dict[entity_id]
-
-        # Return the z-index-entity-component dict if it is not empty
-        if len(z_indexed_entities) > 0:
-            return z_indexed_entities
+        if z_index not in renderable_entities:
+            renderable_entities[z_index] = []
