@@ -59,7 +59,7 @@ For now, it requires a little... _imagination_.
 ---
 
 ## Setup/Run:
-The current release (as of v0.0.3-alpha) is able to create a functional output of an animated tilemap. This demo can be viewed on Unix systems by following these steps:
+The current release (as of v0.0.4-alpha) is able to create a functional output of an animated tilemap. This demo can be viewed on Unix systems by following these steps:
 
 *1. Clone the repository:*
   - > ```bash
@@ -73,9 +73,9 @@ The current release (as of v0.0.3-alpha) is able to create a functional output o
   - > ```bash
     > pip install numpy
     > ```
-*4. Run the project demo file:*
+*4. Run the project main file:*
   - > ```bash
-    > python demo.py
+    > python main.py
     > ```
 
 ---
@@ -197,12 +197,8 @@ This project is thematically named after some of the oldest Greek gods, which ra
 NyxEngine is licensed under the **MIT License**.
 
 You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
-NyxEngine is licensed under the **MIT License**.
-
-You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
 
 ### Full License:
-See the [LICENSE](LICENSE) file.
 See the [LICENSE](LICENSE) file.
 
 ---
