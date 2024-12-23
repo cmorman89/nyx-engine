@@ -69,7 +69,7 @@ def generate_spaceship(engine: NyxEngine):
 if __name__ == "__main__":
     # Configs
     # Tilemap
-    tilemap_h, tilemap_w = 5, 8
+    tilemap_h, tilemap_w = 4, 1
     tile_d = 32
     tile_start, tile_end = 1, 16
     # Dimensions
@@ -87,7 +87,7 @@ if __name__ == "__main__":
     engine.aether_renderer.dimensions.update()
 
     # Create a simple tile map and tiles
-    tilemap_manager = TilemapManager(engine.aether_renderer.dimensions)
+    tilemap_manager = engine.tilemap_manager
     # Make tileset
     tile_imports = load_tiles("space-tiles", tile_start, tile_end)
     tilemap_manager.set_tileset(tile_imports, tile_d)
@@ -118,7 +118,7 @@ if __name__ == "__main__":
     }
     while True:
         if position.render_y_pos >= (
-            engine.aether_renderer.dimensions.effective_y_resolution - dimensions.height
+            engine.aether_renderer.dimensions.effective_window_h - dimensions.height
         ):
             velocity.y_vel = -(abs(velocity.y_vel))
         if position.render_y_pos <= 1:
@@ -150,12 +150,13 @@ if __name__ == "__main__":
             )
             tilemap_interval = 0
             tilemap_manager.set_tilemap(tilemap)
-            tilemap_manager.render()
         else:
-            TilemapManager.rendered_tilemap = np.roll(
-                tilemap_manager.rendered_tilemap, -4, axis=1
-            )
+            # TilemapManager.rendered_tilemap = np.roll(
+            #     tilemap_manager.rendered_tilemap, -4, axis=1
+            # )
+            tilemap_manager.pos_x += 1
         tilemap_interval += 1
+        tilemap_manager.render()
 
         # Loop systems
         engine.trigger_systems()
