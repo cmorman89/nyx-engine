@@ -8,11 +8,9 @@
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
-
-
 | ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
 |:--:| :--:|
-| **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.3-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
+| **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.4-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
 
 ---
 
@@ -21,6 +19,7 @@ An experimental, high-performance game engine and rendering pipeline for the ter
   - [Overview:](#overview)
   - [Technical Highlights:](#technical-highlights)
   - [Setup/Run:](#setuprun)
+  - [Usage:](#usage)
   - [Concept/Demo:](#conceptdemo)
   - [Project Roadmap:](#project-roadmap)
     - [Implemented Features:](#implemented-features)
@@ -39,7 +38,7 @@ For now, it requires a little... _imagination_.
 
 | ![alt text](docs/readme_assets/gif-demo.gif) |
 |:--:|
-| *(Rendered in the terminal via release v0.0.3-alpha.)* |
+| *(GIF rendered in the terminal via release v0.0.4-alpha.)* |
 
 ---
 
@@ -60,50 +59,61 @@ For now, it requires a little... _imagination_.
 ---
 
 ## Setup/Run:
-The current release (as of v0.0.3-alpha) is able to create a functional output of an animated tilemap. This demo can be viewed on Unix systems by following these steps:
+The current release (as of v0.0.4-alpha) is able to create a functional output of an animated tilemap. This demo can be viewed on Unix systems by following these steps:
 
 *1. Clone the repository:*
   - > ```bash
     > git clone https://github.com/cmorman89/nyx-engine
     > ```
-*2. Make the 'run' script executable:*
+*2. Change to the NyxEngine directory:*
   - > ```bash
     > cd nyx-engine
-    > sudo chmod u+x run.sh
     > ```
-*3. Run the project demo file:*
+*3. Install NumPy*
   - > ```bash
-    > ./run.sh
+    > pip install numpy
     > ```
+*4. Run the project main file:*
+  - > ```bash
+    > python main.py
+    > ```
+
+---
+
+## Usage:
+The current release (as of v0.0.4-alpha) is able to render animated sprites and tilemaps to the terminal. The engine is still in its early stages, with many features yet to be implemented. Until the engine is more mature, the primary use case is for experimentation and exploration of terminal rendering capabilities. Detailed usage instructions will be provided once the engine has better-defined workflows and features.
 
 ---
 
 ## Concept/Demo:
-NyxEngine’s rendering capabilities are demonstrated with this example, rendering `spaceship.png` directly to the terminal. This image utilizes:
-1. **256-color extended ANSI codes.**
-2. **Subpixel rendering** for increased fidelity without additional character usage.
 
-![Rendering of spaceship.png](https://github.com/user-attachments/assets/c6d36b0d-2fbe-4a08-ba9a-6fd98db5e6ce)
+The current state of NyxEngine is demonstrated in the following space-shooter example, showcasing the engine's capabilities in rendering animated sprites and tilemaps to the terminal.
+
+| ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | 
+|:--:|
+| **Space shooter game in the terminal via release v0.0.4-alpha.**<br> *Note:Output is much smoother than captured.* |
 
 ---
 
-Here is another example of a nostalgic side-scrolling space scene. The artifacting is from the GIF
-conversion process and isn't present in the terminal. The judder has been amplified by the GIF as
-well.
+Using the NyxEngine rendering pipeline, the following examples demonstrate the rendering of a DOOM and a cartoon GIF in the terminal. These were created by pre-converting the original GIF frames into NyxEngine-compatible frames for rendering.
 
-| ![alt text](docs/readme_assets/animated_stars.gif) |
-|:--:|
-| *(Rendered in the terminal via release v0.0.3-alpha.)* |
+At some point, I hope to have a fully functional DOOM game running in the terminal. For now, this is a proof of concept to test the viability and limitations of rendering a game like DOOM in the terminal.
 
-| ![alt text](docs/readme_assets/static_stars.png) |
+| ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
 |:--:|
-| *(Rendered in the terminal via release v0.0.3-alpha.)* |
+| **DOOM rendered in the terminal via release v0.0.4-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
 
 | ![alt text](docs/readme_assets/gif-demo.gif) |
 |:--:|
-| *(Rendered in the terminal via release v0.0.3-alpha.)* |
+| **GIF rendered in the terminal via release v0.0.4-alpha.** |
 
+---
 
+NyxEngine’s subpixel and color rendering capabilities are demonstrated with this example, rendering `spaceship.png` directly to the terminal. This image utilizes:
+1. **256-color extended ANSI codes.**
+2. **Subpixel rendering** for increased fidelity without additional character usage by using the stacked block character (▀).
+
+![Rendering of spaceship.png](https://github.com/user-attachments/assets/c6d36b0d-2fbe-4a08-ba9a-6fd98db5e6ce)
 
 ---
 
@@ -125,7 +135,14 @@ well.
      - Use the z-indicies as priorities to collapse the subframes into a final merged frame.
        - Starts at the highest z-index and value and works down, essentially "filling in" only pixels that are still transparent/unoccupied after each layer merge. This creates a prioritized merge system that respects the layer hierarchy.
        - Any remaining transparency after merging is filled by a static background color, if set.
-       - 
+     - Render animated, infinitely scrolling tilemaps.
+     - Render animated sprites to the terminal with velocity and position updates.
+   - **Game Engine:**
+     - Basic game loop with a fixed timestep.
+     - Basic entity-component-system (ECS) architecture.
+   - **Data:**
+     - Load textures from .nyx files (matrix array in plain text).
+ 
   ### Expected Features:
 
    - **Data:**
@@ -187,6 +204,8 @@ You are free to use, modify, and distribute this software for personal or commer
 ### Full License:
 See the [LICENSE](LICENSE) file.
 See the [LICENSE](LICENSE) file.
+
+---
 
 ---
 
