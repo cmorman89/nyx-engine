@@ -69,7 +69,7 @@ def generate_spaceship(engine: NyxEngine):
 if __name__ == "__main__":
     # Configs
     # Tilemap
-    tilemap_h, tilemap_w = 4, 1
+    tilemap_h, tilemap_w = 10, 10
     tile_d = 32
     tile_start, tile_end = 1, 16
     # Dimensions
@@ -145,9 +145,7 @@ if __name__ == "__main__":
         fire_counter += 1
 
         if tilemap_interval >= 40:
-            tilemap = np.random.randint(
-                tile_start, tile_end, size=(tilemap_h, tilemap_w), dtype=np.uint8
-            )
+            tilemap = generate_spacebg_tilemap(tilemap_h, tilemap_w, tile_start, tile_end)
             tilemap_interval = 0
             tilemap_manager.set_tilemap(tilemap)
         else:
@@ -155,6 +153,7 @@ if __name__ == "__main__":
             #     tilemap_manager.rendered_tilemap, -4, axis=1
             # )
             tilemap_manager.pos_x += 1
+            # pass
         tilemap_interval += 1
         tilemap_manager.render()
 
