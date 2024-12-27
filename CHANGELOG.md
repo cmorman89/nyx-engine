@@ -4,7 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com), 
 and this project adheres to [Semantic Versioning](https://semver.org).
 
+---
+
 ## [UNRELEASED]
+### Added
+- New method and hooks in `HemeraTermFx` to enable line profiling for performance testing.
+- GIF demos in the `examples\demos` folder to showcase the project's capabilities.
+- Add an alient planet sprite to the current game demo in `main.py`.
+
+### Changed
+- Optimize terminal printing string generation for a 95% reduction in frame printing time.
 
 ---
 
@@ -15,7 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 - Implemented printing/rendering moving sprites to the terminal.
 - Implemented `NyxEngine` for orchestrating the central game loop and managing resources.
 - Tilemap rendering now supports infinite scrolling in all directions.
-
   
 ### Changed
 - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
@@ -33,7 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org).
   
 ### Removed
   - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
-  - Removed
 
 ---
 
