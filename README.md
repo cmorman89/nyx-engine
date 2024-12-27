@@ -11,12 +11,14 @@ An experimental, high-performance game engine and rendering pipeline for the ter
 ---
 
 ## Status Update: 
-### **Release v0.1.0-alpha** _(12/27/2024)_
->The latest release, v0.1.0-alpha, introduces significant performance improvements to the printing speed of the engine. When printing to the terminal, the ndarrays (frames) must be converted to a printable string format. Profiling the code revealed that this conversion was the significant bottleneck in the terminal printing process. After a many, _many_ rounds of line profiling and optimizing the string generation, the printing speed of a 640x480 resolution frame has improved by 95%, from 0.0954 seconds per frame to 0.0069 seconds per frame -- while still running on a single thread.
+### **Release v0.1.0-alpha:** _(12/27/2024)_
+> ### **Major Performance Gain** 
+> 
+> The latest release, v0.1.0-alpha, introduces significant performance improvements to the printing speed of the engine. When printing to the terminal, the ndarrays (frames) must be converted to a printable string format. Profiling the code revealed that this conversion was the significant bottleneck in the terminal printing process. After a many, _many_ rounds of line profiling and optimizing the string generation, the printing speed of a 640x480 resolution frame has improved by 95%, from 0.0954 seconds per frame to 0.0069 seconds per frame -- while still running on a single thread.
 >
->This optimization significantly enhances the engine's performance and opens up new possibilities for more complex and faster-rendering games and applications in the terminal. The magnitude of the improvement is such that a minor version bump is well-warranted, despite the lack of any new or major feature.
+> This optimization significantly enhances the engine's performance and opens up new possibilities for more complex and faster-rendering games and applications in the terminal. The magnitude of the improvement is such that a minor version bump is well-warranted, despite the lack of any new or major feature.
 >
->The GIF below demonstrates the printing speed difference between the previous release (v0.0.4-alpha) and the current release (v0.1.0-alpha).
+> The GIF below demonstrates the printing speed difference between the previous release (v0.0.4-alpha) and the current release (v0.1.0-alpha).
 
 > | ![Before and after optimization (v0.0.4-alpha vs v0.1.0-alpha)](docs/readme_assets/optimization-before-after.gif) |
 > |:--:|
@@ -27,13 +29,15 @@ An experimental, high-performance game engine and rendering pipeline for the ter
  Table of Contents:
 - [NyxEngine](#nyxengine)
   - [Status Update:](#status-update)
-    - [**Release v0.1.0-alpha** _(12/27/2024)_](#release-v010-alpha-12272024)
+    - [**Release v0.1.0-alpha:** _(12/27/2024)_](#release-v010-alpha-12272024)
   - [Overview:](#overview)
   - [Technical Highlights:](#technical-highlights)
   - [Setup/Run:](#setuprun)
   - [Usage:](#usage)
   - [Concept/Demo:](#conceptdemo)
-  - [Releases:](#releases)
+  - [Recent Changelog:](#recent-changelog)
+    - [\[0.1.0-alpha\] - 2024-12-27](#010-alpha---2024-12-27)
+    - [\[0.0.4-alpha\] - 2024-12-22](#004-alpha---2024-12-22)
   - [Project Roadmap:](#project-roadmap)
     - [Implemented Features:](#implemented-features)
     - [Expected Features:](#expected-features)
@@ -52,11 +56,6 @@ For now, it requires a little... _imagination_.
 | ![alt text](docs/readme_assets/gif-demo.gif) |
 |:--:|
 | *(GIF rendered in the terminal via release v0.0.4-alpha.)* |
-
-
-| ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
-|:--:| :--:|
-| **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.4-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
 
 ---
 
@@ -135,33 +134,44 @@ NyxEngine’s subpixel and color rendering capabilities are demonstrated with th
 
 ---
 
-## Releases:
+## Recent Changelog:
 
-- [0.0.4-alpha] - 2024-12-22
-  - ### Added
-    - Add unit testing for `NyxEntity`, `ComponentManager` and `MoraiEntityManager`
-    - Add documentation for `NyxEntity`, `ComponentManager`, and `MoraiEntityManager`
-    - Implemented printing/rendering moving sprites to the terminal.
-    - Implemented `NyxEngine` for orchestrating the central game loop and managing resources.
-    - Tilemap rendering now supports infinite scrolling in all directions.
+### [0.1.0-alpha] - 2024-12-27
+- ### Added
+  - New method and hooks in `HemeraTermFx` to enable line profiling for performance testing.
+  - GIF demos in the `examples\demos` folder to showcase the project's capabilities.
+  - Add an alient planet sprite to the current game demo in `main.py`.
 
+- ### Changed
+  - Optimize terminal printing string generation for a 95% reduction in frame printing time.
+
+---
+
+### [0.0.4-alpha] - 2024-12-22
+- ### Added
+  - Add unit testing for `NyxEntity`, `ComponentManager` and `MoraiEntityManager`
+  - Add documentation for `NyxEntity`, `ComponentManager`, and `MoraiEntityManager`
+  - Implemented printing/rendering moving sprites to the terminal.
+  - Implemented `NyxEngine` for orchestrating the central game loop and managing resources.
+  - Tilemap rendering now supports infinite scrolling in all directions.
+
+
+- ### Changed
+  - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
+  - Simplify `MoraiEntityManager` by removing friendly name lookup/mapping and providing a method to clear the registry.
+  - Simplify `ComponentManager` with less nested logic and simpler output. Components organized by type for fast system access.
+  - Tilemap printing now uses a dedicated helper/manager `TilemapManager` and is no longer a `NyxSystem`.
+  - Significant README and project documentation updates -- including animated demos of current project state.
+  - Begin refactoring `demo.py` to use the new `NyxEngine` and allow for better usability and clarity.
+
+- ### Fixed
+  - Incorrect printing iteration caused excessive new lines in animated sprites.
+
+- ### Regression
+  - Terminal size updates are no longer working correctly. Manual window sizes must be specified.
   
-  - ### Changed
-    - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
-    - Simplify `MoraiEntityManager` by removing friendly name lookup/mapping and providing a method to clear the registry.
-    - Simplify `ComponentManager` with less nested logic and simpler output. Components organized by type for fast system access.
-    - Tilemap printing now uses a dedicated helper/manager `TilemapManager` and is no longer a `NyxSystem`.
-    - Significant README and project documentation updates -- including animated demos of current project state.
-    - Begin refactoring `demo.py` to use the new `NyxEngine` and allow for better usability and clarity.
-
-  - ### Fixed
-    - Incorrect printing iteration caused excessive new lines in animated sprites.
-
-  - ### Regression
-    - Terminal size updates are no longer working correctly. Manual window sizes must be specified.
-    
-  - ### Removed
-    - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
+- ### Removed
+  - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
 
 See the full [changelog here](CHANGELOG.md).
 
