@@ -8,6 +8,8 @@
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
+![alt text](docs/readme_assets/optimization-before-after.gif)
+
 | ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
 |:--:| :--:|
 | **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.4-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |

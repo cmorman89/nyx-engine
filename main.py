@@ -1,3 +1,4 @@
+from datetime import datetime
 from random import randint
 import time
 from typing import Dict, List
@@ -44,7 +45,7 @@ def generate_spaceship(engine: NyxEngine):
     spaceship_comps = {
         "position": PositionComponent(10, 0),
         "dimensions": DimensionsComponent(24, 24),
-        "z-index": ZIndexComponent(2),
+        "z-index": ZIndexComponent(3),
         "velocity": VelocityComponent(0, 100),
         "texture": TextureComponent(texture=NyxAssetImport.open_asset("spaceship")),
     }
@@ -66,6 +67,35 @@ def generate_spaceship(engine: NyxEngine):
     return spaceship_id, dimensions, position, velocity
 
 
+def generate_planet(engine: NyxEngine):
+    planet_id = engine.entity_manager.create_entity("planet-sprite").entity_id
+    texture = NyxAssetImport.open_asset("alien-planet")
+    h, w = texture.shape
+    planet_comps = {
+        "position": PositionComponent(engine.aether_renderer.dimensions.effective_window_w - 1, 0),
+        "dimensions": DimensionsComponent(h, w),
+        "z-index": ZIndexComponent(2),
+        "velocity": VelocityComponent(-10, 2),
+        "texture": TextureComponent(texture=texture),
+    }
+    for comp_name, comp in planet_comps.items():
+        engine.component_manager.add_component(
+            entity_id=planet_id, component_name=comp_name, component=comp
+        )
+
+    # Set ship components as variables
+    velocity: VelocityComponent = engine.component_manager.get_component(
+        entity_id=planet_id, component_name="velocity"
+    )
+    position: PositionComponent = engine.component_manager.get_component(
+        entity_id=planet_id, component_name="position"
+    )
+    dimensions: DimensionsComponent = engine.component_manager.get_component(
+        entity_id=planet_id, component_name="dimensions"
+    )
+    return planet_id, dimensions, position, velocity
+
+
 if __name__ == "__main__":
     # Configs
     # Tilemap
@@ -73,7 +103,7 @@ if __name__ == "__main__":
     tile_d = 32
     tile_start, tile_end = 1, 16
     # Dimensions
-    window_height = 320
+    window_height = 360
     window_width = 480
 
     # Start the engine
@@ -98,8 +128,15 @@ if __name__ == "__main__":
     tilemap_manager.render()
     rendered_tilemap = TilemapManager.rendered_tilemap
 
+    # Create a planet:
+    planet_id, planet_dimensions, planet_position, planet_velocity = generate_planet(
+        engine
+    )
+
     # Create a sprite:
-    spaceship_id, dimensions, position, velocity = generate_spaceship(engine)
+    spaceship_id, spaceship_dimensions, spaceship_position, spaceship_velocity = (
+        generate_spaceship(engine)
+    )
 
     laserbeam_texture = np.array(
         [160, 160, 160, 160, 160, 160, 160, 160], dtype=np.uint8
@@ -112,28 +149,31 @@ if __name__ == "__main__":
     laser_comps = {
         "position": PositionComponent(30, 4),
         "dimensions": DimensionsComponent(8, 3),
-        "z-index": ZIndexComponent(3),
+        "z-index": ZIndexComponent(4),
         "velocity": VelocityComponent(600, 0),
         "texture": TextureComponent(laser_texture),
     }
-    while True:
-        if position.render_y_pos >= (
-            engine.aether_renderer.dimensions.effective_window_h - dimensions.height
-        ):
-            velocity.y_vel = -(abs(velocity.y_vel))
-        if position.render_y_pos <= 1:
-            velocity.y_vel = abs(velocity.y_vel)
 
-        velocity.x_vel += randint(-3, 3)
-        velocity.x_vel = max(-100, min(100, velocity.x_vel))
-        if position.render_x_pos >= 60:
-            velocity.x_vel = -(abs(velocity.x_vel))
-        elif position.render_x_pos <= 5:
-            velocity.x_vel = abs(velocity.x_vel)
+    while True:
+        start_time = datetime.now()
+        if spaceship_position.render_y_pos >= (
+            engine.aether_renderer.dimensions.effective_window_h
+            - spaceship_dimensions.height
+        ):
+            spaceship_velocity.y_vel = -(abs(spaceship_velocity.y_vel))
+        if spaceship_position.render_y_pos <= 1:
+            spaceship_velocity.y_vel = abs(spaceship_velocity.y_vel)
+
+        spaceship_velocity.x_vel += randint(-3, 3)
+        spaceship_velocity.x_vel = max(-100, min(100, spaceship_velocity.x_vel))
+        if spaceship_position.render_x_pos >= 60:
+            spaceship_velocity.x_vel = -(abs(spaceship_velocity.x_vel))
+        elif spaceship_position.render_x_pos <= 5:
+            spaceship_velocity.x_vel = abs(spaceship_velocity.x_vel)
         if fire_counter == fire_interval:
             laser_comps["position"] = PositionComponent(
-                position.render_x_pos + 10,
-                position.render_y_pos + (velocity.y_vel // 100),
+                spaceship_position.render_x_pos + 10,
+                spaceship_position.render_y_pos + (spaceship_velocity.y_vel // 100),
             )
             laser_id = engine.entity_manager.create_entity("laser").entity_id
             for comp_name, comp in laser_comps.items():
@@ -145,7 +185,9 @@ if __name__ == "__main__":
         fire_counter += 1
 
         if tilemap_interval >= 40:
-            tilemap = generate_spacebg_tilemap(tilemap_h, tilemap_w, tile_start, tile_end)
+            tilemap = generate_spacebg_tilemap(
+                tilemap_h, tilemap_w, tile_start, tile_end
+            )
             tilemap_interval = 0
             tilemap_manager.set_tilemap(tilemap)
         else:
@@ -163,7 +205,8 @@ if __name__ == "__main__":
         engine.render_frame()
         # Cull off-screen entities
         engine.kill_entities()
-        time.sleep(NyxEngine.sec_per_game_loop)
+        sleep_time = NyxEngine.sec_per_game_loop - (datetime.now() - start_time).seconds
+        time.sleep(sleep_time)
 
     #     # time.sleep(2)
     #     # time.sleep(0.5)
