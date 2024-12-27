@@ -75,9 +75,11 @@ class TilemapManager:
         self.ref_pos_x, self.ref_pos_y = 0, 0
         self.rolled_ref_tilemap = None
         self.tile_roll_x, self.tile_roll_y = 0, 0
+        self.rolled_x, self.rolled_y = 0, 0
         self.filled_tilemap = None
         self.rel_pos_x, self.rel_pos_y = 0, 0
         self.rel_pos_end_x, self.rel_pos_end_y = 0, 0
+
 
     def render(self):
         """Render the tilemap onto the frame."""
@@ -136,8 +138,10 @@ class TilemapManager:
         self.tile_roll_y = self.ref_pos_y % self.ref_tiles_h
 
         # Calculate the relative position of the filled tilemap in pixels
-        self.rel_pos_x = self.pos_x % self.frame_w
-        self.rel_pos_y = self.pos_y % self.frame_h
+        self.rel_pos_x = self.pos_x % self.tile_d
+        self.rel_pos_y = self.pos_y % self.tile_d
+        if self.pos_x % self.tile_d == 0:
+            1 + 1
 
     def _resize_ref_array(self):
         """Resize the reference tilemap array to fit the frame."""
@@ -174,11 +178,14 @@ class TilemapManager:
         """Roll the reference tilemap array to the current position."""
         # - Convert rightward position (movement to the right) to leftward roll and vice versa
         # - Convert downward position (movement downward) to upward roll and vice versa
+        roll_x = self.tile_roll_x - self.rolled_x
+        roll_y = self.tile_roll_y - self.rolled_y
         self.rolled_ref_tilemap = np.roll(
             (TilemapManager.ref_tilemap),
-            (-self.tile_roll_y, -self.tile_roll_x),
+            (-roll_y, -roll_x),
             axis=(0, 1),
         )
+        self.rolled_x, self.rolled_y = self.tile_roll_x, self.tile_roll_y
 
     def _expand_ref_tilemap(self):
         """Tile the rolled tilemap array to exceed the frame size."""
