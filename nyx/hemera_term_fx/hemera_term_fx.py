@@ -105,8 +105,6 @@ class HemeraTermFx:
 
         return delta_frame
 
-    def join_buffer(self, run_buffer):
-        return "".join(run_buffer)
 
     def write_to_term(self, run_buffer):
         sys.stdout.write(run_buffer)
@@ -137,33 +135,41 @@ class HemeraTermFx:
         _, h, w = delta_frame.shape
         fg_color, bg_color = np.uint8(0), np.uint8(0)
         row_buffer = []
+
+        # Iterate frame
         for y in range(h):
             row_buffer = []
+
+            # Check if row has changes
             if row_sums[y] > 0:
                 for x in range(w):
                     sum_color = delta_frame[1, y, x]
 
-                    # Non-zero pixel check (printed pixel)
+                    # If the current pixel is printable, get the fg color and calculate the bg color
                     if sum_color != empty_pixel:
-                        # row_has_updates = True
                         fg_color = delta_frame[0, y, x]
                         bg_color = sum_color - fg_color
+
                         # Skip cursor movement if it's the same row/column as the last printed pixel
                         if last_subpixel_sum == empty_pixel:
                             row_buffer.append(TerminalUtils.cursor_abs_move(x, y))
 
                         # Only write color change sequences when necessary (skip if same as last)
+                        # Foreground color check/caching
                         if fg_color != last_ansi_fg_color:
                             row_buffer.append(f"\033[38;5;{fg_color}m")
                             last_ansi_fg_color = fg_color
+                        # Background color check/caching
                         if bg_color != last_ansi_bg_color:
                             row_buffer.append(f"\033[48;5;{bg_color}m")
                             last_ansi_bg_color = bg_color
 
                         # Add the printed character
                         row_buffer.append("▀")
+
                     # Cache the last sum
                     last_subpixel_sum = sum_color
+
                 # Add the row buffer for the changed row
                 buffer.write("".join(row_buffer) + "\n")
 

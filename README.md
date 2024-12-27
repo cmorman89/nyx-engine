@@ -3,26 +3,37 @@
 ![Alpha](https://img.shields.io/badge/status-alpha-orange.svg)
 
 
-![alt text](docs/readme_assets/nyx-logo-horizontal.png)
+![NyxEngine Logo](docs/readme_assets/nyx-logo-horizontal.png)
 
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
-![alt text](docs/readme_assets/optimization-before-after.gif)
+---
 
-| ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
-|:--:| :--:|
-| **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.4-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
+## Status Update: 
+### **Release v0.1.0-alpha** _(12/27/2024)_
+>The latest release, v0.1.0-alpha, introduces significant performance improvements to the printing speed of the engine. When printing to the terminal, the ndarrays (frames) must be converted to a printable string format. Profiling the code revealed that this conversion was the significant bottleneck in the terminal printing process. After a many, _many_ rounds of line profiling and optimizing the string generation, the printing speed of a 640x480 resolution frame has improved by 95%, from 0.0954 seconds per frame to 0.0069 seconds per frame -- while still running on a single thread.
+>
+>This optimization significantly enhances the engine's performance and opens up new possibilities for more complex and faster-rendering games and applications in the terminal. The magnitude of the improvement is such that a minor version bump is well-warranted, despite the lack of any new or major feature.
+>
+>The GIF below demonstrates the printing speed difference between the previous release (v0.0.4-alpha) and the current release (v0.1.0-alpha).
+
+> | ![Before and after optimization (v0.0.4-alpha vs v0.1.0-alpha)](docs/readme_assets/optimization-before-after.gif) |
+> |:--:|
+> | **Printing speed of V0.0.4-alpha** _(left, 0.0954 sec/frame)_ **vs v0.1.0-alpha** _(right, 0.0069 sec/frame)_ <br> _Internal Resolution: 640 x 480_  |
 
 ---
 
  Table of Contents:
 - [NyxEngine](#nyxengine)
+  - [Status Update:](#status-update)
+    - [**Release v0.1.0-alpha** _(12/27/2024)_](#release-v010-alpha-12272024)
   - [Overview:](#overview)
   - [Technical Highlights:](#technical-highlights)
   - [Setup/Run:](#setuprun)
   - [Usage:](#usage)
   - [Concept/Demo:](#conceptdemo)
+  - [Releases:](#releases)
   - [Project Roadmap:](#project-roadmap)
     - [Implemented Features:](#implemented-features)
     - [Expected Features:](#expected-features)
@@ -41,6 +52,11 @@ For now, it requires a little... _imagination_.
 | ![alt text](docs/readme_assets/gif-demo.gif) |
 |:--:|
 | *(GIF rendered in the terminal via release v0.0.4-alpha.)* |
+
+
+| ![Spaceship sprite with lasers](docs/readme_assets/space-shooter-scene.gif) | ![Playing a DOOM GIF](docs/readme_assets/doom-demo.gif) |
+|:--:| :--:|
+| **Space shooter game in the terminal via release v0.0.4-alpha.**<br>Output is much smoother than captured. | **DOOM rendered in the terminal via release v0.0.4-alpha.** <br> *Note: Not (yet) playable. This is a PoC using the NyxEngine rendering pipeline on pre-output frames from DOOM.* |
 
 ---
 
@@ -116,6 +132,38 @@ NyxEngine’s subpixel and color rendering capabilities are demonstrated with th
 2. **Subpixel rendering** for increased fidelity without additional character usage by using the stacked block character (▀).
 
 ![Rendering of spaceship.png](https://github.com/user-attachments/assets/c6d36b0d-2fbe-4a08-ba9a-6fd98db5e6ce)
+
+---
+
+## Releases:
+
+- [0.0.4-alpha] - 2024-12-22
+  - ### Added
+    - Add unit testing for `NyxEntity`, `ComponentManager` and `MoraiEntityManager`
+    - Add documentation for `NyxEntity`, `ComponentManager`, and `MoraiEntityManager`
+    - Implemented printing/rendering moving sprites to the terminal.
+    - Implemented `NyxEngine` for orchestrating the central game loop and managing resources.
+    - Tilemap rendering now supports infinite scrolling in all directions.
+
+  
+  - ### Changed
+    - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
+    - Simplify `MoraiEntityManager` by removing friendly name lookup/mapping and providing a method to clear the registry.
+    - Simplify `ComponentManager` with less nested logic and simpler output. Components organized by type for fast system access.
+    - Tilemap printing now uses a dedicated helper/manager `TilemapManager` and is no longer a `NyxSystem`.
+    - Significant README and project documentation updates -- including animated demos of current project state.
+    - Begin refactoring `demo.py` to use the new `NyxEngine` and allow for better usability and clarity.
+
+  - ### Fixed
+    - Incorrect printing iteration caused excessive new lines in animated sprites.
+
+  - ### Regression
+    - Terminal size updates are no longer working correctly. Manual window sizes must be specified.
+    
+  - ### Removed
+    - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
+
+See the full [changelog here](CHANGELOG.md).
 
 ---
 
@@ -199,15 +247,9 @@ This project is thematically named after some of the oldest Greek gods, which ra
 NyxEngine is licensed under the **MIT License**.
 
 You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
-NyxEngine is licensed under the **MIT License**.
-
-You are free to use, modify, and distribute this software for personal or commercial purposes, provided that you include the original copyright notice and this permission notice in any copies or substantial portions of the software.
 
 ### Full License:
 See the [LICENSE](LICENSE) file.
-See the [LICENSE](LICENSE) file.
-
----
 
 ---
 
