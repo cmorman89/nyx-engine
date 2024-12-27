@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ---
 
-## [UNRELEASED]
+## [0.1.0-alpha] - 2024-12-27
 ### Added
 - New method and hooks in `HemeraTermFx` to enable line profiling for performance testing.
 - GIF demos in the `examples\demos` folder to showcase the project's capabilities.
