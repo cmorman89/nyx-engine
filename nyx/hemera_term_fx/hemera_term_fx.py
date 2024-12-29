@@ -1,9 +1,9 @@
+from datetime import datetime
 import io
 import sys
+from typing import Dict
 from line_profiler import LineProfiler
 import numpy as np
-
-from nyx.hemera_term_fx.term_utils import TerminalUtils
 
 
 class HemeraTermFx:
@@ -17,24 +17,35 @@ class HemeraTermFx:
         buffer_log (str): A log of the buffer for debugging purposes.
     """
 
-    def __init__(
-        self,
-        clear_term_on_run: bool = False,
-        # profile_output_file="line_profile_output.txt",
-    ):
+    def __init__(self, clear_term_on_run: bool = False):
         """Construct Hemera with an empty frame buffer."""
         self.old_subpixel_frame: np.ndarray = None
         self.clear_term_on_run: bool = clear_term_on_run
-    #     self.profile_output_file = profile_output_file
-    #     self.profiler = LineProfiler()
+        self.ansi_fg = self._generate_fg_ansi_map()
+        self.ansi_bg = self._generate_bg_ansi_map()
+        self.run_line_profile = False
+        # Profile the _generate_string_buffer method
 
-    #     # Profile the _generate_string_buffer method
-    #     self.profiler.add_function(self._generate_string_buffer)
+        self.profiler = LineProfiler()
+        self.profile_output_file = f"{str(datetime.now())}--line_profile_output.txt"
+        self.profiler.add_function(self._generate_string_buffer)
 
-    # def _redirect_print_to_profiler(self, *args, **kwargs):
-    #     """Redirect print output to profiler's file output."""
-    #     with open(self.profile_output_file, "a") as f:
-    #         self.profiler.print_stats(stream=f)
+    def _generate_fg_ansi_map(self) -> Dict[np.uint8, str]:
+        fg_ansi = {}
+        for i in range(256):
+            fg_ansi[np.uint8(i)] = f"\033[38;5;{i}m"
+        return fg_ansi
+
+    def _generate_bg_ansi_map(self) -> Dict[np.uint16, str]:
+        bg_ansi = {}
+        for i in range(256):
+            bg_ansi[np.uint16(i)] = f"\033[48;5;{i}m"
+        return bg_ansi
+
+    def _redirect_print_to_profiler(self, *args, **kwargs):
+        """Redirect print output to profiler's file output."""
+        with open(self.profile_output_file, "a") as f:
+            self.profiler.print_stats(stream=f)
 
     def print(self, new_frame: np.ndarray = None):
         """Print the new frame to the terminal in color and using vertical-stacked subpixels.
@@ -48,13 +59,15 @@ class HemeraTermFx:
         delta_frame = self._calculate_delta_framebuffer(new_subpixel_frame)
 
         # Start profiling the process of printing the frame
-        # self.profiler.enable_by_count()
-        self._generate_string_buffer(delta_frame)
-        # self.profiler.disable_by_count()  
+        if self.run_line_profile:
+            self.profiler.enable_by_count()
+            self._generate_string_buffer(delta_frame)
+            self.profiler.disable_by_count()
 
-        # Log profiler stats into the output file
-        # self._redirect_print_to_profiler()
-
+            # Log profiler stats into the output file
+            self._redirect_print_to_profiler()
+        else:
+            self._generate_string_buffer(delta_frame)
 
     def _convert_to_subpixels(self, new_frame: np.ndarray) -> np.ndarray:
         """Convert the input frame from 2D ndarray -> 3D ndarray of even/odd row pixel colors.
@@ -105,7 +118,6 @@ class HemeraTermFx:
 
         return delta_frame
 
-
     def write_to_term(self, run_buffer):
         sys.stdout.write(run_buffer)
 
@@ -113,9 +125,12 @@ class HemeraTermFx:
         sys.stdout.flush()
 
     def sum_bg(self, delta_frame):
-        delta_frame[1] = delta_frame[0] + delta_frame[1]
-        return delta_frame
-    
+        # delta_frame[1] = delta_frame[0] + delta_frame[1]
+        # return delta_frame
+        return delta_frame[0], delta_frame[0].astype(np.uint16) + delta_frame[1].astype(
+            np.uint16
+        )
+
     def _generate_string_buffer(self, delta_frame: np.ndarray):
         """Convert the delta frame to its color-formatted `str` representation form before printing
         to the terminal.
@@ -123,45 +138,49 @@ class HemeraTermFx:
             delta_frame (np.ndarray): The delta frame to process and print.
         """
         # Calculate sum of fg + bg
-        delta_frame = self.sum_bg(delta_frame)
+        delta_frame, sum_frame = self.sum_bg(delta_frame)
         # Calculate the sum of each row
-        row_sums = np.sum(delta_frame[1], axis=1)
+        row_sums = np.sum(sum_frame, axis=1)
         # Start the string buffer
         buffer = io.StringIO()
         # Initialize loop variables outside the loop
-        last_ansi_fg_color, last_ansi_bg_color = np.uint8(0), np.uint8(0)
-        last_subpixel_sum = np.uint8(0)
         empty_pixel = np.uint8(0)
-        _, h, w = delta_frame.shape
-        fg_color, bg_color = np.uint8(0), np.uint8(0)
+        empty_sum = np.uint16(0)
+        fg_color, bg_color = empty_pixel, empty_sum
+        last_ansi_fg_color, last_ansi_bg_color = empty_pixel, empty_sum
+        sum_color, last_subpixel_sum = empty_sum, empty_sum
+        h, w = delta_frame.shape
         row_buffer = []
+        ansi_fg = self.ansi_fg
+        ansi_bg = self.ansi_bg
 
         # Iterate frame
         for y in range(h):
-            row_buffer = []
+            row_buffer.clear()
 
             # Check if row has changes
-            if row_sums[y] > 0:
+            if row_sums[y] > empty_sum:
                 for x in range(w):
-                    sum_color = delta_frame[1, y, x]
+                    sum_color = sum_frame[y, x]
 
                     # If the current pixel is printable, get the fg color and calculate the bg color
-                    if sum_color != empty_pixel:
-                        fg_color = delta_frame[0, y, x]
+                    if sum_color != empty_sum:
+                        fg_color = delta_frame[y, x]
                         bg_color = sum_color - fg_color
+                        # bg_color = delta_frame[1, y, x]
 
                         # Skip cursor movement if it's the same row/column as the last printed pixel
-                        if last_subpixel_sum == empty_pixel:
-                            row_buffer.append(TerminalUtils.cursor_abs_move(x, y))
+                        if last_subpixel_sum == empty_sum:
+                            row_buffer.append(f"\033[{y + 1};{x + 1}H")
 
                         # Only write color change sequences when necessary (skip if same as last)
                         # Foreground color check/caching
                         if fg_color != last_ansi_fg_color:
-                            row_buffer.append(f"\033[38;5;{fg_color}m")
+                            row_buffer.append(ansi_fg[fg_color])
                             last_ansi_fg_color = fg_color
                         # Background color check/caching
                         if bg_color != last_ansi_bg_color:
-                            row_buffer.append(f"\033[48;5;{bg_color}m")
+                            row_buffer.append(ansi_bg[bg_color])
                             last_ansi_bg_color = bg_color
 
                         # Add the printed character
