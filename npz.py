@@ -8,6 +8,26 @@ from nyx.hemera_term_fx.term_utils import TerminalUtils
 from nyx.nyx_engine.utils.nyx_asset_import import NyxAssetImport
 
 
+# TODO:
+# ---
+# Prompt user:
+# Prompt user for folder
+# Prompt user for frame prefix
+# Prompt user for original FPS
+# Notify user of terminal font size requirements
+# Notify user of terminal resizing requirements
+# Print ruler to help user resize terminal
+# Prompt user to press enter to start
+# ---
+# Cleanup:
+# Remove unnecessary loops
+# ---
+# Functions:
+# Trim uneven frame height
+# Limit view to ONLY the render window (build a camera)
+# ---
+
+
 folder = "doom_2016"
 frame_prefix = "doom"
 
