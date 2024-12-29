@@ -177,7 +177,7 @@ class HemeraTermFx:
         """Flush the terminal output."""
         sys.stdout.flush()
 
-    def sum_bg(self, delta_frame: np.ndarray) -> (np.ndarray, np.ndarray):
+    def sum_bg(self, delta_frame: np.ndarray):
         """Sum the fg and bg colors to get the sum of the fg and bg colors for each pixel. Then,
         return the fg-only delta_frame and the sum_frame.
 
