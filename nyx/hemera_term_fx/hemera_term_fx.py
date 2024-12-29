@@ -1,3 +1,21 @@
+"""
+HemeraTermFx Module
+
+This module contains the HemeraTermFx class, which is responsible for rendering the final frame
+to the terminal. It takes a frame from AetherRender and prints it to the terminal in color and
+using vertical-stacked subpixels.
+
+It operates by comparing the new frame to the last frame rendered and only printing the changed
+subpixel pairs. It also caches the last frame rendered to compare against the new frame.
+
+The overall goal of this class is to reduce the number of terminal writes and cursor movements to
+the absolute minimum required to render the frame, enabling high-speed rendering of frames to the
+terminal.
+
+Classes:
+    HemeraTermFx: The primary printing orchestration and processing class.
+"""
+
 from datetime import datetime
 import io
 import sys
@@ -7,36 +25,58 @@ import numpy as np
 
 
 class HemeraTermFx:
-    """The primary printing orchestration and processing class. It takes a delta frame-buffer and
+    """The primary printing orchestration and processing class. It takes a ndarray frame and
     prints it to the terminal.
 
     Attributes:
         old_subpixel_frame (np.ndarray): The cached last frame rendered, as subpixels.
         clear_term_on_run (bool, optional): Issues a terminal clear command on next render.
             Defaults to False.
-        buffer_log (str): A log of the buffer for debugging purposes.
+        ansi_fg (Dict[np.uint8, str]): A dictionary of ANSI escape codes for foreground colors.
+        ansi_bg (Dict[np.uint16, str]): A dictionary of ANSI escape codes for background colors.
+        run_line_profile (bool): Whether to run the line profiler on `_generate_string_buffer`
+        profiler (LineProfiler): The line profiler object.
+        profile_output_file (str): The file to output the line profiler stats to.
+
     """
 
     def __init__(self, clear_term_on_run: bool = False):
-        """Construct Hemera with an empty frame buffer."""
+        """Constructs Hemera with a default subpixel frame and filled ANSI color maps.
+
+        Args:
+            clear_term_on_run (bool, optional): Issues a terminal clear command on next render.
+                Defaults to False.
+        """
         self.old_subpixel_frame: np.ndarray = None
         self.clear_term_on_run: bool = clear_term_on_run
+
+        # Generate ANSI color maps
         self.ansi_fg = self._generate_fg_ansi_map()
         self.ansi_bg = self._generate_bg_ansi_map()
-        self.run_line_profile = False
-        # Profile the _generate_string_buffer method
 
+        # Profile the _generate_string_buffer method
+        self.run_line_profile = False
         self.profiler = LineProfiler()
         self.profile_output_file = f"{str(datetime.now())}--line_profile_output.txt"
         self.profiler.add_function(self._generate_string_buffer)
 
     def _generate_fg_ansi_map(self) -> Dict[np.uint8, str]:
+        """Generate a dictionary of ANSI escape codes for foreground colors.
+
+        Returns:
+            Dict[np.uint8, str]: The ANSI escape codes for foreground colors.
+        """
         fg_ansi = {}
         for i in range(256):
             fg_ansi[np.uint8(i)] = f"\033[38;5;{i}m"
         return fg_ansi
 
     def _generate_bg_ansi_map(self) -> Dict[np.uint16, str]:
+        """Generate a dictionary of ANSI escape codes for background colors.
+
+        Returns:
+            Dict[np.uint16, str]: The ANSI escape codes for background colors.
+        """
         bg_ansi = {}
         for i in range(256):
             bg_ansi[np.uint16(i)] = f"\033[48;5;{i}m"
@@ -60,14 +100,21 @@ class HemeraTermFx:
 
         # Start profiling the process of printing the frame
         if self.run_line_profile:
-            self.profiler.enable_by_count()
-            self._generate_string_buffer(delta_frame)
-            self.profiler.disable_by_count()
-
-            # Log profiler stats into the output file
-            self._redirect_print_to_profiler()
+            self._profile_generate_string_buffer(delta_frame)
         else:
             self._generate_string_buffer(delta_frame)
+
+    def _profile_generate_string_buffer(self, delta_frame: np.ndarray):
+        """Profile the `_generate_string_buffer` method.
+
+        Args:
+            delta_frame (np.ndarray): The delta frame to profile.
+        """
+        self.profiler.enable_by_count()
+        self._generate_string_buffer(delta_frame)
+        self.profiler.disable_by_count()
+        # Log profiler stats into the output file
+        self._redirect_print_to_profiler()
 
     def _convert_to_subpixels(self, new_frame: np.ndarray) -> np.ndarray:
         """Convert the input frame from 2D ndarray -> 3D ndarray of even/odd row pixel colors.
@@ -118,15 +165,32 @@ class HemeraTermFx:
 
         return delta_frame
 
-    def write_to_term(self, run_buffer):
-        sys.stdout.write(run_buffer)
+    def write_to_term(self, str_buffer: str):
+        """Write the str buffer to the terminal.
+
+        Args:
+            str_buffer (str): The string buffer to print to the terminal.
+        """
+        sys.stdout.write(str_buffer)
 
     def flush_to_term(self):
+        """Flush the terminal output."""
         sys.stdout.flush()
 
-    def sum_bg(self, delta_frame):
-        # delta_frame[1] = delta_frame[0] + delta_frame[1]
-        # return delta_frame
+    def sum_bg(self, delta_frame: np.ndarray) -> (np.ndarray, np.ndarray):
+        """Sum the fg and bg colors to get the sum of the fg and bg colors for each pixel. Then,
+        return the fg-only delta_frame and the sum_frame.
+
+        Args:
+            delta_frame (np.ndarray): The delta frame to process.
+
+        Returns:
+            np.ndarray: The fg-only delta frame.
+            np.ndarray: The sum frame.
+
+        TODO: Incorporate this function into the subpixel frame generation process to reduce the
+            number of times the frame is processed and the number of intermediate arrays created.
+        """
         return delta_frame[0], delta_frame[0].astype(np.uint16) + delta_frame[1].astype(
             np.uint16
         )
