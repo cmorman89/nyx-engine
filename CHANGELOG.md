@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ---
 
+## [UNRELEASED]
+### Added
+- Import npz files for multiple frames or sprites.
+
+### Changed
+- Refactor `HemeraTermFx` to further optimize terminal printing performance.
+
 ---
 
 ## [0.1.0-alpha] - 2024-12-27
