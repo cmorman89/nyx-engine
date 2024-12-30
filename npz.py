@@ -71,17 +71,74 @@ def choose_premade_demo() -> Tuple[str, str, str]:
 def notify_user():
     return "If you can still read this, you need to ZOOM OUT Press [ENTER] to continue."
 
+def trim_odd_frame_row(frame: np.ndarray) -> np.ndarray:
+    """Trim the last row of the frame if it is odd.
 
-def trim_odd_frame_row(frame: np.ndarray, h: int, w: int):
-    if frame.shape[0] % h != 0:
+    Args:
+        frame (np.ndarray): The frame to trim.
+
+    Returns:
+        np.ndarray: The trimmed frame.
+    """
+    h = frame.shape[0]
+    if h % 2 != 0:
         frame = frame[: h - 1, :]
     return frame
 
 
-def print_ruler(h: int, w: int):
-    line = "+" * w
-    for _ in range(h // 2):
-        print(line)
+def get_frame_deque(filepath: str) -> Tuple[Deque[np.ndarray], int, int]:
+    """Get the frame deque and frame dimensions from an NPZ file.
+
+    Args:
+        filepath (str): The filepath to the NPZ file.
+
+    Returns:
+        Tuple[Deque[np.ndarray], int, int]: The frame deque, height, and width.
+
+    Raises:
+        FileNotFoundError: If the npz demo file is not found.
+    """
+    frame_imports: Deque[np.ndarray] = deque()
+    try:
+        npz = NyxAssetImport.open_npz_asset(filepath)
+    except FileNotFoundError as err:
+        raise err
+    for frame_key in npz:
+        frame = trim_odd_frame_row(npz[frame_key])
+        frame_imports.append(frame)
+    return frame_imports, frame.shape[0], frame.shape[1]
+
+
+def print_grid(h: int, w: int):
+    """Print a grid to the terminal to help the user resize the terminal.
+
+    Args:
+        h (int): The height of the grid.
+        w (int): The width of the grid.
+    """
+    # Account for subpixel sizing
+    h = h // 2
+
+    # Define the corner and border characters
+    top_left = "┌"
+    top_right = "┐"
+    bottom_left = "└"
+    bottom_right = "┘"
+    cross_border_left = "├"
+    cross_border_right = "┤"
+    top_cross_border = "┬"
+    bottom_cross_border = "┴"
+    middle_cross_border = "┼"
+
+    # Relocate the cursor to the top left corner
+    print(TerminalUtils.cursor_to_origin())
+    # Print the top border
+    print(top_left + top_cross_border * (w - 2) + top_right)
+    # Print the grid body
+    for i in range(h - 2):
+        print(cross_border_left + middle_cross_border * (w - 2) + cross_border_right)
+    # Print the bottom border
+    print(bottom_left + bottom_cross_border * (w - 2) + bottom_right)
 
 
 def print_block_text(
