@@ -1,7 +1,7 @@
+import os
 import numpy as np
 
-# Define the 6x5 arrays for each uppercase letter
-letters = {
+block_chars = {
     "a": np.array(
         [
             [0, 0, 1, 0, 0],
@@ -414,11 +414,11 @@ letters = {
     ),
     "/": np.array(
         [
+            [0, 0, 0, 0, 1],
             [0, 0, 0, 1, 0],
             [0, 0, 1, 0, 0],
             [0, 1, 0, 0, 0],
             [1, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0],
         ]
     ),
@@ -524,15 +524,28 @@ letters = {
     ),
 }
 
-# Save all arrays to an NPZ file
-npz_path = "alpha.npz"
-np.savez(npz_path, **letters)
 
-for letter in letters:
-    print(letter)
-    block = letters[letter]
+for letter in block_chars:
+    print("============\n")
+    print(f"Character = {letter}\n")
+    block = block_chars[letter]
     for row in block:
         for cell in row:
             print("█" if cell == 1 else " ", end="")
         print()
-    print()
+
+response = (
+    input(
+        "Would you like to update the block_chars NPZ file?\n"
+        + "\033[38;5;1mTHIS CANNOT BE UNDONE! \033[0m[\033[38;5;1my\033[0m/N]:"
+    )
+    .strip()
+    .lower()
+)
+if response == "y":
+    current_module_folder = os.path.dirname(os.path.realpath(__file__))
+    npz_path = os.path.join(current_module_folder, "block_chars.npz")
+    np.savez(npz_path, **block_chars)
+    print(f"Updated {npz_path}")
+else:
+    print("Exiting without updating the block_chars NPZ file.")
