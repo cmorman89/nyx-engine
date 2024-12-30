@@ -37,13 +37,36 @@ def get_folder():
     return input("Enter the folder name: ")
 
 
-def get_frame_prefix():
-    return input("Enter the frame prefix: ")
+def choose_premade_demo() -> Tuple[str, str, str]:
+    """Prompt the user to choose a premade demo.
 
+    Returns:
+        Tuple[str, str, str]: The folder, frame prefix, and text for the chosen demo.
+    """
 
-def get_fps():
-    return int(input("Enter the original FPS: "))
+    print("Choose a GIF to display:")
+    print("1. Doom 2016")
+    print("2. Ori and the Blind Forest")
+    while True:
+        response = input("Select a number")
+        if response == "1":
+            folder = "doom_2016"
+            frame_prefix = "doom"
+            text = (
+                "Starting Demo:\nDoom 2016\n\nPress the\n\n[ENTER] key\n\nto continue."
+            )
+            break
+        elif response == "2":
+            folder = "ori_2"
+            frame_prefix = "ori"
+            text = "Starting Demo:\nOri and the\nBlind Forest\n\nPress the\n\n[ENTER] key \n\nto continue."
+            break
+        else:
+            print(
+                "\033[38;5;2mInvalid selection. Please select a number from the list.\033[0m"
+            )
 
+    return folder, frame_prefix, text
 
 def notify_user():
     return "If you can still read this, you need to ZOOM OUT Press [ENTER] to continue."
