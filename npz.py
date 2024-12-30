@@ -2,7 +2,7 @@ from collections import deque
 from datetime import datetime
 from random import randint
 import time
-from typing import Deque
+from typing import Deque, Tuple
 import numpy as np
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
 from nyx.hemera_term_fx.term_utils import TerminalUtils
@@ -166,30 +166,54 @@ def print_grid(h: int, w: int):
 
 
 def print_block_text(
-    text: str, letters, hemera_term_api: HemeraTermFx, color: int = randint(0, 255)
+    text: str, char_npz, hemera_term_api: HemeraTermFx, color: int = randint(0, 255)
 ):
-    text = text.lower()
+    """Print block text to the terminal that is readable at a small font size.
+
+    Generates a frame with block text that can be printed to the terminal by the HemeraTermFx API.
+    Args:
+        text (str): The text to print.
+        letters (np.ndarray): The block characters to use for the text.
+        hemera_term_api (HemeraTermFx): The HemeraTermFx API.
+        color (int, optional): The color of the text. Defaults to randint(0, 255).
+    """
+    # Clamp the color value between 0 and 255
     color = min(max(color, 0), 255)
-    letter_h, letter_w = letters["a"].shape
-    letter_gap = np.zeros((6, 1))
-    lines = text.split("\n")
-    w = max([len(line) for line in lines]) * (letter_w + letter_gap.shape[1])
-    line_gap = np.zeros((2, w))
+
+    # Get the dimensions of the block characters and spacing
+    letter_h, letter_w = char_npz["a"].shape
+    letter_gap_w = letter_w // 6
+    line_gap_h = letter_h // 3
+
+    # Find the width of the longest line
+    lines = text.lower().split("\n")
+    max_w = max([len(line) for line in lines]) * (letter_w + letter_gap_w)
+
+    # Generate gap matrices
+    letter_gap = np.zeros((letter_h, letter_gap_w))
+    line_gap = np.zeros((line_gap_h, max_w))
+
+    # Generate the block matrix
     block_matrix = None
     block_line = None
-    for i, line in enumerate(lines):
+    for line in lines:
         block_line = np.zeros((letter_h, 0))
-        for j, letter in enumerate(line):
-            block_line = np.hstack((block_line, letter_gap, letters[letter]))
+        for letter in line:
+            block_line = np.hstack((block_line, letter_gap, char_npz[letter]))
         # Extend the block_line to the width of the longest line
         block_line = np.hstack(
-            (block_line, np.zeros((letter_h, w - block_line.shape[1])))
+            (block_line, np.zeros((letter_h, max_w - block_line.shape[1])))
         )
-        if i == 0:
+        # Start the block_matrix with the first line
+        if block_matrix is None:
             block_matrix = block_line
         else:
             block_matrix = np.vstack((block_matrix, line_gap, block_line))
 
+    # Recolor the block text
+    block_matrix = np.where(block_matrix != 0, color, 0)
+
+    # Print the block text to the terminal
     hemera_term_api.print(block_matrix)
     print(TerminalUtils.reset_format())
 
