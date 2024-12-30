@@ -1,6 +1,5 @@
 from collections import deque
 from datetime import datetime
-from operator import le
 from random import randint
 import time
 from typing import Deque
@@ -35,15 +34,15 @@ frame_prefix = "doom"
 
 
 def get_folder():
-    pass
+    return input("Enter the folder name: ")
 
 
 def get_frame_prefix():
-    pass
+    return input("Enter the frame prefix: ")
 
 
 def get_fps():
-    pass
+    return int(input("Enter the original FPS: "))
 
 
 def notify_user():
@@ -104,61 +103,41 @@ if __name__ == "__main__":
     h, w = 0, 0
     i = 1
     letters = NyxAssetImport.open_npz_asset("block_chars/block_chars")
-    print_block_text("Starting the doom\n2016 GIF Demo\n\nPress the\n[ENTER] key.", letters, hemera_term_api)
-    input(
-        "If you can still read this, you need to ZOOM OUT\n Press [ENTER] to continue."
-    )
 
+    try:
+        filename = f"{folder}/{frame_prefix}_1"
+        npz = NyxAssetImport.open_npz_asset(filename)
+    except FileNotFoundError as err:
+            raise err
     while True:
-        print(hemera_term_api.ansi_fg[3], end="\r")
-        print(TerminalUtils.cursor_abs_move(4, 4), end="\r")
-        print(f"Importing frame {i}{"." * ((i//5) % 5)}     ", end="\r")
-        try:
-            filename = f"{folder}/{frame_prefix}_1"
-            npz = NyxAssetImport.open_npz_asset(filename)
-            for frame_key in npz:
-                frame_imports.append(npz[frame_key])
-
-            i += 1
-            if first_import:
-                temp_frame = frame_imports.pop()
-                h, w = temp_frame.shape
-                frame_imports.append(temp_frame)
-                print(TerminalUtils.cursor_to_origin(), end="\r")
-                print(TerminalUtils.reset_format())
-                print_ruler(h, w)
-                first_import = False
+        print(TerminalUtils.clear_term())
+        print_block_text("Starting the doom\n2016 GIF Demo\n\nPress the\n[ENTER] key.", letters, hemera_term_api)
+        for frame_key in npz:
+            frame_imports.append(npz[frame_key])
+        if len(frame_imports) > 0:
+            print(TerminalUtils.reset_format())
+            print_ruler(h, w)
+            print(hemera_term_api.ansi_fg[3])
+            response = input(
+                "If you can still read this, you need to ZOOM OUT!"
+                + "\n\n"
+                + "** NOTE: You will need to decrease the terminal font size to a very small "
+                + "size for larger frames. **"
+                + "\n\n"
+                + "The '+' signs form a grid the same size as the render window for this video."
+                + " Resize the terminal or decrease the font size until the '+' form a clear "
+                + "rectangle on the screen."
+                + "\n\n"
+                + "In many terminals, this can be achieved by holding the 'ctrl' key while "
+                + "scrolling the mouse wheel, or holding the 'ctrl' key and pressing the '-' "
+                + " or '+' key. Touchscreens often support pinch-to-zoom in the terminal."
+            )
+            if response == "\n":
                 break
-
-        except FileNotFoundError as err:
-            if len(frame_imports) > 0:
-                print(TerminalUtils.cursor_to_origin(), end="\r")
-                print(TerminalUtils.reset_format())
-                print_ruler(h, w)
-                print(hemera_term_api.ansi_fg[3])
-                input(
-                    "All files loaded from disk. Press [ENTER] to start HemeraTermFx."
-                    + "\n\n"
-                    + "** NOTE: You will need to decrease the terminal font size to a very small "
-                    + "size for larger frames. **"
-                    + "\n\n"
-                    + "The '+' signs form a grid the same size as the render window for this video."
-                    + " Resize the terminal or decrease the font size until the '+' form a clear "
-                    + "rectangle on the screen."
-                    + "\n\n"
-                    + "In many terminals, this can be achieved by holding the 'ctrl' key while "
-                    + "scrolling the mouse wheel, or holding the 'ctrl' key and pressing the '-' "
-                    + " or '+' key. Touchscreens often support pinch-to-zoom in the terminal."
-                )
-                break
-            else:
-                raise err
 
     # Clear the terminal before the first run
     TerminalUtils.clear_term()
 
-    frame_i = 0
-    frame_count = len(frame_imports)
     fps = 15
     sleep_len = 1 / fps
     start_time = datetime.now()
