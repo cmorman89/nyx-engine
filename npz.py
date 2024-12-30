@@ -1,5 +1,7 @@
 from collections import deque
 from datetime import datetime
+from operator import le
+from random import randint
 import time
 from typing import Deque
 import numpy as np
@@ -32,10 +34,60 @@ folder = "doom_2016"
 frame_prefix = "doom"
 
 
+def get_folder():
+    pass
+
+
+def get_frame_prefix():
+    pass
+
+
+def get_fps():
+    pass
+
+
+def notify_user():
+    pass
+
+
+def trim_odd_frame_row(frame: np.ndarray, h: int, w: int):
+    if frame.shape[0] % h != 0:
+        frame = frame[: h - 1, :]
+    return frame
+
+
 def print_ruler(h: int, w: int):
     line = "+" * w
     for _ in range(h // 2):
         print(line)
+
+
+def print_block_text(
+    text: str, letters, hemera_term_api: HemeraTermFx, color: int = randint(0, 255)
+):
+    text = text.lower()
+    color = min(max(color, 0), 255)
+    letter_h, letter_w = letters["a"].shape
+    letter_gap = np.zeros((6, 1))
+    lines = text.split("\n")
+    w = max([len(line) for line in lines]) * (letter_w + letter_gap.shape[1])
+    line_gap = np.zeros((2, w))
+    block_matrix = None
+    block_line = None
+    for i, line in enumerate(lines):
+        block_line = np.zeros((letter_h, 0))
+        for j, letter in enumerate(line):
+            block_line = np.hstack((block_line, letter_gap, letters[letter]))
+        # Extend the block_line to the width of the longest line
+        block_line = np.hstack(
+            (block_line, np.zeros((letter_h, w - block_line.shape[1])))
+        )
+        if i == 0:
+            block_matrix = block_line
+        else:
+            block_matrix = np.vstack((block_matrix, line_gap, block_line))
+
+    hemera_term_api.print(block_matrix)
 
 
 if __name__ == "__main__":
@@ -50,12 +102,17 @@ if __name__ == "__main__":
     first_import = True
     h, w = 0, 0
     i = 1
+    letters = NyxAssetImport.open_npz_asset("alpha/alpha")
+    print_block_text("Starting the doom\n2016 GIF Demo\n\nPress the ENTER key.", letters, hemera_term_api)
+    input(
+        "If you can still read this, you need to ZOOM OUT\n Press [ENTER] to continue."
+    )
+
     while True:
-        print(hemera_term_api.ansi_fg[3], end ="\r")
+        print(hemera_term_api.ansi_fg[3], end="\r")
         print(TerminalUtils.cursor_abs_move(4, 4), end="\r")
         print(f"Importing frame {i}{"." * ((i//5) % 5)}     ", end="\r")
         try:
-
             filename = f"{folder}/{frame_prefix}_1"
             npz = NyxAssetImport.open_npz_asset(filename)
             for frame_key in npz:
