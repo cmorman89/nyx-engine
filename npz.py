@@ -29,12 +29,38 @@ from nyx.nyx_engine.utils.nyx_asset_import import NyxAssetImport
 # ---
 
 
-folder = "doom_2016"
-frame_prefix = "doom"
+def notify_user(h, w, text, block_char_npz, hemera_term_api):
+    """Notify the user of the terminal font size requirements for the video.
 
+    Args:
+        h (int): The height of the video frame.
+        w (int): The width of the video frame.
+        text (str): The text to display to the user.
+        block_char_npz (np.ndarray): The block characters to use for the text.
+        hemera_term_api (HemeraTermFx): The HemeraTermFx API
+    """
+    while True:
+        print_grid(h, w)
+        print_block_text(text, block_char_npz, hemera_term_api)
 
-def get_folder():
-    return input("Enter the folder name: ")
+        response = input(
+            "If you can still read this, you need to ZOOM OUT!"
+            + "\n** IMPORTANT **"
+            + "\n"
+            + "\n"
+            + "\n** NOTE: You will need to decrease the terminal font size to a very small "
+            + "\nsize for larger frames. **"
+            + "\n"
+            + "\nThe printed grid represents the size of the render window for this video."
+            + "\nResize the terminal or decrease the font size until the '+' form a clear "
+            + "\nrectangle on the screen."
+            + "\n"
+            + "\nIn many terminals, this can be achieved by holding the 'ctrl' key while "
+            + "\nscrolling the mouse wheel, or holding the 'ctrl' key and pressing the '-'"
+            + "\nor '+' key. Touchscreens often support pinch-to-zoom in the terminal."
+        )
+        if response == "":
+            break
 
 
 def choose_premade_demo() -> Tuple[str, str, str]:
@@ -68,8 +94,6 @@ def choose_premade_demo() -> Tuple[str, str, str]:
 
     return folder, frame_prefix, text
 
-def notify_user():
-    return "If you can still read this, you need to ZOOM OUT Press [ENTER] to continue."
 
 def trim_odd_frame_row(frame: np.ndarray) -> np.ndarray:
     """Trim the last row of the frame if it is odd.
