@@ -166,7 +166,10 @@ def print_grid(h: int, w: int):
 
 
 def print_block_text(
-    text: str, char_npz, hemera_term_api: HemeraTermFx, color: int = randint(0, 255)
+    text: str,
+    char_npz,
+    hemera_term_api: HemeraTermFx,
+    color: int = randint(0, 255),
 ):
     """Print block text to the terminal that is readable at a small font size.
 
@@ -219,7 +222,9 @@ def print_block_text(
 
 
 def print_video(
-    frame_imports: Deque[np.ndarray], hemera_term_api: HemeraTermFx, fps: int = 15
+    frame_imports: Deque[np.ndarray],
+    hemera_term_api: HemeraTermFx,
+    fps: int = 15,
 ):
     """Print a video to the terminal.
 
