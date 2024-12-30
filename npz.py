@@ -218,64 +218,49 @@ def print_block_text(
     print(TerminalUtils.reset_format())
 
 
-if __name__ == "__main__":
-    # Clear the terminal before any output
-    TerminalUtils.clear_term()
+def print_video(
+    frame_imports: Deque[np.ndarray], hemera_term_api: HemeraTermFx, fps: int = 15
+):
+    """Print a video to the terminal.
 
-    # Load Early Managers, Stores, Assets, Systems
-    hemera_term_api = HemeraTermFx()
-    # Load tiles from .nyx files (generate the filename pattern)
-    # Save them to a dict (make a deque later)
-    frame_imports: Deque[np.ndarray] = deque()
-    first_import = True
-    h, w = 0, 0
-    i = 1
-    letters = NyxAssetImport.open_npz_asset("block_chars/block_chars")
-
-    try:
-        filename = f"{folder}/{frame_prefix}_1"
-        npz = NyxAssetImport.open_npz_asset(filename)
-    except FileNotFoundError as err:
-        raise err
-    while True:
-        print(TerminalUtils.clear_term())
-        print_block_text(
-            "Starting the doom\n2016 GIF Demo\n\nPress the\n[ENTER] key.",
-            letters,
-            hemera_term_api,
-        )
-        for frame_key in npz:
-            frame_imports.append(npz[frame_key])
-        if len(frame_imports) > 0:
-            print(TerminalUtils.reset_format())
-            print_ruler(h, w)
-            print(hemera_term_api.ansi_fg[3])
-            response = input(
-                "If you can still read this, you need to ZOOM OUT!"
-                + "\n\n"
-                + "** NOTE: You will need to decrease the terminal font size to a very small "
-                + "size for larger frames. **"
-                + "\n\n"
-                + "The '+' signs form a grid the same size as the render window for this video."
-                + " Resize the terminal or decrease the font size until the '+' form a clear "
-                + "rectangle on the screen."
-                + "\n\n"
-                + "In many terminals, this can be achieved by holding the 'ctrl' key while "
-                + "scrolling the mouse wheel, or holding the 'ctrl' key and pressing the '-' "
-                + " or '+' key. Touchscreens often support pinch-to-zoom in the terminal."
-            )
-            if response == "":
-                break
+    Args:
+        frame_imports (Deque[np.ndarray]): The frame deque to print.
+        hemera_term_api (HemeraTermFx): The HemeraTermFx API.
+        fps (int, optional): The frames per second to display. Defaults to 15.
+    """
+    fps = max(fps, 1)
+    start_time = datetime.now()
+    sleep_len = 1 / fps
 
     # Clear the terminal before the first run
     TerminalUtils.clear_term()
 
-    fps = 15
-    sleep_len = 1 / fps
-    start_time = datetime.now()
+    # Infinite loop to display the frames
     while True:
         start_time = datetime.now()
         new_frame = frame_imports.popleft()
         frame_imports.append(new_frame)
         hemera_term_api.print(new_frame)
         time.sleep(sleep_len - (datetime.now() - start_time).seconds)
+
+
+if __name__ == "__main__":
+    # PREP:
+    # Load Early Managers, Stores, Assets, Systems
+    hemera_term_api = HemeraTermFx()
+    block_char_npz = NyxAssetImport.open_npz_asset("block_chars/block_chars")
+    # Clear the terminal before any output
+    TerminalUtils.clear_term()
+
+    # GET ASSETS:
+    # Choose a GIF to display
+    folder, frame_prefix, text = choose_premade_demo()
+    filename = f"{folder}/{frame_prefix}_1"
+    # Get the frame deque and frame dimensions
+    frame_imports, h, w = get_frame_deque(filename)
+
+    # OUTPUT:
+    # Print the notification to the user
+    notify_user(h, w, text, block_char_npz, hemera_term_api)
+    # Print the video to the terminal
+    print_video(frame_imports, hemera_term_api, fps=15)
