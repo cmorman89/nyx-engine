@@ -47,7 +47,7 @@ def get_fps():
 
 
 def notify_user():
-    pass
+    return ("If you can still read this, you need to ZOOM OUT Press [ENTER] to continue.")
 
 
 def trim_odd_frame_row(frame: np.ndarray, h: int, w: int):
@@ -88,6 +88,7 @@ def print_block_text(
             block_matrix = np.vstack((block_matrix, line_gap, block_line))
 
     hemera_term_api.print(block_matrix)
+    print(TerminalUtils.reset_format()) 
 
 
 if __name__ == "__main__":
@@ -102,8 +103,8 @@ if __name__ == "__main__":
     first_import = True
     h, w = 0, 0
     i = 1
-    letters = NyxAssetImport.open_npz_asset("alpha/alpha")
-    print_block_text("Starting the doom\n2016 GIF Demo\n\nPress the ENTER key.", letters, hemera_term_api)
+    letters = NyxAssetImport.open_npz_asset("block_chars/block_chars")
+    print_block_text("Starting the doom\n2016 GIF Demo\n\nPress the\n[ENTER] key.", letters, hemera_term_api)
     input(
         "If you can still read this, you need to ZOOM OUT\n Press [ENTER] to continue."
     )
