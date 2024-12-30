@@ -178,7 +178,7 @@ def print_block_text(
         text (str): The text to print.
         letters (np.ndarray): The block characters to use for the text.
         hemera_term_api (HemeraTermFx): The HemeraTermFx API.
-        color (int, optional): The color of the text. Defaults to randint(0, 255).
+        color (int, optional): The color of the text. Defaults to a random int (color).
     """
     # Clamp the color value between 0 and 255
     color = min(max(color, 0), 255)
