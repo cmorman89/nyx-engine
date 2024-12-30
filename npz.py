@@ -46,7 +46,7 @@ def get_fps():
 
 
 def notify_user():
-    return ("If you can still read this, you need to ZOOM OUT Press [ENTER] to continue.")
+    return "If you can still read this, you need to ZOOM OUT Press [ENTER] to continue."
 
 
 def trim_odd_frame_row(frame: np.ndarray, h: int, w: int):
@@ -87,7 +87,7 @@ def print_block_text(
             block_matrix = np.vstack((block_matrix, line_gap, block_line))
 
     hemera_term_api.print(block_matrix)
-    print(TerminalUtils.reset_format()) 
+    print(TerminalUtils.reset_format())
 
 
 if __name__ == "__main__":
@@ -108,10 +108,14 @@ if __name__ == "__main__":
         filename = f"{folder}/{frame_prefix}_1"
         npz = NyxAssetImport.open_npz_asset(filename)
     except FileNotFoundError as err:
-            raise err
+        raise err
     while True:
         print(TerminalUtils.clear_term())
-        print_block_text("Starting the doom\n2016 GIF Demo\n\nPress the\n[ENTER] key.", letters, hemera_term_api)
+        print_block_text(
+            "Starting the doom\n2016 GIF Demo\n\nPress the\n[ENTER] key.",
+            letters,
+            hemera_term_api,
+        )
         for frame_key in npz:
             frame_imports.append(npz[frame_key])
         if len(frame_imports) > 0:
@@ -132,7 +136,7 @@ if __name__ == "__main__":
                 + "scrolling the mouse wheel, or holding the 'ctrl' key and pressing the '-' "
                 + " or '+' key. Touchscreens often support pinch-to-zoom in the terminal."
             )
-            if response == "\n":
+            if response == "":
                 break
 
     # Clear the terminal before the first run
