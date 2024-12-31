@@ -28,6 +28,16 @@
         "panel": "dedicated"
       },
       "detail": "Runs main.py located in the workspace root."
+    },
+    {
+        "label": "Build Cython",
+        "type": "shell",
+        "command": "python setup.py build_ext --inplace",
+        "group": {
+            "kind": "build",
+            "isDefault": true
+        },
+        "problemMatcher": []
     }
   ]
 }

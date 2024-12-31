@@ -22,6 +22,7 @@ import sys
 from typing import Dict
 from line_profiler import LineProfiler
 import numpy as np
+from nyx.hemera_term_fx import hemera_cython
 
 
 class HemeraTermFx:
@@ -93,16 +94,17 @@ class HemeraTermFx:
         Args:
             new_frame (np.ndarray, optional): Completed frame from AetherRender. Defaults to None.
         """
-        # 1. Generate subpixel frame from the new frame.
-        new_subpixel_frame = self._convert_to_subpixels(new_frame)
-        # 2. Compare the subpixel frame to the last subpixel frame to get only what has changed.
-        delta_frame = self._calculate_delta_framebuffer(new_subpixel_frame)
+        # # 1. Generate subpixel frame from the new frame.
+        # new_subpixel_frame = self._convert_to_subpixels(new_frame)
+        # # 2. Compare the subpixel frame to the last subpixel frame to get only what has changed.
+        # delta_frame = self._calculate_delta_framebuffer(new_subpixel_frame)
 
-        # Start profiling the process of printing the frame
-        if self.run_line_profile:
-            self._profile_generate_string_buffer(delta_frame)
-        else:
-            self._generate_string_buffer(delta_frame)
+        # # Start profiling the process of printing the frame
+        # if self.run_line_profile:
+        #     self._profile_generate_string_buffer(delta_frame)
+        # else:
+        #     self._generate_string_buffer(delta_frame)
+        hemera_cython._c_hemera_print(new_frame)
 
     def _profile_generate_string_buffer(self, delta_frame: np.ndarray):
         """Profile the `_generate_string_buffer` method.
