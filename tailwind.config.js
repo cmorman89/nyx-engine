@@ -19,7 +19,7 @@ module.exports = {
         ptSansNarrow: ['PT Sans Narrow', 'sans-serif'],
       },
       lineHeight: {
-        hero: '1.20',
+        hero: '1.40',
       },
     },
   },
