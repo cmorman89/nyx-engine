@@ -211,7 +211,7 @@ if __name__ == "__main__":
         engine.render_frame()
         # Cull off-screen entities
         engine.kill_entities()
-        sleep_time = NyxEngine.sec_per_game_loop - (datetime.now() - start_time).seconds
+        sleep_time = engine.sec_per_game_loop - (datetime.now() - start_time).seconds
         time.sleep(sleep_time)
 
 

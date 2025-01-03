@@ -35,7 +35,8 @@ class MovementSystem(BaseSystem):
         velocity_reg: Dict[int, VelocityComponent] = (
             ComponentManager.component_registry["velocity"]
         )
-        dt = NyxEngine.sec_per_game_loop
+        engine = NyxEngine()
+        dt = engine.sec_per_game_loop
 
         # Update the position of each entity
         for entity_id, velocity_component in velocity_reg.items():
