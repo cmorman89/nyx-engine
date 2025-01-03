@@ -74,7 +74,7 @@ def choose_premade_demo() -> Tuple[str, str, str]:
     print("1. Doom 2016")
     print("2. Ori and the Blind Forest")
     while True:
-        response = input("Select a number")
+        response = input("Select a number:\t")
         if response == "1":
             folder = "doom_2016"
             frame_prefix = "doom"
@@ -185,8 +185,8 @@ def print_block_text(
 
     # Get the dimensions of the block characters and spacing
     letter_h, letter_w = char_npz["a"].shape
-    letter_gap_w = letter_w // 6
-    line_gap_h = letter_h // 3
+    letter_gap_w = letter_w // 5
+    line_gap_h = letter_h // 2
 
     # Find the width of the longest line
     lines = text.lower().split("\n")
