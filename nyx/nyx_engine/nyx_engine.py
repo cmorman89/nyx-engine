@@ -40,15 +40,6 @@ class NyxEngine:
         render_frame(): Renders the current frame.
     """
 
-
-
-    entity_manager = MoiraiEntityManager()
-    component_manager = ComponentManager()
-    aether_bridge = AetherBridgeSystem()
-    aether_renderer = AetherRenderer()
-    hemera_term_fx = HemeraTermFx()
-    tilemap_manager = TilemapManager(dimensions=aether_renderer.dimensions)
-
     # Singleton instance
     _instance = None
 
