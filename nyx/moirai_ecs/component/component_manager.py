@@ -29,18 +29,19 @@ class ComponentManager:
         destroy_compon(): Remove the a component from from the registry.
         remove_entity(): Remove all components belonging to an entity.
     """
-
-    # Component Registry
-    component_registry: Dict[str, Dict[int, NyxComponent]] = {
-        "background-color": {},
-        "dimensions": {},
-        "position": {},
-        "scene": {},
-        "texture": {},
-        "tilemap": {},
-        "velocity": {},
-        "z-index": {},
-    }
+    
+    def __init__(self):
+        # Component Registry
+        self.component_registry: Dict[str, Dict[int, NyxComponent]] = {
+            "background-color": {},
+            "dimensions": {},
+            "position": {},
+            "scene": {},
+            "texture": {},
+            "tilemap": {},
+            "velocity": {},
+            "z-index": {},
+        }
 
     def add_component(
         self, entity_id: int, component_name: str, component: NyxComponent
@@ -55,12 +56,12 @@ class ComponentManager:
         Raises:
             ValueError: If the component type is already registered for that entity ID.
         """
-        if entity_id in ComponentManager.component_registry[component_name]:
+        if entity_id in self.component_registry[component_name]:
             raise ValueError(
                 f'Component="{component_name}" already exists for entity={entity_id}'
             )
 
-        ComponentManager.component_registry[component_name][entity_id] = component
+        self.component_registry[component_name][entity_id] = component
 
     def get_component(self, entity_id: int, component_name: str) -> NyxComponent:
         """Get a component for an entity.
@@ -76,8 +77,8 @@ class ComponentManager:
             NyxComponent: The component retrieved.
         """
 
-        if entity_id in ComponentManager.component_registry[component_name]:
-            return ComponentManager.component_registry[component_name][entity_id]
+        if entity_id in self.component_registry[component_name]:
+            return self.component_registry[component_name][entity_id]
         raise KeyError(
             f'Entity={entity_id} not found in "{component_name}" component registry.'
         )
@@ -95,11 +96,11 @@ class ComponentManager:
         Raises:
             KeyError: If the entity_id is not found for that component type.
         """
-        if entity_id not in ComponentManager.component_registry[component_name]:
+        if entity_id not in self.component_registry[component_name]:
             raise KeyError(
                 f'Entity={entity_id} not found in "{component_name}" component registry.'
             )
-        ComponentManager.component_registry[component_name][entity_id] = component
+        self.component_registry[component_name][entity_id] = component
 
     def destroy_component(self, entity_id: int, component_name: str):
         """Remove the a component from from the registry.
@@ -111,19 +112,18 @@ class ComponentManager:
         Raises:
             KeyError: If the entity_id is not found for that component type.
         """
-        if entity_id not in ComponentManager.component_registry[component_name]:
+        if entity_id not in self.component_registry[component_name]:
             raise KeyError(
                 f'Entity={entity_id} not found in "{component_name}" component registry.'
             )
-        del ComponentManager.component_registry[component_name][entity_id]
+        del self.component_registry[component_name][entity_id]
 
-    @staticmethod
-    def remove_entity(entity_id: int):
+    def remove_entity(self, entity_id: int):
         """Remove all components belonging to an entity.
 
         Args:
             entity_id (int): The entity ID of the entity to clear from the registry.
         """
-        for sub_dict in ComponentManager.component_registry.values():
+        for sub_dict in self.component_registry.values():
             if entity_id in sub_dict.keys():
                 del sub_dict[entity_id]

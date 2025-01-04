@@ -28,12 +28,14 @@ class MovementSystem(BaseSystem):
         Note:
             Calculates both the actual position and the position to render on the screen.
         """
+        engine = self.engine
+        component_registry = engine.component_registry
         entity_reg = MoiraiEntityManager.entity_registry
         position_reg: Dict[int, PositionComponent] = (
-            ComponentManager.component_registry["position"]
+            component_registry["position"]
         )
         velocity_reg: Dict[int, VelocityComponent] = (
-            ComponentManager.component_registry["velocity"]
+            component_registry["velocity"]
         )
         engine = NyxEngine()
         dt = engine.sec_per_game_loop

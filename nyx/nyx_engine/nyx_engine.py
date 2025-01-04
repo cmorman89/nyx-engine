@@ -8,6 +8,7 @@ Classes:
 """
 
 import time
+from typing import TYPE_CHECKING
 
 from nyx.aether_renderer.aether_renderer import AetherRenderer
 from nyx.aether_renderer.tilemap_manager import TilemapManager
@@ -15,7 +16,10 @@ from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
 from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
-from nyx.moirai_ecs.system.base_systems import BaseSystem
+
+
+if TYPE_CHECKING:
+    from nyx.moirai_ecs.system.base_systems import BaseSystem
 
 
 class NyxEngine:
@@ -56,8 +60,9 @@ class NyxEngine:
             self.game_update_per_sec = 60
             self.sec_per_game_loop = 1 / self.game_update_per_sec
             self.running_systems = []
-            self.entity_manager = MoiraiEntityManager()
             self.component_manager = ComponentManager()
+            self.component_registry = self.component_manager.component_registry
+            self.entity_manager = MoiraiEntityManager(self)
             self.aether_bridge = AetherBridgeSystem()
             self.aether_renderer = AetherRenderer()
             self.hemera_term_fx = HemeraTermFx()
@@ -70,11 +75,11 @@ class NyxEngine:
             self.render_frame()
             time.sleep(self.sec_per_game_loop)
 
-    def add_system(self, system: BaseSystem):
+    def add_system(self, system: "BaseSystem"):
         """Adds a system to the running systems list.
 
         Args:
-            system (BaseSystem): The system to add.
+            system ("BaseSystem"): The system to add.
         """
         self.running_systems.append(system)
 

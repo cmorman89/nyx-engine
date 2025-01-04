@@ -14,9 +14,11 @@ Mythology:
     the path that life will follow; and Atropos cuts the thread, ending that life's journey.
 """
 
-from typing import Dict
-from nyx.moirai_ecs.component.component_manager import ComponentManager
+from typing import Dict, TYPE_CHECKING
 from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
+
+if TYPE_CHECKING:
+    from nyx.nyx_engine.nyx_engine import NyxEngine
 
 
 class MoiraiEntityManager:
@@ -40,6 +42,12 @@ class MoiraiEntityManager:
         """Clear the entity registry of all entities."""
         cls.entity_registry.clear()
 
+    def __init__(self, engine: "NyxEngine"):
+        self.engine = engine
+        self.component_manager = self.engine.component_manager
+        self.component_registry = self.component_manager.component_registry
+        self.entity_registry: Dict[int, NyxEntity] = {}
+
     def create_entity(self, friendly_name: str = "") -> NyxEntity:
         """Create a NyxEntity and add it to the entity registry.
 
@@ -62,7 +70,7 @@ class MoiraiEntityManager:
         """
         if entity_id in MoiraiEntityManager.entity_registry:
             del MoiraiEntityManager.entity_registry[entity_id]
-            ComponentManager.remove_entity(entity_id=entity_id)
+            self.component_manager.remove_entity(entity_id=entity_id)
         return self
 
     def is_alive(self, entity_id: int) -> bool:
