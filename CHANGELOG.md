@@ -6,6 +6,17 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ---
 
+## [0.1.1-alpha] - 2025-01-03
+### Added
+- Import npz files for multiple frames or sprites.
+
+### Changed
+- Refactor `HemeraTermFx` to further optimize terminal printing performance.
+- Update `NyxEngine` as the main enforcer of game state consistency across the project. It now holds all instances of the major subclasses.
+- Update `requirements.txt` to include line_profiler for performance testing.
+
+---
+
 ## [0.1.0-alpha] - 2024-12-27
 ### Added
 - New method and hooks in `HemeraTermFx` to enable line profiling for performance testing.
@@ -13,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 - Add an alient planet sprite to the current game demo in `main.py`.
 
 ### Changed
-- Optimize terminal printing string generation for a 95% reduction in frame printing time.
+- Optimize `HemeraTermFx` terminal printing string generation for a 95% reduction in frame printing time.
 
 ---
 

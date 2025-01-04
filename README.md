@@ -1,6 +1,6 @@
-![Python 3.6+](https://img.shields.io/badge/python-3.6+-brightgreen.svg)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
-![Alpha](https://img.shields.io/badge/status-alpha-orange.svg)
+![Python 3.6+](https://img.shields.io/badge/python-3.6+-purple.svg)
+![License: MIT](https://img.shields.io/badge/License-MIT-purple.svg)
+![Alpha](https://img.shields.io/badge/status-alpha-purple.svg)
 
 
 ![NyxEngine Logo](docs/readme_assets/nyx-logo-horizontal.png)
@@ -8,9 +8,53 @@
 # NyxEngine
 An experimental, high-performance game engine and rendering pipeline for the terminal. Written in Python with NumPy.
 
+[![Website](https://img.shields.io/badge/Website-cmorman89.github.io%2Fnyx--engine-purple)](https://cmorman89.github.io/nyx-engine/)
+
+---
+
+ Table of Contents:
+- [NyxEngine](#nyxengine)
+  - [Status Update:](#status-update)
+    - [**Release v0.1.1-alpha:** _(01/03/2025)_](#release-v011-alpha-01032025)
+    - [**Release v0.1.0-alpha:** _(12/27/2024)_](#release-v010-alpha-12272024)
+  - [Overview:](#overview)
+  - [Technical Highlights:](#technical-highlights)
+  - [Setup/Run:](#setuprun)
+  - [Usage:](#usage)
+  - [Concept/Demo:](#conceptdemo)
+  - [Recent Changelog:](#recent-changelog)
+    - [\[0.1.1-alpha\] - 2025-01-03](#011-alpha---2025-01-03)
+    - [\[0.1.0-alpha\] - 2024-12-27](#010-alpha---2024-12-27)
+  - [Project Roadmap:](#project-roadmap)
+    - [Implemented Features:](#implemented-features)
+    - [Expected Features:](#expected-features)
+  - [Cosmology/Mythology:](#cosmologymythology)
+  - [License](#license)
+    - [Full License:](#full-license)
+  - [Contact](#contact)
+
 ---
 
 ## Status Update: 
+
+### **Release v0.1.1-alpha:** _(01/03/2025)_
+> ### **Further Optimizations**
+>
+> This update further optimizes the terminal printing performance by refactoring the `HemeraTermFx` class. The `NyxEngine` class has been updated to enforce game state consistency across the project, holding all instances of the major subclasses. Additionally, the `requirements.txt` file now includes `line_profiler` for performance testing to fix missing dependencies.
+>
+> I will probably begin transitioning parts of the project to C because the Python interpreter is not fast enough for the performance I want to achieve. Once the transition is complete, I will be able to focus on implementing more complex features and optimizations that are currently out of reach due to Python's limitations. I am excited about the possibilities that this transition will open up and look forward to sharing the progress with you all.
+>
+> _Benefits using C include:_
+> - Allocatae memory for the various frame buffers and arrays and manage them directly.
+> - Drastically improve the performance of the printing pipeline by speeding up the string buffer loop.
+> - Improve printing performance by directly printing bytes to the terminal.
+> - Completely avoid string generation for the terminal output by generating the ANSI escape sequences directly as bytes stored in a dedicated buffer.
+> 
+> _What this means:_
+> - Implement *full color support* for 24-bit RGB colors (!!!)
+> - Allow real-time conversion of video files to terminal output.
+> 
+> 
 ### **Release v0.1.0-alpha:** _(12/27/2024)_
 > ### **Major Performance Gain** 
 > 
@@ -23,28 +67,6 @@ An experimental, high-performance game engine and rendering pipeline for the ter
 > | ![Before and after optimization (v0.0.4-alpha vs v0.1.0-alpha)](docs/readme_assets/optimization-before-after.gif) |
 > |:--:|
 > | **Printing speed of V0.0.4-alpha** _(left, 0.0954 sec/frame)_ **vs v0.1.0-alpha** _(right, 0.0069 sec/frame)_ <br> _Internal Resolution: 640 x 480_  |
-
----
-
- Table of Contents:
-- [NyxEngine](#nyxengine)
-  - [Status Update:](#status-update)
-    - [**Release v0.1.0-alpha:** _(12/27/2024)_](#release-v010-alpha-12272024)
-  - [Overview:](#overview)
-  - [Technical Highlights:](#technical-highlights)
-  - [Setup/Run:](#setuprun)
-  - [Usage:](#usage)
-  - [Concept/Demo:](#conceptdemo)
-  - [Recent Changelog:](#recent-changelog)
-    - [\[0.1.0-alpha\] - 20240-12-27](#010-alpha---20240-12-27)
-    - [\[0.0.4-alpha\] - 2024-12-22](#004-alpha---2024-12-22)
-  - [Project Roadmap:](#project-roadmap)
-    - [Implemented Features:](#implemented-features)
-    - [Expected Features:](#expected-features)
-  - [Cosmology/Mythology:](#cosmologymythology)
-  - [License](#license)
-    - [Full License:](#full-license)
-  - [Contact](#contact)
 
 ---
 
@@ -76,7 +98,7 @@ For now, it requires a little... _imagination_.
 ---
 
 ## Setup/Run:
-The current release (as of v0.0.4-alpha) is able to create a functional output of an animated tilemap. This demo can be viewed on Unix systems by following these steps:
+The current release displays a demo of a starship flying through space and firing lasers. I was hoping to have a better demo for this release, but I needed to push an update to fix some architechtural and documentation issues. The next release will have a more polished demo. Check out the npz.py file in the feature/demo-files branch for a sneak peek at the next release.
 
 *1. Clone the repository:*
   - > ```bash
@@ -86,9 +108,9 @@ The current release (as of v0.0.4-alpha) is able to create a functional output o
   - > ```bash
     > cd nyx-engine
     > ```
-*3. Install NumPy*
+*3. Install Dependencies:*
   - > ```bash
-    > pip install numpy
+    > pip install numpy pytest line_profiler
     > ```
 *4. Run the project main file:*
   - > ```bash
@@ -98,7 +120,7 @@ The current release (as of v0.0.4-alpha) is able to create a functional output o
 ---
 
 ## Usage:
-The current release (as of v0.0.4-alpha) is able to render animated sprites and tilemaps to the terminal. The engine is still in its early stages, with many features yet to be implemented. Until the engine is more mature, the primary use case is for experimentation and exploration of terminal rendering capabilities. Detailed usage instructions will be provided once the engine has better-defined workflows and features.
+The current release is able to render animated sprites and tilemaps to the terminal. The engine is still in its early stages, with many features yet to be implemented. Until the engine is more mature, the primary use case is for experimentation and exploration of terminal rendering capabilities. Detailed usage instructions will be provided once the engine has better-defined workflows and features.
 
 ---
 
@@ -136,6 +158,17 @@ NyxEngine’s subpixel and color rendering capabilities are demonstrated with th
 
 ## Recent Changelog:
 
+### [0.1.1-alpha] - 2025-01-03
+- ### Added
+  - Import npz files for multiple frames or sprites.
+
+- ### Changed
+  - Refactor `HemeraTermFx` to further optimize terminal printing performance.
+  - Update `NyxEngine` as the main enforcer of game state consistency across the project. It now holds all instances of the major subclasses.
+  - Update `requirements.txt` to include line_profiler for performance testing.
+
+---
+
 ### [0.1.0-alpha] - 2024-12-27
 - ### Added
   - New method and hooks in `HemeraTermFx` to enable line profiling for performance testing.
@@ -145,33 +178,6 @@ NyxEngine’s subpixel and color rendering capabilities are demonstrated with th
 - ### Changed
   - Optimize terminal printing string generation for a 95% reduction in frame printing time.
 
----
-
-### [0.0.4-alpha] - 2024-12-22
-- ### Added
-  - Add unit testing for `NyxEntity`, `ComponentManager` and `MoraiEntityManager`
-  - Add documentation for `NyxEntity`, `ComponentManager`, and `MoraiEntityManager`
-  - Implemented printing/rendering moving sprites to the terminal.
-  - Implemented `NyxEngine` for orchestrating the central game loop and managing resources.
-  - Tilemap rendering now supports infinite scrolling in all directions.
-
-
-- ### Changed
-  - Switch `entity_id` to an integer instead of `UUID` for easier readability and indexing in `NyxEntity`.
-  - Simplify `MoraiEntityManager` by removing friendly name lookup/mapping and providing a method to clear the registry.
-  - Simplify `ComponentManager` with less nested logic and simpler output. Components organized by type for fast system access.
-  - Tilemap printing now uses a dedicated helper/manager `TilemapManager` and is no longer a `NyxSystem`.
-  - Significant README and project documentation updates -- including animated demos of current project state.
-  - Begin refactoring `demo.py` to use the new `NyxEngine` and allow for better usability and clarity.
-
-- ### Fixed
-  - Incorrect printing iteration caused excessive new lines in animated sprites.
-
-- ### Regression
-  - Terminal size updates are no longer working correctly. Manual window sizes must be specified.
-  
-- ### Removed
-  - Removed `NyxComponentStore`, `TilesetStore`, `TilemapSystem` as they are directly replaced by `ComponentManager` and `TilemapManager`.
 
 See the full [changelog here](CHANGELOG.md).
 
@@ -201,7 +207,7 @@ See the full [changelog here](CHANGELOG.md).
      - Basic game loop with a fixed timestep.
      - Basic entity-component-system (ECS) architecture.
    - **Data:**
-     - Load textures from .nyx files (matrix array in plain text).
+     - Load textures from .npz files (matrix array in plain text).
  
   ### Expected Features:
 

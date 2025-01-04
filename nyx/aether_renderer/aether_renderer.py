@@ -167,11 +167,10 @@ class AetherRenderer:
             component (TilemapComponent): The component holding a tilemap array.
         """
         from nyx.nyx_engine.nyx_engine import NyxEngine
-
+        engine = NyxEngine()
         frame_w = self.dimensions.effective_window_w
         frame_h = self.dimensions.effective_window_h
 
-        # NyxEngine.tilemap_manager.render_tilemap()
-        self.layered_frames[0] = NyxEngine.tilemap_manager.rendered_tilemap[
+        self.layered_frames[0] = engine.tilemap_manager.rendered_tilemap[
             :frame_h, :frame_w
         ]

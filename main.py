@@ -97,7 +97,10 @@ def generate_planet(engine: NyxEngine):
 
 
 if __name__ == "__main__":
+    engine = NyxEngine()
     # Configs
+    #Line profile string buffer printing:
+    line_profiling = False
     # Tilemap
     tilemap_h, tilemap_w = 10, 10
     tile_d = 32
@@ -107,7 +110,7 @@ if __name__ == "__main__":
     window_width = 480
 
     # Start the engine
-    engine = NyxEngine()
+    engine.hemera_term_fx.run_line_profile = line_profiling
     # Add required systems to loop
     engine.add_system(MovementSystem())
 
@@ -129,15 +132,15 @@ if __name__ == "__main__":
     rendered_tilemap = TilemapManager.rendered_tilemap
 
     # Create a planet:
-    planet_id, planet_dimensions, planet_position, planet_velocity = generate_planet(
-        engine
-    )
+    # planet_id, planet_dimensions, planet_position, planet_velocity = generate_planet(
+    #     engine
+    # )
 
-    # Create a sprite:
+    # Make the spaceship
     spaceship_id, spaceship_dimensions, spaceship_position, spaceship_velocity = (
         generate_spaceship(engine)
     )
-
+    # Make a laser beam blast
     laserbeam_texture = np.array(
         [160, 160, 160, 160, 160, 160, 160, 160], dtype=np.uint8
     )
@@ -154,8 +157,11 @@ if __name__ == "__main__":
         "texture": TextureComponent(laser_texture),
     }
 
+    # Start loop
     while True:
         start_time = datetime.now()
+
+        # Spaceship moves up and down
         if spaceship_position.render_y_pos >= (
             engine.aether_renderer.dimensions.effective_window_h
             - spaceship_dimensions.height
@@ -164,12 +170,15 @@ if __name__ == "__main__":
         if spaceship_position.render_y_pos <= 1:
             spaceship_velocity.y_vel = abs(spaceship_velocity.y_vel)
 
+        # Random horizontal spaceship drift
         spaceship_velocity.x_vel += randint(-3, 3)
         spaceship_velocity.x_vel = max(-100, min(100, spaceship_velocity.x_vel))
         if spaceship_position.render_x_pos >= 60:
             spaceship_velocity.x_vel = -(abs(spaceship_velocity.x_vel))
         elif spaceship_position.render_x_pos <= 5:
             spaceship_velocity.x_vel = abs(spaceship_velocity.x_vel)
+
+        # Fire lasers randomly
         if fire_counter == fire_interval:
             laser_comps["position"] = PositionComponent(
                 spaceship_position.render_x_pos + 10,
@@ -184,6 +193,7 @@ if __name__ == "__main__":
             fire_counter = 0
         fire_counter += 1
 
+        # Randomize tilemap -or- reposition exisiting tilemap
         if tilemap_interval >= 40:
             tilemap = generate_spacebg_tilemap(
                 tilemap_h, tilemap_w, tile_start, tile_end
@@ -191,11 +201,7 @@ if __name__ == "__main__":
             tilemap_interval = 0
             tilemap_manager.set_tilemap(tilemap)
         else:
-            # TilemapManager.rendered_tilemap = np.roll(
-            #     tilemap_manager.rendered_tilemap, -4, axis=1
-            # )
             tilemap_manager.pos_x += 1
-            # pass
         tilemap_interval += 1
         tilemap_manager.render()
 
@@ -205,13 +211,7 @@ if __name__ == "__main__":
         engine.render_frame()
         # Cull off-screen entities
         engine.kill_entities()
-        sleep_time = NyxEngine.sec_per_game_loop - (datetime.now() - start_time).seconds
+        sleep_time = engine.sec_per_game_loop - (datetime.now() - start_time).seconds
         time.sleep(sleep_time)
 
-    #     # time.sleep(2)
-    #     # time.sleep(0.5)
-    #     # time.sleep(0.0666)  # 15 fps
-    #     time.sleep(0.0333)  # 30 fps
-    #     # time.sleep(0.0222)  #45 fps
-    #     # time.sleep(0.0167)  # 60 fps
-    #     # time.sleep(0.00833)  # 120 FPS
+

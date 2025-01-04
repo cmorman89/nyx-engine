@@ -8,14 +8,20 @@ Classes:
 """
 
 import time
+from typing import TYPE_CHECKING, Dict, List
 
+from nyx.aether_renderer.aether_dimensions import AetherDimensions
 from nyx.aether_renderer.aether_renderer import AetherRenderer
 from nyx.aether_renderer.tilemap_manager import TilemapManager
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
+from nyx.moirai_ecs.component.base_components import NyxComponent
 from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
-from nyx.moirai_ecs.system.base_systems import BaseSystem
+
+
+if TYPE_CHECKING:
+    from nyx.moirai_ecs.system.base_systems import BaseSystem
 
 
 class NyxEngine:
@@ -40,35 +46,52 @@ class NyxEngine:
         render_frame(): Renders the current frame.
     """
 
-    # fps_target = 5
-    game_update_per_sec = 60
-    sec_per_game_loop = 1 / game_update_per_sec
-    running_systems = []
-    entity_manager = MoiraiEntityManager()
-    component_manager = ComponentManager()
-    aether_bridge = AetherBridgeSystem()
-    aether_renderer = AetherRenderer()
-    hemera_term_fx = HemeraTermFx()
-    tilemap_manager = TilemapManager(dimensions=aether_renderer.dimensions)
+    # Singleton instance
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+
+    def __init__(self):
+        if not hasattr(self, "initialized"):
+            self.initialized = True
+            self.is_running = False
+            self.fps_target = 30
+            self.sec_per_frame = 1 / self.fps_target
+            self.game_update_per_sec = 60
+            self.sec_per_game_loop = 1 / self.game_update_per_sec
+            self.running_systems: List[BaseSystem] = []
+            self.component_manager: ComponentManager = ComponentManager()
+            self.component_registry: Dict[str, Dict[int, NyxComponent]]  = self.component_manager.component_registry
+            self.entity_manager: MoiraiEntityManager = MoiraiEntityManager(self)
+            self.aether_bridge: AetherBridgeSystem = AetherBridgeSystem()
+            self.aether_renderer: AetherRenderer = AetherRenderer()
+            self.aether_dimensions: AetherDimensions = self.aether_renderer.dimensions
+            self.hemera_term_fx: HemeraTermFx = HemeraTermFx()
+            self.tilemap_manager: TilemapManager = TilemapManager(
+                dimensions=self.aether_dimensions
+            )
 
     def run_game(self):
         """The main game loop."""
         while True:
             self.trigger_systems()
             self.render_frame()
-            time.sleep(NyxEngine.sec_per_game_loop)
+            time.sleep(self.sec_per_game_loop)
 
-    def add_system(self, system: BaseSystem):
+    def add_system(self, system: "BaseSystem"):
         """Adds a system to the running systems list.
 
         Args:
-            system (BaseSystem): The system to add.
+            system ("BaseSystem"): The system to add.
         """
-        NyxEngine.running_systems.append(system)
+        self.running_systems.append(system)
 
     def trigger_systems(self):
         """Triggers an update call on all running systems."""
-        for system in NyxEngine.running_systems:
+        for system in self.running_systems:
             system.update()
 
     def kill_entities(self, bounds: int = 10):
@@ -79,21 +102,21 @@ class NyxEngine:
         """
         cull_id_list = []
         h, w = (
-            NyxEngine.aether_renderer.dimensions.effective_window_h,
-            NyxEngine.aether_renderer.dimensions.effective_window_w,
+            self.aether_renderer.dimensions.effective_window_h,
+            self.aether_renderer.dimensions.effective_window_w,
         )
-        for entity_id, comp in NyxEngine.component_manager.component_registry[
+        for entity_id, comp in self.component_manager.component_registry[
             "position"
         ].items():
             if comp.render_x_pos >= w + bounds or comp.render_y_pos >= h + bounds:
                 cull_id_list.append(entity_id)
         for entity_id in cull_id_list:
-            NyxEngine.entity_manager.destroy_entity(entity_id)
+            self.entity_manager.destroy_entity(entity_id)
 
     def render_frame(self):
         """Renders the current frame."""
-        NyxEngine.aether_bridge.update()
-        renderable_entities = NyxEngine.aether_bridge.renderable_entities
-        NyxEngine.aether_renderer.accept_entities(renderable_entities)
-        new_frame = NyxEngine.aether_renderer.render()
-        NyxEngine.hemera_term_fx.print(new_frame)
+        self.aether_bridge.update()
+        renderable_entities = self.aether_bridge.renderable_entities
+        self.aether_renderer.accept_entities(renderable_entities)
+        new_frame = self.aether_renderer.render()
+        self.hemera_term_fx.print(new_frame)

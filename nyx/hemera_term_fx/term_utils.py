@@ -92,5 +92,11 @@ class TerminalUtils:
     @staticmethod
     def get_terminal_dimensions() -> Tuple[int, int]:
         """Return the terminal size as a tuple of integers in (h, w) format."""
-        terminal_size = os.get_terminal_size()
-        return (terminal_size.lines, terminal_size.columns)
+        try:
+            terminal_size = os.get_terminal_size()
+            h, w = terminal_size.lines, terminal_size.columns
+        except OSError:
+            # Triggers when running in a non-terminal env., such as during testing
+            # 10, 10 was used simply because it is not 0, 0; which may cause bound issues
+            h, w = 10, 10
+        return h, w
