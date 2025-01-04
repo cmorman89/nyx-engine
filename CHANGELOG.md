@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ### Changed
 - Refactor `HemeraTermFx` to further optimize terminal printing performance.
+- Update `NyxEngine` as the main enforcer of game state consistency across the project. It now holds all instances of the major subclasses.
 
 ---
 
@@ -22,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 - Add an alient planet sprite to the current game demo in `main.py`.
 
 ### Changed
-- Optimize terminal printing string generation for a 95% reduction in frame printing time.
+- Optimize `HemeraTermFx` terminal printing string generation for a 95% reduction in frame printing time.
 
 ---
 
