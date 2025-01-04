@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Automated Tests
 
 on:
   push:
@@ -22,13 +22,10 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install black pytest numpy
+        pip install pytest numpy
     
     - name: Set up PYTHONPATH
       run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
       
-    - name: FORMATTING - Run black
-      run: black .
-
     - name: TESTS - Run tests
       run: pytest --disable-warnings
