@@ -9,11 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 ## [UNRELEASED]
 ### Added
 - Import npz files for multiple frames or sprites.
+- Created large, block letters that can be rendered in the terminal and included a utility to generate, extend, and export them.
+- Demo/utility to render an image, GIF, or video in the terminal.
 
 ### Changed
 - Refactor `HemeraTermFx` to further optimize terminal printing performance.
 - Update `NyxEngine` as the main enforcer of game state consistency across the project. It now holds all instances of the major subclasses.
 
+### Removed
+- Removed old example files and demos.
 ---
 
 ## [0.1.0-alpha] - 2024-12-27
