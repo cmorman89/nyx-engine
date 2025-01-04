@@ -20,7 +20,7 @@ def test_add_component():
     component_manager.add_component(
         entity_id=entity_id, component_name="dimensions", component=component
     )
-    assert component in ComponentManager.component_registry["dimensions"].values()
+    assert component in component_manager.component_registry["dimensions"].values()
 
 
 def test_get_component():
@@ -55,7 +55,7 @@ def test_update_component():
     component_manager.update_component(
         entity_id=entity_id, component_name=component_name, component=component_2
     )
-    assert component_2 in ComponentManager.component_registry[component_name].values()
+    assert component_2 in component_manager.component_registry[component_name].values()
 
 
 def test_destroy_component():
@@ -72,7 +72,7 @@ def test_destroy_component():
         entity_id=entity_id, component_name=component_name
     )
 
-    assert component not in ComponentManager.component_registry[component_name].values()
+    assert component not in component_manager.component_registry[component_name].values()
 
 
 def test_remove_entity():
@@ -98,5 +98,5 @@ def test_remove_entity():
 
     component_manager.remove_entity(entity_id=entity_id)
 
-    for sub_dict in ComponentManager.component_registry.values():
+    for sub_dict in component_manager.component_registry.values():
         assert entity_id not in sub_dict.keys()

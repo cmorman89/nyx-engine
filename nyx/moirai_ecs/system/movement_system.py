@@ -8,12 +8,10 @@ Classes:
 """
 
 from typing import Dict
-from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.component.transform_components import (
     PositionComponent,
     VelocityComponent,
 )
-from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.system.base_systems import BaseSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
 
@@ -30,7 +28,7 @@ class MovementSystem(BaseSystem):
         """
         engine = self.engine
         component_registry = engine.component_registry
-        entity_reg = MoiraiEntityManager.entity_registry
+        entity_reg = engine.entity_manager.entity_registry
         position_reg: Dict[int, PositionComponent] = (
             component_registry["position"]
         )
