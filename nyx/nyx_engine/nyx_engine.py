@@ -58,7 +58,8 @@ class NyxEngine:
         if not hasattr(self, "initialized"):
             self.initialized = True
             self.is_running = False
-            self.fps_target = 5
+            self.fps_target = 30
+            self.sec_per_frame = 1 / self.fps_target
             self.game_update_per_sec = 60
             self.sec_per_game_loop = 1 / self.game_update_per_sec
             self.running_systems: List[BaseSystem] = []
