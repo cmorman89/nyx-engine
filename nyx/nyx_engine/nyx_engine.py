@@ -8,12 +8,13 @@ Classes:
 """
 
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List
 
 from nyx.aether_renderer.aether_dimensions import AetherDimensions
 from nyx.aether_renderer.aether_renderer import AetherRenderer
 from nyx.aether_renderer.tilemap_manager import TilemapManager
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
+from nyx.moirai_ecs.component.base_components import NyxComponent
 from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.system.aether_bridge_system import AetherBridgeSystem
@@ -60,9 +61,9 @@ class NyxEngine:
             self.fps_target = 5
             self.game_update_per_sec = 60
             self.sec_per_game_loop = 1 / self.game_update_per_sec
-            self.running_systems = []
+            self.running_systems: List[BaseSystem] = []
             self.component_manager: ComponentManager = ComponentManager()
-            self.component_registry = self.component_manager.component_registry
+            self.component_registry: Dict[str, Dict[int, NyxComponent]]  = self.component_manager.component_registry
             self.entity_manager: MoiraiEntityManager = MoiraiEntityManager(self)
             self.aether_bridge: AetherBridgeSystem = AetherBridgeSystem()
             self.aether_renderer: AetherRenderer = AetherRenderer()
