@@ -68,11 +68,13 @@ def test_destroy_component():
     component_manager.add_component(
         entity_id=entity_id, component_name=component_name, component=component
     )
-    component_manager.destroy_component(
+    component_manager.remove_component(
         entity_id=entity_id, component_name=component_name
     )
 
-    assert component not in component_manager.component_registry[component_name].values()
+    assert (
+        component not in component_manager.component_registry[component_name].values()
+    )
 
 
 def test_remove_entity():

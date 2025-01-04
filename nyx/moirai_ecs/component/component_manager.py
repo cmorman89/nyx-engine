@@ -29,7 +29,7 @@ class ComponentManager:
         destroy_compon(): Remove the a component from from the registry.
         remove_entity(): Remove all components belonging to an entity.
     """
-    
+
     def __init__(self):
         # Component Registry
         self.component_registry: Dict[str, Dict[int, NyxComponent]] = {
@@ -102,7 +102,7 @@ class ComponentManager:
             )
         self.component_registry[component_name][entity_id] = component
 
-    def destroy_component(self, entity_id: int, component_name: str):
+    def remove_component(self, entity_id: int, component_name: str):
         """Remove the a component from from the registry.
 
         Args:
