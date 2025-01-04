@@ -10,6 +10,7 @@ Classes:
 import time
 from typing import TYPE_CHECKING
 
+from nyx.aether_renderer.aether_dimensions import AetherDimensions
 from nyx.aether_renderer.aether_renderer import AetherRenderer
 from nyx.aether_renderer.tilemap_manager import TilemapManager
 from nyx.hemera_term_fx.hemera_term_fx import HemeraTermFx
@@ -60,13 +61,16 @@ class NyxEngine:
             self.game_update_per_sec = 60
             self.sec_per_game_loop = 1 / self.game_update_per_sec
             self.running_systems = []
-            self.component_manager = ComponentManager()
+            self.component_manager: ComponentManager = ComponentManager()
             self.component_registry = self.component_manager.component_registry
-            self.entity_manager = MoiraiEntityManager(self)
-            self.aether_bridge = AetherBridgeSystem()
-            self.aether_renderer = AetherRenderer()
-            self.hemera_term_fx = HemeraTermFx()
-            self.tilemap_manager = TilemapManager(dimensions=self.aether_renderer.dimensions)
+            self.entity_manager: MoiraiEntityManager = MoiraiEntityManager(self)
+            self.aether_bridge: AetherBridgeSystem = AetherBridgeSystem()
+            self.aether_renderer: AetherRenderer = AetherRenderer()
+            self.aether_dimensions: AetherDimensions = self.aether_renderer.dimensions
+            self.hemera_term_fx: HemeraTermFx = HemeraTermFx()
+            self.tilemap_manager: TilemapManager = TilemapManager(
+                dimensions=self.aether_dimensions
+            )
 
     def run_game(self):
         """The main game loop."""

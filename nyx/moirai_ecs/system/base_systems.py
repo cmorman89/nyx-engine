@@ -19,5 +19,4 @@ class BaseSystem(ABC):
     def engine(self) -> "NyxEngine":
         """Return the engine instance."""
         from nyx.nyx_engine.nyx_engine import NyxEngine
-
         return NyxEngine()
