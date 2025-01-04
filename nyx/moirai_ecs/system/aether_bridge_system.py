@@ -12,7 +12,6 @@ Classes:
 from typing import Dict, List, Tuple
 
 import numpy as np
-from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.system.base_systems import BaseSystem
 
 
@@ -32,7 +31,7 @@ class AetherBridgeSystem(BaseSystem):
 
     def update(self):
         """Gather all renderable entities and components, then pass them to AetherRenderer."""
-        component_registry = ComponentManager.component_registry
+        component_registry = self.engine.component_registry
         renderable_entities = {}
         # scene_entities = {}
 

@@ -1,15 +1,16 @@
+
 from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
-
+from nyx.nyx_engine.nyx_engine import NyxEngine
 
 def test_entity_manager_construction():
     """Test that the entity manager can be initialized."""
-    assert isinstance(MoiraiEntityManager(), MoiraiEntityManager)
+    assert isinstance(MoiraiEntityManager(NyxEngine()), MoiraiEntityManager)
 
 
 def test_create_entities():
     """Test the creation of entities (create, add to reg, return)."""
-    entity_fate_manager = MoiraiEntityManager()
+    entity_fate_manager = MoiraiEntityManager(NyxEngine())
     entity_list = []
 
     for i in range(10):
@@ -21,7 +22,7 @@ def test_create_entities():
 
 def test_reset_entity_registry():
     """Test clearing the entire entity registry"""
-    entity_fate_manager = MoiraiEntityManager()
+    entity_fate_manager = MoiraiEntityManager(NyxEngine())
     entity_list = []
 
     # Create the entitiies
@@ -41,7 +42,7 @@ def test_reset_entity_registry():
 
 def test_destroy_entity():
     """Test the destruction of entities."""
-    entity_fate_manager = MoiraiEntityManager()
+    entity_fate_manager = MoiraiEntityManager(NyxEngine())
     entity_fate_manager.reset_entity_registry()
     entity_list = []
 
@@ -60,7 +61,7 @@ def test_destroy_entity():
 
 def test_is_alive():
     """Test if an entity is present in the entity list."""
-    entity_fate_manager = MoiraiEntityManager()
+    entity_fate_manager = MoiraiEntityManager(NyxEngine())
     entity_fate_manager.reset_entity_registry()
     entity_fate_manager.create_entity()
 
@@ -70,7 +71,7 @@ def test_is_alive():
 
 def test_get_entity():
     """Test getting a single, existing entity"""
-    entity_fate_manager = MoiraiEntityManager()
+    entity_fate_manager = MoiraiEntityManager(NyxEngine())
     entity_fate_manager.reset_entity_registry()
 
     assert isinstance(
@@ -81,7 +82,7 @@ def test_get_entity():
 
 def test_get_all_entities():
     """Test getting all entities from the manager"""
-    entity_fate_manager = MoiraiEntityManager()
+    entity_fate_manager = MoiraiEntityManager(NyxEngine())
     entity_fate_manager.reset_entity_registry()
     entity_list = []
 

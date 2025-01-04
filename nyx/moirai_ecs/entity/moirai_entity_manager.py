@@ -14,9 +14,11 @@ Mythology:
     the path that life will follow; and Atropos cuts the thread, ending that life's journey.
 """
 
-from typing import Dict
-from nyx.moirai_ecs.component.component_manager import ComponentManager
+from typing import Dict, TYPE_CHECKING
 from nyx.moirai_ecs.entity.nyx_entity import NyxEntity
+
+if TYPE_CHECKING:
+    from nyx.nyx_engine.nyx_engine import NyxEngine
 
 
 class MoiraiEntityManager:
@@ -40,6 +42,12 @@ class MoiraiEntityManager:
         """Clear the entity registry of all entities."""
         cls.entity_registry.clear()
 
+    def __init__(self, engine: "NyxEngine"):
+        self.engine = engine
+        self.component_manager = self.engine.component_manager
+        self.component_registry = self.engine.component_registry
+        self.entity_registry: Dict[int, NyxEntity] = {}
+
     def create_entity(self, friendly_name: str = "") -> NyxEntity:
         """Create a NyxEntity and add it to the entity registry.
 
@@ -51,7 +59,7 @@ class MoiraiEntityManager:
         """
 
         new_entity = NyxEntity(friendly_name=friendly_name.strip())
-        MoiraiEntityManager.entity_registry[new_entity.entity_id] = new_entity
+        self.entity_registry[new_entity.entity_id] = new_entity
         return new_entity
 
     def destroy_entity(self, entity_id: int):
@@ -60,9 +68,9 @@ class MoiraiEntityManager:
         Args:
             entity_id (int): The entity ID to remove.
         """
-        if entity_id in MoiraiEntityManager.entity_registry:
-            del MoiraiEntityManager.entity_registry[entity_id]
-            ComponentManager.remove_entity(entity_id=entity_id)
+        if entity_id in self.entity_registry:
+            del self.entity_registry[entity_id]
+            self.component_manager.remove_entity(entity_id=entity_id)
         return self
 
     def is_alive(self, entity_id: int) -> bool:
@@ -74,7 +82,7 @@ class MoiraiEntityManager:
         Returns:
             bool: If the entity is alive.
         """
-        return entity_id in MoiraiEntityManager.entity_registry
+        return entity_id in self.entity_registry
 
     def get_entity(self, entity_id: int) -> NyxEntity:
         """Get an entity from the entity list
@@ -85,8 +93,8 @@ class MoiraiEntityManager:
         Returns:
             NyxEntity: The entity with the specified entity ID.
         """
-        if entity_id in MoiraiEntityManager.entity_registry:
-            return MoiraiEntityManager.entity_registry[entity_id]
+        if entity_id in self.entity_registry:
+            return self.entity_registry[entity_id]
 
     def get_all_entities(self) -> Dict[int, NyxEntity]:
         """Return a registry of all entities in this manager.
@@ -94,4 +102,4 @@ class MoiraiEntityManager:
         Returns:
             Dict[int, NyxEntity]: The registry of NyxEntity objects.
         """
-        return MoiraiEntityManager.entity_registry
+        return self.entity_registry

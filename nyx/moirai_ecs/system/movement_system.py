@@ -8,12 +8,10 @@ Classes:
 """
 
 from typing import Dict
-from nyx.moirai_ecs.component.component_manager import ComponentManager
 from nyx.moirai_ecs.component.transform_components import (
     PositionComponent,
     VelocityComponent,
 )
-from nyx.moirai_ecs.entity.moirai_entity_manager import MoiraiEntityManager
 from nyx.moirai_ecs.system.base_systems import BaseSystem
 from nyx.nyx_engine.nyx_engine import NyxEngine
 
@@ -28,14 +26,17 @@ class MovementSystem(BaseSystem):
         Note:
             Calculates both the actual position and the position to render on the screen.
         """
-        entity_reg = MoiraiEntityManager.entity_registry
+        engine = self.engine
+        component_registry = engine.component_registry
+        entity_reg = engine.entity_manager.entity_registry
         position_reg: Dict[int, PositionComponent] = (
-            ComponentManager.component_registry["position"]
+            component_registry["position"]
         )
         velocity_reg: Dict[int, VelocityComponent] = (
-            ComponentManager.component_registry["velocity"]
+            component_registry["velocity"]
         )
-        dt = NyxEngine.sec_per_game_loop
+        engine = NyxEngine()
+        dt = engine.sec_per_game_loop
 
         # Update the position of each entity
         for entity_id, velocity_component in velocity_reg.items():

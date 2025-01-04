@@ -97,6 +97,7 @@ def generate_planet(engine: NyxEngine):
 
 
 if __name__ == "__main__":
+    engine = NyxEngine()
     # Configs
     #Line profile string buffer printing:
     line_profiling = False
@@ -109,7 +110,6 @@ if __name__ == "__main__":
     window_width = 480
 
     # Start the engine
-    engine = NyxEngine()
     engine.hemera_term_fx.run_line_profile = line_profiling
     # Add required systems to loop
     engine.add_system(MovementSystem())
@@ -211,7 +211,7 @@ if __name__ == "__main__":
         engine.render_frame()
         # Cull off-screen entities
         engine.kill_entities()
-        sleep_time = NyxEngine.sec_per_game_loop - (datetime.now() - start_time).seconds
+        sleep_time = engine.sec_per_game_loop - (datetime.now() - start_time).seconds
         time.sleep(sleep_time)
 
 
