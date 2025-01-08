@@ -6,13 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org).
 
 ---
 
-## [UNRELEASED]
+## [0.1.1-alpha] - 2025-01-03
 ### Added
 - Import npz files for multiple frames or sprites.
 
 ### Changed
 - Refactor `HemeraTermFx` to further optimize terminal printing performance.
 - Update `NyxEngine` as the main enforcer of game state consistency across the project. It now holds all instances of the major subclasses.
+- Update `requirements.txt` to include line_profiler for performance testing.
 
 ---
 
